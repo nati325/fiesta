@@ -1,0 +1,1820 @@
+[
+  {
+    "id": 1,
+    "name": "גן אירועים 'טרה'",
+    "type": "venue",
+    "description": "גן אירועים יוקרתי בלב המרכז המשלב טבע ומודרניות, עם מטבח שף עילית ואווירה קלאסית.",
+    "contact": "050-1234567",
+    "image": "/images/category_venue_1765749342686.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "חבילת אירוע קלאסית - אולם וקייטרינג",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "45,000 ₪"
+      },
+      {
+        "id": 2,
+        "title": "אירוע ערב יוקרתי - כולל עיצוב",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "60,000 ₪"
+      },
+      {
+        "id": 3,
+        "title": "חתונת צהריים בגן - אווירה כפרית",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "38,000 ₪"
+      },
+      {
+        "id": 4,
+        "title": "חבילת שף פרטית לאירועים קטנים",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "15,000 ₪"
+      },
+      {
+        "id": 5,
+        "title": "ערב קוקטייל והשקות עסקיות",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "22,000 ₪"
+      },
+      {
+        "id": 6,
+        "title": "עיצוב חופה וקבלת פנים יוקרתית",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "8,500 ₪"
+      },
+      {
+        "id": 7,
+        "title": "תפריט טעימות VIP לזוגות",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 8,
+        "title": "חבילת בר משקאות חוץ משודרגת",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "5,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "אירוע בוטיק משולב לינה",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "12,000 ₪"
+      },
+      {
+        "id": 10,
+        "title": "שירותי הגברה ותאורה מתקדמים",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘טרה’ הכל כלול",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "85,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "DJ ELAD",
+    "type": "dj",
+    "description": "התקליטן המוביל לאירועים שעושים שמח באמת, עם ניסיון של מעל עשור ברחבות הריקודים.",
+    "contact": "052-1112223",
+    "image": "/images/category_dj_1765749357637.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "חבילת חתונה פרימיום - כולל הגברה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "5,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "סט מוזיקה לקבלת פנים וחופה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 3,
+        "title": "מסיבת אפטר פארטי - עד השעות הקטנות",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "2,000 ₪"
+      },
+      {
+        "id": 4,
+        "title": "שירותי VJ ומסכי לד מעוצבים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 5,
+        "title": "חבילת אירועים עסקיים והשקות",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "4,000 ₪"
+      },
+      {
+        "id": 6,
+        "title": "עמדת DJ יוקרתית מעוצבת",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 7,
+        "title": "שילוב סקסופוניסט לייב בסט",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 8,
+        "title": "מערכת תאורה חכמה לרחבה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 9,
+        "title": "פגישת ייעוץ ובניית פלייליסט אישי",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "0 ₪"
+      },
+      {
+        "id": 10,
+        "title": "חבילת הגברה לטקס חופה חוץ",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,000 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת ‘הכל כלול’ - מסיבת השנה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "8,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "סטודיו פוקוס",
+    "type": "photographer",
+    "description": "צילום אומנותי ומרגש לכל סוגי האירועים, צוות מקצועי שמלווה אתכם מהבוקר ועד אחרון האורחים.",
+    "contact": "054-9998887",
+    "image": "/images/category_photographer_1765749328393.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "חבילת צילום סטילס יום שלם",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "6,000 ₪"
+      },
+      {
+        "id": 2,
+        "title": "צילום וידאו HDR ב-4K",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 3,
+        "title": "אלבום פרימיום מעוצב בעבודת יד",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 4,
+        "title": "צילום רחפן (צילומי אוויר)",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 5,
+        "title": "סשן צילומי זוגיות (Pre-Wedding)",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "2,000 ₪"
+      },
+      {
+        "id": 6,
+        "title": "צילומי בוק בת/בר מצווה",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 7,
+        "title": "סטודיו נייד לאורחים (Photobooth)",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 8,
+        "title": "עריכת קליפ High-Light מהיר",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "1,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "צילום אינטנסיבי לאירועי ערב",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 10,
+        "title": "צילום מגנטים באיכות גבוהה",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת צילום ‘הכל כלול’ (2 צלמים)",
+        "image": "/images/category_photographer_1765749369528.png",
+        "price": "12,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "קייטרינג 'טעם וצבע'",
+    "type": "catering",
+    "description": "חוויה קולינרית בלתי נשכחת עם תפריט שף עשיר שמותאם בדיוק לטעם שלכם.",
+    "contact": "050-5554443",
+    "image": "/images/wedding_table_detail_1765744408525.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "קייטרינג שף - תפריט בשרי מלא",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "250 ₪ למנה"
+      },
+      {
+        "id": 2,
+        "title": "דוכני רחוב יוקרתיים לקבלת פנים",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "45 ₪ למנה"
+      },
+      {
+        "id": 3,
+        "title": "קינוחי בוטיק ופטיסרי",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "35 ₪ למנה"
+      },
+      {
+        "id": 4,
+        "title": "חבילת בר קוקטיילים מעוצב",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 5,
+        "title": "ארוחת בוקר עשירה לאירועי צהריים",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "120 ₪ למנה"
+      },
+      {
+        "id": 6,
+        "title": "קייטרינג חלבי פרימיום",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "180 ₪ למנה"
+      },
+      {
+        "id": 7,
+        "title": "שירות מלצרים במדים לבנים",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 8,
+        "title": "מזנוני קינוחים מרהיבים",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "4,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת הגשה לשולחן (Silver Service)",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "60 ₪ למנה"
+      },
+      {
+        "id": 10,
+        "title": "ערב אסאדו דרום אמריקאי",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "280 ₪ למנה"
+      },
+      {
+        "id": 11,
+        "title": "חבילת ‘טופ שף’ בנוכחות השף",
+        "image": "/images/category_catering_1765749377543.png",
+        "price": "12,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "סטודיו הילה לכלות",
+    "type": "dresses",
+    "description": "שמלות כלה בעיצוב אישי ומגע של קסם, תוך התמקדות בפרטים הקטנים ביותר.",
+    "contact": "053-7776665",
+    "image": "/images/category_dresses_1765749398359.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "שמלת כלה בעיצוב אישי (Custom Made)",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "12,000 ₪"
+      },
+      {
+        "id": 2,
+        "title": "שמלת ערב יוקרתית לאמא/אחות",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 3,
+        "title": "שמלת כלה שניה (Party Dress)",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "6,500 ₪"
+      },
+      {
+        "id": 4,
+        "title": "הינומה מעוצבת בעבודת יד",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 5,
+        "title": "אקססוריז וכתרים לכלה",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 6,
+        "title": "חליפת כלה מודרנית",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 7,
+        "title": "שירותי תיקונים והתאמה אישית",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 8,
+        "title": "חבילת ליווי ביום החתונה",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "2,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "שמלות שושבינה קלאסיות",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "800 ₪ ליחידה"
+      },
+      {
+        "id": 10,
+        "title": "חבילת ניקוי יבש ושימור השמלה",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘כלה מלכותית’",
+        "image": "/images/category_wedding_dress_1765749386345.png",
+        "price": "18,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "בר 'בוטיק'",
+    "type": "alcohol",
+    "description": "שירותי בר יוקרתיים הכוללים קוקטיילים ייחודיים ואלכוהול משובח מכל העולם.",
+    "contact": "052-8887776",
+    "image": "/images/category_alcohol_1765749434851.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "בר 'בוטיק' - הצעה מספר 1",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "1229 ₪"
+      },
+      {
+        "id": 2,
+        "title": "בר 'בוטיק' - הצעה מספר 2",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3814 ₪"
+      },
+      {
+        "id": 3,
+        "title": "בר 'בוטיק' - הצעה מספר 3",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3850 ₪"
+      },
+      {
+        "id": 4,
+        "title": "בר 'בוטיק' - הצעה מספר 4",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3979 ₪"
+      },
+      {
+        "id": 5,
+        "title": "בר 'בוטיק' - הצעה מספר 5",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3148 ₪"
+      },
+      {
+        "id": 6,
+        "title": "בר 'בוטיק' - הצעה מספר 6",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "5146 ₪"
+      },
+      {
+        "id": 7,
+        "title": "בר 'בוטיק' - הצעה מספר 7",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "2813 ₪"
+      },
+      {
+        "id": 8,
+        "title": "בר 'בוטיק' - הצעה מספר 8",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "4346 ₪"
+      },
+      {
+        "id": 9,
+        "title": "בר 'בוטיק' - הצעה מספר 9",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "5397 ₪"
+      },
+      {
+        "id": 10,
+        "title": "בר 'בוטיק' - הצעה מספר 10",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "4213 ₪"
+      },
+      {
+        "id": 11,
+        "title": "בר 'בוטיק' - הצעה מספר 11",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3851 ₪"
+      },
+      {
+        "id": 12,
+        "title": "בר 'בוטיק' - הצעה מספר 12",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "5527 ₪"
+      },
+      {
+        "id": 13,
+        "title": "בר 'בוטיק' - הצעה מספר 13",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3532 ₪"
+      },
+      {
+        "id": 14,
+        "title": "בר 'בוטיק' - הצעה מספר 14",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "5398 ₪"
+      },
+      {
+        "id": 15,
+        "title": "בר 'בוטיק' - הצעה מספר 15",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "4726 ₪"
+      },
+      {
+        "id": 16,
+        "title": "בר 'בוטיק' - הצעה מספר 16",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "2738 ₪"
+      },
+      {
+        "id": 17,
+        "title": "בר 'בוטיק' - הצעה מספר 17",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3827 ₪"
+      },
+      {
+        "id": 18,
+        "title": "בר 'בוטיק' - הצעה מספר 18",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "4751 ₪"
+      },
+      {
+        "id": 19,
+        "title": "בר 'בוטיק' - הצעה מספר 19",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "3814 ₪"
+      },
+      {
+        "id": 20,
+        "title": "בר 'בוטיק' - הצעה מספר 20",
+        "image": "/images/category_alcohol_1765749434851.png",
+        "price": "5019 ₪"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "אפקטים לאירועים",
+    "type": "attractions",
+    "description": "זיקוקים, בועות, קרח יבש ועוד מגוון אטרקציות שיהפכו את הריקוד הסלוו שלכם לחלום.",
+    "contact": "050-4443332",
+    "image": "/images/category_attractions_1765749449790.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "חבילת עשן כבד ובועות לחופה",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "זיקוקי דינור קרים לרחבה",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 3,
+        "title": "בלוני הליום ענקיים מעוצבים",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 4,
+        "title": "עמדת פול מון (Full Moon Party)",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 5,
+        "title": "רקדניות ומייצגים לקבלת פנים",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 6,
+        "title": "קונפטי לבבות ומשי",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 7,
+        "title": "עמדת צילום סובב 360 מעלות",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 8,
+        "title": "חבילת ‘Party Kit’ (זוהרים וכובעים)",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 9,
+        "title": "קירות צילום מעוצבים מפרחים",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "רובוט לדים רוקד ברחבה",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת ‘Mega Party’ הכל כלול",
+        "image": "/images/category_attractions_1765749444391.png",
+        "price": "7,500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "לירון מאפרת כלה",
+    "type": "makeup",
+    "description": "איפור עמיד ומקצועי לערב בלתי נשכח, עם התאמה אישית למבנה הפנים והסגנון שלך.",
+    "contact": "054-2221110",
+    "image": "/images/category_makeup_1765749412432.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "איפור כלה פרימיום (כולל ניסיון)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "תסרוקת כלה מעוצבת",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 3,
+        "title": "איפור ערב למלוות ואורחות",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 4,
+        "title": "עיצוב שיער משלים (טאצ' אפ)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "300 ₪"
+      },
+      {
+        "id": 5,
+        "title": "חבילת ליווי לאולם (שינוי לוק)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 6,
+        "title": "הדבקת ריסים ושימוש במוצרי יוקרה",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "200 ₪"
+      },
+      {
+        "id": 7,
+        "title": "איפור לצילומי זוגיות (טראש)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 8,
+        "title": "חבילת ‘Beauty’ הכוללת שיער ואיפור",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "3,800 ₪"
+      },
+      {
+        "id": 9,
+        "title": "עיצוב גבות ושפם לכלה",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "150 ₪"
+      },
+      {
+        "id": 10,
+        "title": "איפור ושיער לאמא של הכלה",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,000 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘Glow Bride’",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "5,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "מספרת הקיץ",
+    "type": "hair",
+    "description": "מעצב שיער מומחה לכלות המשלב טכניקות מודרניות ותסרוקות קלאסיות.",
+    "contact": "052-3334445",
+    "image": "/images/category_dresses_1765749398359.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "תסרוקת כלה קלאסית ויוקרתית",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "סירוק מלווה (שיער פזור/אסוף)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 3,
+        "title": "החלפת תסרוקת לאירוע (לוק שני)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 4,
+        "title": "תוספות שיער פרימיום (השכרה)",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 5,
+        "title": "חבילת תסרוקות ל-3 מלוות",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 6,
+        "title": "עיצוב שיער לצילומי טראש",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "500 ₪"
+      },
+      {
+        "id": 7,
+        "title": "תסרוקת שושבינה צעירה",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "250 ₪"
+      },
+      {
+        "id": 8,
+        "title": "טיפול שיער משקם לפני החתונה",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "350 ₪"
+      },
+      {
+        "id": 9,
+        "title": "תסרוקת כלה בעיצוב בוהו-שיק",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,400 ₪"
+      },
+      {
+        "id": 10,
+        "title": "חבילת ‘Royal Hair’ עם אביזרי שיער",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "2,200 ₪"
+      },
+      {
+        "id": 11,
+        "title": "ליווי צמוד לתיקוני שיער באולם",
+        "image": "/images/category_makeup_hair_1765749422557.png",
+        "price": "1,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "להקת 'פיאסטה'",
+    "type": "singers",
+    "description": "זמרים ולהקות חיות שיכניסו אנרגיה מטורפת לקבלת הפנים ולריקודים.",
+    "contact": "050-6665554",
+    "image": "/images/category_dj_1765749357637.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "להקת אירועים פרימיום (6 נגנים)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "12,000 ₪"
+      },
+      {
+        "id": 2,
+        "title": "זמר אורח להופעה של 45 דקות",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "5,000 ₪"
+      },
+      {
+        "id": 3,
+        "title": "צמד זמרים לדואט מרגש בחופה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 4,
+        "title": "הרכב אקוסטי לקבלת פנים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 5,
+        "title": "זמר פופ/מזרחי לרחבת הריקודים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "6,500 ₪"
+      },
+      {
+        "id": 6,
+        "title": "חבילת ‘Live Band’ משולבת DJ",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "15,000 ₪"
+      },
+      {
+        "id": 7,
+        "title": "ליווי סקסופון וכנרת לקבלת פנים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 8,
+        "title": "להקת קאברים ללהיטים מכל הזמנים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "9,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "מופע כניסה דרמטי של זמר/ת",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "חבילת הגברה ותאורה להופעה חיה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘Party Star’",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "20,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "רכבי יוקרה 'סמארט'",
+    "type": "cars",
+    "description": "השכרת רכבי פאר ליום החתונה כולל נהג צמוד וקישוטים מהממים.",
+    "contact": "054-7778889",
+    "image": "/images/category_suits_1765749381003.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "עיצוב חופה קלאסי (לבן וזהב)",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "5,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "עיצוב מרכזי שולחן (פרחי משי)",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "150 ₪ לשולחן"
+      },
+      {
+        "id": 3,
+        "title": "סידורי פרחים רעננים (עונתי)",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 4,
+        "title": "תפאורת קבלת פנים יוקרתית",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "2,800 ₪"
+      },
+      {
+        "id": 5,
+        "title": "מיתוג שולחנות ואביזרי נוי",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 6,
+        "title": "עיצוב שדרת חופה עם נרות",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 7,
+        "title": "חבילת ‘Garden Wedding’ (כפרי)",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 8,
+        "title": "עיצוב כסא כלה מלכותי",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 9,
+        "title": "מפות ומפיות פרימיום מעוצבות",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "20 ₪ למנה"
+      },
+      {
+        "id": 10,
+        "title": "עיצוב קירות צילום (Flower Wall)",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "2,200 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘Designer Touch’",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "12,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "הזמנות בסטייל",
+    "type": "invitations",
+    "description": "עיצוב והדפסת הזמנות חתונה יוקרתיות בנייר איכותי וטכנולוגיות מתקדמות.",
+    "contact": "052-1110009",
+    "image": "/images/wedding_table_detail_1765744408525.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "הזמנה בעיצוב אישי (סדרת זהב)",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "12 ₪ ליחידה"
+      },
+      {
+        "id": 2,
+        "title": "חבילת הזמנות עם חבק פרחים",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "15 ₪ ליחידה"
+      },
+      {
+        "id": 3,
+        "title": "מיתוג שולחן מלא (מספרים ותפריטים)",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 4,
+        "title": "הזמנה דיגיטלית עם אישור הגעה",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 5,
+        "title": "תפריטים מודפסים על גבי פרספקס",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "25 ₪ ליחידה"
+      },
+      {
+        "id": 6,
+        "title": "מפות ישיבה מעוצבות לאורחים",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "350 ₪"
+      },
+      {
+        "id": 7,
+        "title": "כרטיסי תודה בסגנון וינטג'",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "4 ₪ ליחידה"
+      },
+      {
+        "id": 8,
+        "title": "חבילת מדבקות ממותגות לבר",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "150 ₪"
+      },
+      {
+        "id": 9,
+        "title": "הזמנות בסגנון מינימליסטי",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "8 ₪ ליחידה"
+      },
+      {
+        "id": 10,
+        "title": "ערכת מיתוג ‘VIP’ הכל כלול",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 11,
+        "title": "שירותי עיצוב לוגו אישי",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "600 ₪"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "צ'ק-אין אירועים",
+    "type": "arrivals",
+    "description": "ניהול אישורי הגעה מתקדם ב-SMS וסידורי הושבה חכמים לייעול האירוע.",
+    "contact": "050-9990001",
+    "image": "/images/hero_wedding_bg_1765744390134.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "חבילת אישור הגעה ב-SMS (עד 300 איש)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 2,
+        "title": "ניהול הושבה חכם (Smart Seating)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 3,
+        "title": "שירות דיילות בכניסה לאולם",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 4,
+        "title": "שליחת מתנות בביט (Gift Link)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "150 ₪"
+      },
+      {
+        "id": 5,
+        "title": "דוח הגעה מפורט בזמן אמת",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "200 ₪"
+      },
+      {
+        "id": 6,
+        "title": "חבילת תנועה לאורחים (ניווט Waze)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "100 ₪"
+      },
+      {
+        "id": 7,
+        "title": "סיכום אירוע ותודות ביום שאחרי",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "300 ₪"
+      },
+      {
+        "id": 8,
+        "title": "שירות אישורי הגעה טלפוניים",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 9,
+        "title": "מערכת ניהול תקציב אישית לזוג",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "0 ₪"
+      },
+      {
+        "id": 10,
+        "title": "חבילת ‘Premium Check-In’",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 11,
+        "title": "שירות אישי (Liaison) מול הספקים",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "טקס 'הקודש'",
+    "type": "challa",
+    "description": "ערבי הפרשת חלה מרגשים לנשים, כולל הנחיה, ברכות והפקה מוזיקלית.",
+    "contact": "053-2223334",
+    "image": "/images/wedding_table_detail_1765744408525.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "ערב הפרשת חלה מרגש (סטנדרט)",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "חבילת פרימיום ‘אשת חיל’ עם מוזיקה",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "2,800 ₪"
+      },
+      {
+        "id": 3,
+        "title": "הפרשת חלה לכלה בסלון הבית",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 4,
+        "title": "ערכת הפרשת חלה אישית לכל משתתפת",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "35 ₪ ליחידה"
+      },
+      {
+        "id": 5,
+        "title": "עיצוב שולחן הפרשת חלה יוקרתי",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "900 ₪"
+      },
+      {
+        "id": 6,
+        "title": "סידור לימוז'ה ולחמים מעוצבים",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 7,
+        "title": "שירותי קריינות וברכות מוקלטות",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 8,
+        "title": "חבילת ‘הקודש’ לחינה וערבי נשים",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 9,
+        "title": "סדנא להכנת חלות מעוצבות",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 10,
+        "title": "שירונים מודפסים וממותגים לזוג",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "10 ₪ ליחידה"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘מלכותי’ הכל כלול",
+        "image": "/images/wedding_table_detail_1765744408525.png",
+        "price": "5,500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "שמחת הלב",
+    "type": "religious-bands",
+    "description": "להקות דתיות להרקדה נפרדת או מעורבת עם מיטב הלהיטים והשירים היהודיים.",
+    "contact": "052-5556667",
+    "image": "/images/category_dj_1765749357637.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "להקת פרימיום להרקדה יהודית אותנטית",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "8,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "צמד כליזמרים לקבלת פנים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 3,
+        "title": "זמר פייטן לחופה וקידושין",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 4,
+        "title": "חבילת מוזיקה משולבת (דתי-ישראלי)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "12,000 ₪"
+      },
+      {
+        "id": 5,
+        "title": "להקת ילדים/מקהלה לטקסים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 6,
+        "title": "מוזיקת עולם יהודית לאירועי בוטיק",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 7,
+        "title": "סט מוזיקה חסידית לרחבת הריקודים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "5,000 ₪"
+      },
+      {
+        "id": 8,
+        "title": "שירותי הגברה ותאורה לאירוע דתי",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 9,
+        "title": "הרקדה מזרחית/ים תיכונית דתית",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "6,000 ₪"
+      },
+      {
+        "id": 10,
+        "title": "חבילת ‘שמחת עולם’ המלאה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "15,000 ₪"
+      },
+      {
+        "id": 11,
+        "title": "ליווי לכלה ביום החתונה (כינור)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "מתנה מכל הלב",
+    "type": "souvenirs",
+    "description": "מזכרות מיוחדות לאורחים: מחזיקי מפתחות, נרות ריחניים, תהילים קטנים ועוד.",
+    "contact": "054-4445556",
+    "image": "/images/category_attractions_1765749449790.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "מארז נר ריחני מעוצב (כמות 100+)",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "12 ₪ ליחידה"
+      },
+      {
+        "id": 2,
+        "title": "תהילים קטן בכריכת עור מהודרת",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "8 ₪ ליחידה"
+      },
+      {
+        "id": 3,
+        "title": "סוקולנט קטן בתוך כלי חרס ממותג",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "15 ₪ ליחידה"
+      },
+      {
+        "id": 4,
+        "title": "מחזיק מפתחות חמסה עם חריטה",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "5 ₪ ליחידה"
+      },
+      {
+        "id": 5,
+        "title": "חבילת ‘Candy Bar’ לאורחים ביציאה",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 6,
+        "title": "מיני בקבוק יין ממותג אישי",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "22 ₪ ליחידה"
+      },
+      {
+        "id": 7,
+        "title": "מניפה מעוצבת לחתונת צהריים",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "10 ₪ ליחידה"
+      },
+      {
+        "id": 8,
+        "title": "חבילת ‘Welcome’ לאורחי מלון",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "45 ₪ ליחידה"
+      },
+      {
+        "id": 9,
+        "title": "צנצנת דבש יוקרתית (לראש השנה)",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "18 ₪ ליחידה"
+      },
+      {
+        "id": 10,
+        "title": "חבילת מזכרות פרימיום ‘VIP’",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 11,
+        "title": "תעודת תודה ממוסגרת לכל משפחה",
+        "image": "/images/category_attractions_1765749449790.png",
+        "price": "25 ₪ ליחידה"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "ארט עיצובים",
+    "type": "design",
+    "description": "עיצוב חלל האירוע, מרכזי שולחן מפרחים וחופות מעוצבות בטוב טעם.",
+    "contact": "050-3332221",
+    "image": "/images/category_venue_1765749342686.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "עיצוב וילונות תחרה לחופה",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 2,
+        "title": "סידורי שולחן בסגנון בוהו-שיק",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "180 ₪ לשולחן"
+      },
+      {
+        "id": 3,
+        "title": "עמדות אלכוהול מעוצבות מעץ",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 4,
+        "title": "תאורת אווירה (Fairy Lights) לגן",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "3,000 ₪"
+      },
+      {
+        "id": 5,
+        "title": "מיתוג אישי על בקבוקי יין",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "35 ₪ ליחידה"
+      },
+      {
+        "id": 6,
+        "title": "עיצוב כניסה עם שלטי ברוכים הבאים",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 7,
+        "title": "שטיח לבן ועלי כותרת לחופה",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 8,
+        "title": "עיצוב בר קינוחים מרהיב",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "4,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת לוחיות שם מעוצבות",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "5 ₪ ליחידה"
+      },
+      {
+        "id": 10,
+        "title": "עיצוב חלל האירוע בפרחים יבשים",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "5,500 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת עיצוב פרימיום ‘Art Exclusive’",
+        "image": "/images/category_venue_1765749342686.png",
+        "price": "15,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "קלאסיק קאר",
+    "type": "cars",
+    "description": "רכבי יוקרה ורכבי אספנות ליום החתונה, כולל נהג צמוד וקישוט הרכב.",
+    "contact": "050-1110002",
+    "image": "/images/hero_wedding_bg_1765744390134.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "השכרת לימוזינה מפוארת ליום שלם",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "רכב אספנות וינטג' (מרצדס קלאסית)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 3,
+        "title": "רכב ספורט יוקרתי (פורשה/פרארי)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 4,
+        "title": "חבילת קישוט רכב ושלט 'JUST MARRIED'",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 5,
+        "title": "ליווי נהג צמוד לכל היום (8 שעות)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 6,
+        "title": "מיניבוס VIP להסעת המלוות",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 7,
+        "title": "רכב שטח מפואר לצילומי טראש",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,000 ₪"
+      },
+      {
+        "id": 8,
+        "title": "אספקת שתייה קלה וקרואסונים ברכב",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "250 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת ‘Premium Drive’ הכל כלול",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "השכרת ג'יפ יוקרה לבן",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,600 ₪"
+      },
+      {
+        "id": 11,
+        "title": "שירות איסוף משדה התעופה לזוג",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "הרב אברהם",
+    "type": "rabbi",
+    "description": "רב מוסמך לעריכת חופות ברוח נעימה ומסורתית, הפכת הרגע למקודש באמת.",
+    "contact": "050-8889990",
+    "image": "/images/hero_wedding_bg_1765744390134.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "עריכת חופה וקידושין (ניהול טקס מלא)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "פגישת הכנה והדרכה לקראת החתונה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "0 ₪"
+      },
+      {
+        "id": 3,
+        "title": "כתיבת כתובה מעוצבת וייחודית",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "450 ₪"
+      },
+      {
+        "id": 4,
+        "title": "ליווי ברישום נישואין ברבנות",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "300 ₪"
+      },
+      {
+        "id": 5,
+        "title": "טקס חופה בסגנון מוזיקלי ומרגש",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 6,
+        "title": "הדרכת חתנים (הלכה ומנהגים)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "400 ₪"
+      },
+      {
+        "id": 7,
+        "title": "שירותי קריינות והנחיה לטקס החופה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 8,
+        "title": "סידור קידושין לאירועים בחו\"ל",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת ‘חופה וקידושין’ פרימיום",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "הרצאה קבוצתית לזוגות צעירים",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "200 ₪"
+      },
+      {
+        "id": 11,
+        "title": "ליווי אישי לביקור במקווה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "150 ₪"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "יהלומי פיאסטה",
+    "type": "rings",
+    "description": "טבעות נישואין מזהב 14/18 קראט בעיצוב אישי ובאיכות הגבוהה ביותר.",
+    "contact": "054-1234321",
+    "image": "/images/category_dresses_1765749398359.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "טבעת נישואין זהב צהוב 14K (קלאסית)",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 2,
+        "title": "טבעת זהב לבן בשיבוץ יהלום (0.5 קראט)",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 3,
+        "title": "טבעת נישואין רחבה עם חריטה אישית",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 4,
+        "title": "סט טבעות 'הכיסופים' לזוג",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "3,200 ₪"
+      },
+      {
+        "id": 5,
+        "title": "עגילי יהלום תואמים לכלה",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 6,
+        "title": "שרשרת פנינים קלאסית",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 7,
+        "title": "צמיד זהב 'טניס' משובץ",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "5,500 ₪"
+      },
+      {
+        "id": 8,
+        "title": "טבעת אירוסין ‘Royal’ בשיבוץ מרכזי",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "8,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "שירותי ניקוי וחידוש תכשיטים",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "200 ₪"
+      },
+      {
+        "id": 10,
+        "title": "חבילת תכשיטי כלה ‘Complete Look’",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "12,000 ₪"
+      },
+      {
+        "id": 11,
+        "title": "עיצוב ויציקת טבעת מאפס",
+        "image": "/images/category_dresses_1765749398359.png",
+        "price": "1,500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "name": "מלון בוטיק רויאל",
+    "type": "hotels",
+    "description": "סוויטות יוקרה לליל הכלולות, פינוקי ספא וארוחת בוקר זוגית באווירה אירופאית.",
+    "contact": "053-5556667",
+    "image": "/images/hero_wedding_bg_1765744390134.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "לינה בסוויטה המלכותית - ליל כלולות",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 2,
+        "title": "חבילת ספא זוגית לפני החתונה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "850 ₪"
+      },
+      {
+        "id": 3,
+        "title": "אירוח מלוות ביום ההתארגנות",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 4,
+        "title": "ארוחת בוקר שף מוגשת לחדר",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "250 ₪"
+      },
+      {
+        "id": 5,
+        "title": "חבילת ‘Pre-Wedding’ כולל צילומים במלון",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "2,500 ₪"
+      },
+      {
+        "id": 6,
+        "title": "קישוט חדר רומנטי (בלונים ושוקולד)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "350 ₪"
+      },
+      {
+        "id": 7,
+        "title": "חבילת לילה שני ב-50% הנחה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "900 ₪"
+      },
+      {
+        "id": 8,
+        "title": "כניסה מוקדמת ותיאום עמדת איפור",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "400 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת ‘Royal Honeymoon’ שבוע שלם",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "9,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "שימוש בטרקלין ה-VIP לאורחי הזוג",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘Honeymoon Magic’",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "5,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "name": "הפקות רווקים 'אקשן'",
+    "type": "bachelor",
+    "description": "הפקת מסיבות רווקים מלאות באנרגיה, וילות יוקרה, ואטרקציות שאי אפשר לשכוח.",
+    "contact": "052-4445556",
+    "image": "/images/hero_wedding_bg_1765744390134.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "השכרת וילה עם בריכה (24 שעות)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "סדנת קוקטיילים מקצועית לקבוצה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 3,
+        "title": "ארוחת שף בשרית (על האש פרימיום)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "250 ₪ לאיש"
+      },
+      {
+        "id": 4,
+        "title": "חבילת אלכוהול ללא הגבלה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "2,000 ₪"
+      },
+      {
+        "id": 5,
+        "title": "מערכת קריוקי והגברה מקצועית",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 6,
+        "title": "משחקי שולחן (סנוקר, פוקר, פינג פונג)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "400 ₪"
+      },
+      {
+        "id": 7,
+        "title": "הפקת מסיבת בריכה עם DJ",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 8,
+        "title": "מזכרות ממותגות (כובעים וחולצות)",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת לינה ובילוי במועדון נבחר",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "5,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "צילום מגנטים למסיבה",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "1,000 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘Wild Night’ הכל כלול",
+        "image": "/images/hero_wedding_bg_1765744390134.png",
+        "price": "12,000 ₪"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "name": "פייטן הלב",
+    "type": "cantors",
+    "description": "ליווי חופה מרגש במיטב מסורת ישראל, קול זמיר ושמחה אמיתית.",
+    "contact": "050-7776665",
+    "image": "/images/category_dj_1765749357637.png",
+    "portfolio": [
+      {
+        "id": 1,
+        "title": "ליווי חופה בשירה פיוטית ומרגשת",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,500 ₪"
+      },
+      {
+        "id": 2,
+        "title": "כניסת חתן בלבוש מסורתי ושירה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "800 ₪"
+      },
+      {
+        "id": 3,
+        "title": "הנחיית טקס החופה (קול רדיופוני)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 4,
+        "title": "שירת 'אם אשכחך' בלחן ייחודי",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "500 ₪"
+      },
+      {
+        "id": 5,
+        "title": "הרכב פייטנים לליווי סעודת המצווה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "3,500 ₪"
+      },
+      {
+        "id": 6,
+        "title": "שמחת חתן וכלה בשירים עבריים",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,800 ₪"
+      },
+      {
+        "id": 7,
+        "title": "שופרות ומתופפים לכניסה מרשימה",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,200 ₪"
+      },
+      {
+        "id": 8,
+        "title": "פייטן לליווי שבע ברכות (ערב)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "1,000 ₪"
+      },
+      {
+        "id": 9,
+        "title": "חבילת ‘מוזיקה מהלב’ (3 נגנים)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "4,500 ₪"
+      },
+      {
+        "id": 10,
+        "title": "שירה ופיוט בחנייה (לפני החופה)",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "600 ₪"
+      },
+      {
+        "id": 11,
+        "title": "חבילת פרימיום ‘Zamir Voice’",
+        "image": "/images/category_dj_1765749357637.png",
+        "price": "7,500 ₪"
+      }
+    ]
+  },
+  {
+    "id": 1767963829932,
+    "name": "הספק הכי טוב",
+    "type": "design",
+    "contact": "0535378985",
+    "description": "נתי הגבר",
+    "image": ""
+  },
+  {
+    "id": 1767963935916,
+    "name": "רועי",
+    "type": "dj",
+    "contact": "0545467876",
+    "description": "הכי טוב בחדר",
+    "image": ""
+  }
+]

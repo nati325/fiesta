@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "חבילת החתן המושלם",
+    "tagline": "אולם + 2 ספקים = אישורי הגעה בחינם!",
+    "description": "קחו אולם + שני ספקים דרך Fiesta וקבלו מערכת אישורי הגעה דיגיטלית מתנה. חוסכים כסף, חוסכים עצבים.",
+    "saving": "חסכון של עד ₪3,500",
+    "badge": "הכי פופולרי",
+    "badgeColor": "#D4AF37",
+    "image": "/images/packages/package1.jpg",
+    "active": true,
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "title": "חבילת הכלה הזוהרת",
+    "tagline": "שמלה + עיצוב שיער + איפור במחיר אחד!",
+    "description": "שלוש חנויות, שלושה ספקים - דרך Fiesta תקבלו הכל בתיאום מלא וחיסכון של עשרות אחוזים.",
+    "saving": "חסכון של עד ₪2,200",
+    "badge": "חבילה מיוחדת",
+    "badgeColor": "#e91e8c",
+    "image": "/images/packages/package2.jpg",
+    "active": true,
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "title": "חבילת האירוע השלם",
+    "tagline": "DJ + צלם + קייטרינג = הנחה של 15%!",
+    "description": "כל מה שצריך לאירוע מושלם - במחיר אחד משתלם. Fiesta מנהלת את הכל מול הספקים.",
+    "saving": "חסכון של עד ₪5,000",
+    "badge": "ערך הכי גבוה",
+    "badgeColor": "#2196F3",
+    "image": "/images/packages/package3.jpg",
+    "active": true,
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "title": "חבילת צילום בלוקיישן",
+    "tagline": "צלם + מגנטים במחיר מבצע!",
+    "description": "סוגרים צלם דרך פייסטה ומוסיפים מגנטים ב-50% הנחה, לאירוע שלא יישכח.",
+    "saving": "חסכון של עד ₪1,000",
+    "badge": "מבצע לזמן מוגבל",
+    "badgeColor": "#FF5722",
+    "image": "/images/packages/package1.jpg",
+    "active": true,
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "title": "חבילת וידאו עלית",
+    "tagline": "וידאו ברחפן + עריכה + אלבומים",
+    "description": "למה לשלם על צילומי רחפן בנפרד? קבלו חבילת וידאו מלאה שתתעד כל רגע קסום.",
+    "saving": "חסכון של עד ₪2,500",
+    "badge": "חדש באתר",
+    "badgeColor": "#9C27B0",
+    "image": "/images/packages/package3.jpg",
+    "active": true,
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  }
+]
