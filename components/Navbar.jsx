@@ -90,16 +90,37 @@ const Navbar = () => {
                             </div>
                         </li>
                         <li><Link href="/category/venue" className={isActive('/category/venue')}>אולמות</Link></li>
-                        <li><Link href="/admin" style={{ color: 'red' }}>Admin</Link></li>
-
-                        {!user ? (
-                            <>
-                                <li><Link href="/login" className="btn-contact" style={{ background: 'transparent', border: '1px solid #D4AF37', color: '#D4AF37' }}>התחבר</Link></li>
-                                <li><Link href="/register" className="btn-contact">הירשם</Link></li>
-                            </>
-                        ) : (
-                            <li onClick={logout} style={{ cursor: 'pointer', fontWeight: 'bold' }}>התנתק ({user.name})</li>
-                        )}
+                        <li style={{ marginLeft: '15px' }}>
+                            {!user ? (
+                                <Link href="/login" style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '8px',
+                                    color: 'var(--text-dark)',
+                                    textDecoration: 'none',
+                                    fontWeight: '500'
+                                }}>
+                                    <i className="far fa-user" style={{ fontSize: '1.2rem', color: 'var(--primary-color)' }}></i>
+                                    <span>אזור אישי</span>
+                                </Link>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <Link href="/admin" style={{ color: 'var(--text-dark)', textDecoration: 'none', fontWeight: '500' }}>
+                                        ניהול
+                                    </Link>
+                                    <div onClick={logout} style={{ 
+                                        cursor: 'pointer', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        color: '#e74c3c' 
+                                    }}>
+                                        <span>התנתק ({user.name})</span>
+                                        <i className="fas fa-sign-out-alt"></i>
+                                    </div>
+                                </div>
+                            )}
+                        </li>
                     </ul>
                 </nav>
 

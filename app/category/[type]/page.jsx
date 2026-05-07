@@ -12,44 +12,44 @@ export default function CategoryPage() {
     const vendors = getVendorsByType(type);
 
     const categoryData = {
-        'dj': { label: 'DJ ומוזיקה', img: '/images/photographer.jpeg' },
-        'photographer': { label: 'צלמים', img: '/images/event_photographer.png' },
+        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=1200&q=80' },
+        'photographer': { label: 'צלמים', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80' },
         'alcohol': { label: 'אלכוהול ובר', img: '/images/bar_hero.png' },
         'catering': { label: 'קייטרינג', img: '/images/catering.jpeg' },
         'attractions': { label: 'אטרקציות', img: '/images/attractions_hero.png' },
         'makeup': { label: 'איפור כלה', img: '/images/beauty_hero.png' },
-        'hair': { label: 'עיצוב שיער', img: '/images/hair_hero.png' },
+        'hair': { label: 'עיצוב שיער', img: '/images/beauty_hero.png' },
         'singers': { label: 'זמרים ולהקות', img: '/images/entertainment_hero.png' },
         'cars': { label: 'השכרת רכבים', img: '/images/car_hero.png' },
         'invitations': { label: 'הזמנות', img: '/images/invitations_hero.png' },
         'arrivals': { label: 'אישורי הגעה', img: '/images/invitations_hero.png' },
-        'challa': { label: 'הפרשת חלה', img: '/images/challa_hero.png' },
+        'challa': { label: 'הפרשת חלה', img: '/images/wedding_table_detail_1765744408525.png' },
         'religious-bands': { label: 'להקות דתיות', img: '/images/entertainment_hero.png' },
         'souvenirs': { label: 'מזכרות', img: '/images/attractions_hero.png' },
-        'design': { label: 'עיצוב אירועים', img: '/images/venue_hero.png' },
-        'dresses': { label: 'שמלות כלה', img: '/images/wedding_dress.jpeg' },
-        'suits': { label: 'חליפות חתן', img: '/images/groom_suits.jpeg' },
+        'design': { label: 'עיצוב אירועים', img: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80' },
+        'dresses': { label: 'שמלות כלה', img: 'https://images.unsplash.com/photo-1594553939328-14936d6f5f3e?auto=format&fit=crop&w=1200&q=80' },
+        'suits': { label: 'חליפות חתן', img: 'https://images.unsplash.com/photo-1594932224015-610b8116ce9f?auto=format&fit=crop&w=1200&q=80' },
         'rabbi': { label: 'רב לחופה', img: '/images/rabbi.jpeg' },
         'rings': { label: 'טבעות נישואין', img: '/images/jewelry_hero.png' },
-        'hotels': { label: 'מלונות וסוויטות', img: '/images/hotel_hero.png' },
+        'hotels': { label: 'מלונות וסוויטות', img: '/images/wedding_lounge_1765744440712.png' },
         'bachelor': { label: 'מסיבות רווקים', img: '/images/bar_hero.png' },
         'cantors': { label: 'פייטנים', img: '/images/entertainment_hero.png' },
         'venue': { label: 'אולמות וגנים', img: '/images/venue_hero.png' },
         'event-production': { label: 'הפקת אירועים', img: '/images/event_production.jpeg' },
         'event-managers': { label: 'מנהלי אירועים', img: '/images/venue_hero.png' },
-        'bride-shoes': { label: 'נעלי כלה', img: '/images/beauty_hero.png' },
-        'groom-shoes': { label: 'נעלי חתן', img: '/images/groom_details_hero.png' },
+        'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1549416878-b99b533e46bc?auto=format&fit=crop&w=1200&q=80' },
+        'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1539185441755-769473a23957?auto=format&fit=crop&w=1200&q=80' },
         'bride-escort': { label: 'מדריכת כלות', img: '/images/beauty_hero.png' },
-        'groom-escort': { label: 'מדריך חתנים', img: '/images/groom_details_hero.png' },
+        'groom-escort': { label: 'מדריך חתנים', img: '/images/groom_suits.jpeg' },
         'rsvp-design': { label: 'אישורים ועיצוב', img: '/images/invitations_hero.png' },
-        'transportation': { label: 'הסעות', img: '/images/transport_hero.png' },
+        'transportation': { label: 'הסעות', img: '/images/car_hero.png' },
         'equipment-rental': { label: 'השכרת ציוד', img: '/images/attractions_hero.png' },
         'car-decoration': { label: 'קישוט רכב', img: '/images/car_hero.png' },
-        'spa-travel': { label: 'ספא וירח דבש', img: '/images/hotel_hero.png' },
+        'spa-travel': { label: 'ספא וירח דבש', img: '/images/wedding_lounge_1765744440712.png' },
         'getting-ready': { label: 'התארגנות', img: '/images/beauty_hero.png' },
         'tanning': { label: 'שיזוף', img: '/images/beauty_hero.png' },
-        'dietitians': { label: 'דיאטניות', img: '/images/beauty_hero.png' },
-        'personal-training': { label: 'כושר וחיטוב', img: '/images/beauty_hero.png' },
+        'dietitians': { label: 'דיאטניות', img: 'https://images.unsplash.com/photo-1490645935967-1306ba001491?auto=format&fit=crop&w=1200&q=80' },
+        'personal-training': { label: 'כושר וחיטוב', img: 'https://images.unsplash.com/photo-15344383272d6-0a0e22b3b64e?auto=format&fit=crop&w=1200&q=80' },
         'aliexpress-ideas': { label: 'רעיונות מעליאקספרס', img: '/images/invitations_hero.png' },
         'recording-studios': { label: 'אולפני הקלטה', img: '/images/entertainment_hero.png' },
         'blessings': { label: 'ברכות', img: '/images/entertainment_hero.png' },
@@ -157,7 +157,14 @@ export default function CategoryPage() {
                                 }}
                             >
                                 <div style={{ height: '100px', position: 'relative', overflow: 'hidden' }}>
-                                    <img src={v.image || currentCategory.img} alt={v.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <img 
+                                        src={v.image && v.image.trim() !== '' ? v.image : currentCategory.img} 
+                                        alt={v.name} 
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                        onError={(e) => {
+                                            e.target.src = currentCategory.img;
+                                        }}
+                                    />
                                     <div style={{ position: 'absolute', top: '6px', left: '6px', background: 'rgba(255,127,80,0.9)', color: 'white', padding: '1px 6px', borderRadius: '8px', fontSize: '0.6rem', fontWeight: 'bold' }}>
                                         {currentCategory.label}
                                     </div>

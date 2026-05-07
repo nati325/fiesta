@@ -3,7 +3,7 @@
         "id": 1,
         "title": "המדריך המלא לחתונת יוקרה",
         "excerpt": "גלו את כל הסודות להפקת חתונה מושלמת ויוקרתית, ממקום האירוע ועד העיצוב הפרטני",
-        "image": "/images/article1.jpg",
+        "image": "/images/venue_hero.png",
         "date": "2024-12-10",
         "author": "צוות Fiesta"
     },
@@ -11,7 +11,7 @@
         "id": 2,
         "title": "טרנדים חמים בעיצוב אירועים 2024",
         "excerpt": "גלו מה חדש בעולם הפקת האירועים - מצבעי פסטל עד עיצובים מינימליסטיים",
-        "image": "/images/article2.jpg",
+        "image": "/images/wedding_floral_arch_1765744424651.png",
         "date": "2024-12-08",
         "author": "צוות Fiesta"
     },
@@ -19,7 +19,7 @@
         "id": 3,
         "title": "איך לבחור ספקים לאירוע",
         "excerpt": "המלצות מקצועיות לבחירת הספקים הנכונים שיהפכו את האירוע שלכם למושלם",
-        "image": "/images/article3.jpg",
+        "image": "/images/wedding_table_detail_1765744408525.png",
         "date": "2024-12-05"
     },
     {

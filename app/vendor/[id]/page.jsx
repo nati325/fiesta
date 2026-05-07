@@ -21,54 +21,106 @@ export default function VendorDetailPage() {
         );
     }
 
-    return (
-        <div style={{ minHeight: '100vh', background: '#f8f9fa', paddingTop: '80px', paddingBottom: '60px', position: 'relative' }}>
-            <button
-                onClick={() => router.back()}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                    zIndex: 10,
-                    color: '#666',
-                    background: 'rgba(255,255,255,0.8)',
-                    width: '35px',
-                    height: '35px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid #eee',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s'
-                }}
-            >
-                <i className="fas fa-arrow-right"></i>
-            </button>
+    const categoryData = {
+        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=1200&q=80' },
+        'photographer': { label: 'צלמים', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80' },
+        'alcohol': { label: 'אלכוהול ובר', img: '/images/bar_hero.png' },
+        'catering': { label: 'קייטרינג', img: '/images/catering.jpeg' },
+        'attractions': { label: 'אטרקציות', img: '/images/attractions_hero.png' },
+        'makeup': { label: 'איפור כלה', img: '/images/beauty_hero.png' },
+        'hair': { label: 'עיצוב שיער', img: '/images/beauty_hero.png' },
+        'singers': { label: 'זמרים ולהקות', img: '/images/entertainment_hero.png' },
+        'cars': { label: 'השכרת רכבים', img: '/images/car_hero.png' },
+        'invitations': { label: 'הזמנות', img: '/images/invitations_hero.png' },
+        'design': { label: 'עיצוב אירועים', img: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80' },
+        'dresses': { label: 'שמלות כלה', img: 'https://images.unsplash.com/photo-1594553939328-14936d6f5f3e?auto=format&fit=crop&w=1200&q=80' },
+        'suits': { label: 'חליפות חתן', img: 'https://images.unsplash.com/photo-1594932224015-610b8116ce9f?auto=format&fit=crop&w=1200&q=80' },
+        'rabbi': { label: 'רב לחופה', img: '/images/rabbi.jpeg' },
+        'rings': { label: 'טבעות נישואין', img: '/images/jewelry_hero.png' },
+        'hotels': { label: 'מלונות וסוויטות', img: '/images/wedding_lounge_1765744440712.png' },
+        'venue': { label: 'אולמות וגנים', img: '/images/venue_hero.png' },
+        'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1549416878-b99b533e46bc?auto=format&fit=crop&w=1200&q=80' },
+        'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1539185441755-769473a23957?auto=format&fit=crop&w=1200&q=80' },
+        'dietitians': { label: 'דיאטניות', img: 'https://images.unsplash.com/photo-1490645935967-1306ba001491?auto=format&fit=crop&w=1200&q=80' },
+        'personal-training': { label: 'כושר וחיטוב', img: 'https://images.unsplash.com/photo-15344383272d6-0a0e22b3b64e?auto=format&fit=crop&w=1200&q=80' }
+    };
 
-            <div className="container" style={{ maxWidth: '800px' }}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={{ background: 'white', borderRadius: '25px', padding: '30px', boxShadow: '0 15px 40px rgba(0,0,0,0.05)', textAlign: 'center' }}
+    const currentCategory = categoryData[vendor.type] || { label: 'ספק', img: '/images/hero_wedding_bg_1765744390134.png' };
+
+    return (
+        <div style={{ minHeight: '100vh', background: '#f8f9fa', paddingBottom: '60px', position: 'relative' }}>
+            {/* Header Hero Area */}
+            <div style={{ height: '300px', position: 'relative', overflow: 'hidden' }}>
+                <img src={currentCategory.img} alt={vendor.name} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.6)' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7))' }} />
+                <button
+                    onClick={() => router.back()}
+                    style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        zIndex: 10,
+                        color: 'white',
+                        background: 'rgba(0,0,0,0.3)',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: 'none',
+                        cursor: 'pointer',
+                        backdropFilter: 'blur(5px)'
+                    }}
                 >
-                    <div style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>
-                        {vendor.type}
+                    <i className="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div className="container" style={{ maxWidth: '900px', marginTop: '-100px', position: 'relative', zIndex: 5 }}>
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ background: 'white', borderRadius: '30px', padding: '40px', boxShadow: '0 25px 60px rgba(0,0,0,0.1)', textAlign: 'center' }}
+                >
+                    {/* Vendor Profile Image */}
+                    <div style={{ 
+                        width: '180px', 
+                        height: '180px', 
+                        borderRadius: '50%', 
+                        border: '8px solid white', 
+                        overflow: 'hidden', 
+                        margin: '-130px auto 20px',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                        background: '#eee'
+                    }}>
+                        <img 
+                            src={vendor.image && vendor.image.trim() !== '' ? vendor.image : currentCategory.img} 
+                            alt={vendor.name} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                                e.target.src = currentCategory.img;
+                            }}
+                        />
                     </div>
 
-                    <h1 style={{ fontSize: '2.5rem', fontFamily: 'Playfair Display, serif', color: '#1a1a1a', marginBottom: '15px', lineHeight: '1.2' }}>
+                    <div style={{ color: '#D4AF37', fontSize: '1.1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
+                        {currentCategory.label}
+                    </div>
+
+                    <h1 style={{ fontSize: '3rem', fontFamily: 'Playfair Display, serif', color: '#1a1a1a', marginBottom: '15px', lineHeight: '1.1' }}>
                         {vendor.name}
                     </h1>
 
                     {(vendor.price || vendor.discount) && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '25px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '30px' }}>
                             {vendor.price && (
-                                <span style={{ textDecoration: 'line-through', textDecorationColor: '#e74c3c', color: '#999', fontSize: '1.4rem' }}>₪{vendor.price}</span>
+                                <span style={{ textDecoration: 'line-through', textDecorationColor: '#e74c3c', color: '#999', fontSize: '1.6rem' }}>₪{vendor.price}</span>
                             )}
                             {vendor.discount && (
-                                <span style={{ color: '#e74c3c', fontSize: '1.2rem', fontWeight: '800' }}>
+                                <div style={{ background: '#fff5f5', color: '#e74c3c', padding: '8px 20px', borderRadius: '50px', fontSize: '1.3rem', fontWeight: '800' }}>
                                     {vendor.discount}% הנחה לחברי Fiesta
-                                </span>
+                                </div>
                             )}
                         </div>
                     )}

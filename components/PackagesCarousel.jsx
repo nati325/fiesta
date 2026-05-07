@@ -1,15 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PackagesCarousel() {
     const [packages, setPackages] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
-    const scrollRef = useRef(null);
-    const intervalRef = useRef(null);
-
-    const [displayPackages, setDisplayPackages] = useState([]);
+    const [direction, setDirection] = useState(1); // 1 for next, -1 for prev
 
     useEffect(() => {
         fetch('/api/packages')
@@ -17,186 +15,380 @@ export default function PackagesCarousel() {
             .then(data => {
                 const active = data.filter(p => p.active);
                 setPackages(active);
-                if (active.length > 0) {
-                    // Duplicate 3 times for infinite scroll illusion
-                    setDisplayPackages([...active, ...active, ...active]);
-                }
             })
             .catch(() => setPackages([]));
     }, []);
 
-    // Auto-scroll logic
+    // Auto-advance logic
     useEffect(() => {
-        if (packages.length <= 1) return;
-        if (!isPaused) {
-            intervalRef.current = setInterval(() => {
-                if (scrollRef.current) {
-                    scrollRef.current.scrollBy({ left: -320, behavior: 'smooth' });
-                }
-            }, 3000);
-        }
-        return () => clearInterval(intervalRef.current);
+        if (packages.length <= 1 || isPaused) return;
+        
+        const interval = setInterval(() => {
+            // Auto-play should naturally slide to the next item visually on the left
+            setDirection(-1);
+            setCurrentIndex((prev) => (prev + 1) % packages.length);
+        }, 3500); // Faster auto-play
+
+        return () => clearInterval(interval);
     }, [packages.length, isPaused]);
-
-    // Seamless Infinite Loop Logic
-    useEffect(() => {
-        const scrollNode = scrollRef.current;
-        if (!scrollNode || packages.length <= 1) return;
-
-        const handleScroll = () => {
-            const { scrollLeft, scrollWidth } = scrollNode;
-            const blockWidth = scrollWidth / 3;
-
-            // In RTL, scrollLeft is usually negative.
-            // When we scroll deep enough (past the 2nd block), we silently jump back to the 1st block.
-            // If we scroll back to the start (0), we silently jump to the 2nd block.
-            if (Math.abs(scrollLeft) >= blockWidth * 2 - 20) {
-                // Jump back by exactly one block width
-                scrollNode.scrollLeft = scrollLeft + blockWidth;
-            } else if (Math.abs(scrollLeft) <= 10) {
-                // Jump forward to the middle block
-                scrollNode.scrollLeft = scrollLeft - blockWidth;
-            }
-        };
-
-        scrollNode.addEventListener('scroll', handleScroll);
-        // Initialize position to the middle block so user can scroll left or right infinitely
-        // Give the DOM a tiny bit of time to render widths
-        setTimeout(() => {
-            if (scrollRef.current) {
-                scrollRef.current.scrollLeft = -(scrollRef.current.scrollWidth / 3);
-            }
-        }, 100);
-
-        return () => scrollNode.removeEventListener('scroll', handleScroll);
-    }, [packages.length]);
 
     if (!packages.length) return null;
 
-    const scroll = (offset) => {
-        if (!scrollRef.current) return;
-        scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-        // The container's onMouseEnter already handles pausing when the user interacts with the buttons.
-        // We removed the manual setIsPaused timeout here to prevent state conflicts.
+    // In RTL, items are visually mapped [2] [1] [0] from left to right.
+    // dir = 1 means sliding from RIGHT to LEFT.
+    // dir = -1 means sliding from LEFT to RIGHT.
+    const slideFromRight = () => {
+        setDirection(1);
+        // Going to an index that is visually to the right means decreasing the index
+        setCurrentIndex((prev) => (prev - 1 + packages.length) % packages.length);
+    };
+
+    const slideFromLeft = () => {
+        setDirection(-1);
+        // Going to an index that is visually to the left means increasing the index
+        setCurrentIndex((prev) => (prev + 1) % packages.length);
+    };
+
+    const currentPackage = packages[currentIndex];
+
+    // Premium Variants for a more fluid feel
+    const slideVariants = {
+        enter: (dir) => ({
+            x: dir > 0 ? '100%' : '-100%',
+            opacity: 0,
+            scale: 1.1
+        }),
+        center: {
+            x: 0,
+            opacity: 1,
+            scale: 1,
+            transition: { 
+                x: { type: "spring", stiffness: 220, damping: 24 },
+                opacity: { duration: 0.4 },
+                scale: { duration: 0.5, ease: "easeOut" }
+            }
+        },
+        exit: (dir) => ({
+            x: dir > 0 ? '-100%' : '100%',
+            opacity: 0,
+            scale: 0.9,
+            transition: { 
+                x: { type: "spring", stiffness: 220, damping: 24 },
+                opacity: { duration: 0.3 }
+            }
+        })
     };
 
     return (
-        <section style={{
-            padding: '20px 0',
-            background: '#ffffff',
+        <section className="packages-carousel-section" style={{
+            padding: '60px 0 0 0',
+            background: 'var(--white)',
             position: 'relative'
         }}>
             <div className="container" style={{ maxWidth: '1200px' }}>
-                <div style={{ marginBottom: '15px', padding: '0 10px' }}>
-                    <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1a1a1a', margin: '0 0 2px 0' }}>
-                        חבילות משתלמות
-                    </h2>
-                    <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>
-                        הדרך החכמה והחסכונית ביותר לסגור אירוע
-                    </p>
-                </div>
-
-                {/* Netflix style wrapper with arrows */}
-                <div style={{ position: 'relative' }} 
-                     onMouseEnter={() => setIsPaused(true)}
-                     onMouseLeave={() => setIsPaused(false)}>
-                     
-                    {packages.length > 1 && (
-                        <button className="carousel-nav" onClick={() => scroll(320)} style={{
-                            position: 'absolute', right: '-15px', top: '50%', transform: 'translateY(-50%)', zIndex: 10,
-                            width: '40px', height: '40px', borderRadius: '50%', background: 'white', border: '1px solid #eee',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333'
-                        }}>‹</button>
-                    )}
-
-                    <div ref={scrollRef} className="hide-scrollbar" style={{
-                        display: 'flex',
-                        gap: '15px',
-                        overflowX: 'auto',
-                        scrollBehavior: 'smooth',
-                        scrollSnapType: 'x mandatory',
-                        padding: '5px 5px 15px 5px',
-                        margin: '0 -5px'
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <h2 style={{ 
+                        fontSize: 'clamp(2rem, 5vw, 3rem)', 
+                        fontFamily: 'var(--font-display)', 
+                        fontWeight: 800, 
+                        color: '#1a1a1a', 
+                        margin: '0 0 10px 0'
                     }}>
-                    {displayPackages.map((p, idx) => (
-                        <div key={`${p.id}-${idx}`} style={{
-                            flex: '0 0 260px',
-                            scrollSnapAlign: 'start',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            background: '#fff',
-                            borderRadius: '12px',
-                            border: '1px solid #f0f0f0',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                            overflow: 'hidden',
-                            transition: 'transform 0.2s, box-shadow 0.2s',
-                            cursor: 'pointer'
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 15px rgba(0,0,0,0.06)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; }}
-                        >
-                            {/* Image */}
-                            <div style={{ height: '110px', position: 'relative', background: '#f8f8f8' }}>
-                                {p.image && <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                                {p.badge && (
-                                    <div style={{
-                                        position: 'absolute', top: '8px', right: '8px',
-                                        background: p.badgeColor || '#1a1a1a', color: 'white',
-                                        padding: '3px 10px', borderRadius: '15px', fontSize: '0.7rem', fontWeight: 600
-                                    }}>
-                                        {p.badge}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Content */}
-                            <div style={{ padding: '12px 15px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                <div style={{ color: '#D4AF37', fontSize: '0.75rem', fontWeight: 700, marginBottom: '4px' }}>{p.tagline}</div>
-                                <h3 style={{ fontSize: '1rem', color: '#1a1a1a', fontWeight: 800, margin: '0 0 6px 0', lineHeight: 1.2 }}>
-                                    {p.title}
-                                </h3>
-                                <p style={{ color: '#666', fontSize: '0.8rem', margin: '0 0 10px 0', lineHeight: 1.4, flex: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                    {p.description}
-                                </p>
-                                
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid #f5f5f5' }}>
-                                    <div style={{ fontWeight: 700, color: '#1a1a1a', fontSize: '0.85rem' }}>
-                                        {p.saving ? p.saving : 'הצעה משתלמת'}
-                                    </div>
-                                    <a
-                                        href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי! ראיתי את ${p.title} באתר Fiesta ורוצה לשמוע פרטים`)}`}
-                                        target="_blank" rel="noopener noreferrer"
-                                        style={{
-                                            background: '#f8f8f8', color: '#1a1a1a', padding: '6px 12px', borderRadius: '6px',
-                                            fontSize: '0.75rem', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px',
-                                            transition: 'background 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => { e.currentTarget.style.background = '#1a1a1a'; e.currentTarget.style.color = 'white'; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f8f8'; e.currentTarget.style.color = '#1a1a1a'; }}
-                                    >
-                                        לפרטים
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    </div>
-
-                    {packages.length > 1 && (
-                        <button className="carousel-nav" onClick={() => scroll(-320)} style={{
-                            position: 'absolute', left: '-15px', top: '50%', transform: 'translateY(-50%)', zIndex: 10,
-                            width: '40px', height: '40px', borderRadius: '50%', background: 'white', border: '1px solid #eee',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333'
-                        }}>›</button>
-                    )}
+                        חבילות <span style={{ color: 'var(--primary-color)' }}>פרימיום</span>
+                    </h2>
+                    <p style={{ color: '#666', fontSize: '1.1rem', margin: 0 }}>
+                        ההצעות המשתלמות והמקיפות ביותר לאירוע של פעם בחיים
+                    </p>
                 </div>
             </div>
 
-            <style>{`
-                .hide-scrollbar::-webkit-scrollbar { display: none; }
-                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                @media (max-width: 768px) {
-                    .carousel-nav { display: none !important; }
+            <div 
+                className="featured-carousel-container"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    overflow: 'hidden',
+                    height: '500px' // Increased height for better prominence
+                }}
+            >
+                    <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                        <motion.div
+                            key={currentIndex}
+                            custom={direction}
+                            variants={slideVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{ x: { type: "spring", stiffness: 220, damping: 24 }, opacity: { duration: 0.3 } }}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                position: 'absolute',
+                                inset: 0
+                            }}
+                            className="featured-slide"
+                        >
+                            {/* Full Background Image */}
+                            {currentPackage.image && (
+                                <img 
+                                    src={currentPackage.image} 
+                                    alt={currentPackage.title} 
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        objectFit: 'cover', 
+                                        position: 'absolute', 
+                                        inset: 0,
+                                        filter: 'brightness(0.95)'
+                                    }} 
+                                />
+                            )}
+                            
+                            {/* Enhanced dark gradient for text readability */}
+                            <div style={{ 
+                                position: 'absolute', inset: 0, 
+                                background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%), linear-gradient(to left, rgba(0,0,0,0.7) 0%, transparent 100%)'
+                            }}></div>
+                            
+                            {/* Glass Content Card Overlay (Subtle) */}
+                            <div style={{
+                                position: 'absolute',
+                                inset: 0,
+                                background: 'radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 70%)',
+                                pointerEvents: 'none'
+                            }}></div>
+                            
+                            {/* Premium Gold Badge */}
+                            {currentPackage.badge && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    style={{
+                                        position: 'absolute', top: '30px', left: '5vw',
+                                        background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
+                                        color: '#fff',
+                                        padding: '8px 25px', borderRadius: '50px', fontSize: '0.85rem', 
+                                        fontWeight: 800, letterSpacing: '1px',
+                                        boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        zIndex: 3
+                                    }}>
+                                    {currentPackage.badge}
+                                </motion.div>
+                            )}
+
+                            {/* Content Overlaid */}
+                            <div className="featured-content" style={{ 
+                                position: 'absolute',
+                                bottom: 0, right: 0, left: 0,
+                                padding: '30px 5vw', // Responsive padding for edge-to-edge
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                justifyContent: 'flex-end',
+                                textAlign: 'right',
+                                zIndex: 2
+                            }}>
+                                <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+                                    <span style={{ 
+                                        color: 'var(--primary-color)', 
+                                        fontSize: '0.8rem', 
+                                        fontWeight: 700, 
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '3px',
+                                        marginBottom: '5px',
+                                        display: 'block'
+                                    }}>
+                                    {currentPackage.tagline || 'Special Offer'}
+                                </span>
+                                
+                                <h3 style={{ 
+                                    fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', 
+                                    color: '#ffffff', 
+                                    margin: '0 0 10px 0',
+                                    fontFamily: 'var(--font-display)',
+                                    fontWeight: 800,
+                                    lineHeight: 1.1,
+                                    textShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                }}>
+                                    {currentPackage.title}
+                                </h3>
+                                
+                                <p style={{ 
+                                    color: 'rgba(255,255,255,0.85)', 
+                                    fontSize: 'clamp(0.95rem, 1.2vw, 1.1rem)', 
+                                    lineHeight: 1.5,
+                                    marginBottom: '25px',
+                                    maxWidth: '700px',
+                                    textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                                }}>
+                                    {currentPackage.description}
+                                </p>
+                                
+                                <div className="action-row" style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center',
+                                    gap: '40px'
+                                }}>
+                                    <motion.a
+                                        whileHover={{ scale: 1.05, boxShadow: '0 15px 35px rgba(212, 175, 55, 0.5)' }}
+                                        whileTap={{ scale: 0.95 }}
+                                        href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי! ראיתי את ${currentPackage.title} באתר Fiesta ורוצה לשמוע פרטים`)}`}
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="btn btn-primary luxury-btn"
+                                        style={{ 
+                                            padding: '16px 45px', 
+                                            fontSize: '1.1rem',
+                                            background: 'linear-gradient(135deg, var(--primary-color) 0%, #B8860B 100%)',
+                                            color: '#111',
+                                            border: 'none',
+                                            borderRadius: '100px',
+                                            fontWeight: 900,
+                                            boxShadow: '0 10px 30px rgba(212, 175, 55, 0.3)',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '1px'
+                                        }}
+                                    >
+                                        לכל הפרטים
+                                    </motion.a>
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', borderRight: '2px solid var(--primary-color)', paddingRight: '20px' }}>
+                                        <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>חיסכון צפוי</span>
+                                        <span style={{ fontWeight: 900, color: '#ffffff', fontSize: '1.6rem', textShadow: '0 2px 15px rgba(0,0,0,0.5)', fontFamily: 'var(--font-display)' }}>
+                                            {currentPackage.saving || 'מחיר בלעדי'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                    </AnimatePresence>
+
+                    {/* Navigation Controls */}
+
+                    {packages.length > 1 && (
+                        <>
+                            {/* Left Arrow */}
+                            <button onClick={slideFromLeft} className="nav-arrow-side left-arrow" aria-label="Next slide">
+                                <i className="fas fa-chevron-left"></i>
+                            </button>
+                            
+                            {/* Right Arrow */}
+                            <button onClick={slideFromRight} className="nav-arrow-side right-arrow" aria-label="Previous slide">
+                                <i className="fas fa-chevron-right"></i>
+                            </button>
+                        </>
+                    )}
+                    
+                    {/* Dots */}
+                    {packages.length > 1 && (
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '20px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            gap: '8px',
+                            zIndex: 10
+                        }}>
+                            {packages.map((_, idx) => (
+                                <button 
+                                    key={idx}
+                                    onClick={() => {
+                                        // Simple deterministic direction:
+                                        // In RTL, idx 0 is Right, idx 2 is Left.
+                                        // If we click idx 2 (Left), and we are at idx 1:
+                                        // idx > currentIndex => setDirection(-1) => Enters from -1000 (Left)
+                                        // If we click idx 0 (Right), and we are at idx 1:
+                                        // idx < currentIndex => setDirection(1) => Enters from 1000 (Right)
+                                        setDirection(idx > currentIndex ? -1 : 1);
+                                        setCurrentIndex(idx);
+                                    }}
+                                    style={{
+                                        width: idx === currentIndex ? '40px' : '12px',
+                                        height: '6px',
+                                        borderRadius: '10px',
+                                        background: idx === currentIndex 
+                                            ? 'linear-gradient(to right, #ffffff, var(--primary-color))' 
+                                            : 'rgba(255,255,255,0.3)',
+                                        border: 'none',
+                                        boxShadow: idx === currentIndex ? '0 0 15px rgba(212, 175, 55, 0.6)' : 'none',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                                    }}
+                                    aria-label={`Go to slide ${idx + 1}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <style jsx>{`
+                .nav-arrow-side {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    background: rgba(0, 0, 0, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    color: white;
+                    font-size: 1.4rem;
+                    z-index: 10;
+                    backdrop-filter: blur(12px);
+                }
+                .left-arrow { left: 3vw; }
+                .right-arrow { right: 3vw; }
+                
+                .nav-arrow-side:hover {
+                    background: var(--primary-color);
+                    border-color: var(--primary-color);
+                    transform: translateY(-50%) scale(1.1);
+                    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+                }
+                
+                .luxury-btn:hover {
+                    transform: scale(1.05);
+                    background: white !important;
+                    color: var(--primary-color) !important;
+                }
+                
+                @media (max-width: 900px) {
+                    .featured-carousel-container {
+                        height: 450px !important;
+                    }
+                    .featured-content {
+                        padding: 20px 5vw 30px !important;
+                    }
+                    .action-row {
+                        flex-direction: column;
+                        align-items: flex-end;
+                        gap: 10px !important;
+                    }
+                    .nav-arrow-side {
+                        display: none !important;
+                    }
+                }
+                @media (max-width: 600px) {
+                    .featured-carousel-container {
+                        height: 400px !important;
+                    }
+                    .featured-content {
+                        padding: 15px 5vw 25px !important;
+                    }
+                    .action-row .luxury-btn {
+                        padding: 8px 25px !important;
+                        font-size: 0.95rem !important;
+                        width: 100%;
+                        text-align: center;
+                    }
                 }
             `}</style>
         </section>
