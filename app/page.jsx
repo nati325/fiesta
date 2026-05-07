@@ -219,27 +219,6 @@ export default function HomePage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
                 >
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        style={{ 
-                            background: 'rgba(255,255,255,0.1)', 
-                            backdropFilter: 'blur(10px)',
-                            padding: '10px 30px',
-                            borderRadius: '100px',
-                            display: 'inline-block',
-                            marginBottom: '30px',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            fontSize: '0.9rem',
-                            fontWeight: 700,
-                            letterSpacing: '2px',
-                            color: 'var(--primary-color)',
-                            textTransform: 'uppercase'
-                        }}
-                    >
-                        Premium Wedding Planning
-                    </motion.div>
                     
                     <motion.h1 
                         className="hero-title"
@@ -581,10 +560,11 @@ export default function HomePage() {
                                                         <i className={`fas ${supplier.icon}`} style={{ fontSize: '1.3rem', color: 'var(--primary-color)' }}></i>
                                                     </div>
                                                     <h3 style={{ 
-                                                        fontSize: '1.25rem', 
+                                                        fontSize: '1.3rem', 
                                                         margin: 0, 
-                                                        fontWeight: 800,
-                                                        textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                                                        fontWeight: 900,
+                                                        color: '#ffffff', // Force white color
+                                                        textShadow: '0 2px 15px rgba(0,0,0,0.8)', // Stronger shadow
                                                         fontFamily: 'var(--font-display)',
                                                         letterSpacing: '0.5px'
                                                     }}>{supplier.title}</h3>
@@ -751,21 +731,21 @@ export default function HomePage() {
                                 יועצי האירועים שלנו כאן כדי להעניק לכם פגישת יעוץ ללא התחייבות, ולחבר אתכם לספקים המדויקים ביותר עבורכם.
                             </p>
                             
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                            <div className="contact-details-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '30px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <div style={{ width: '54px', height: '54px', borderRadius: '18px', background: '#fdfaf0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)', fontSize: '1.2rem', boxShadow: '0 10px 20px rgba(212,175,55,0.1)' }}>
+                                    <div style={{ width: '54px', height: '54px', borderRadius: '18px', background: '#fdfaf0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)', fontSize: '1.2rem', boxShadow: '0 10px 20px rgba(212,175,55,0.1)', flexShrink: 0 }}>
                                         <i className="fas fa-phone-alt"></i>
                                     </div>
-                                    <div>
+                                    <div style={{ textAlign: 'right' }}>
                                         <div style={{ fontSize: '0.8rem', color: '#999', fontWeight: 700, textTransform: 'uppercase' }}>טלפון זמין</div>
                                         <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1a1a1a' }}>053-5378985</div>
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <div style={{ width: '54px', height: '54px', borderRadius: '18px', background: '#fdfaf0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)', fontSize: '1.2rem', boxShadow: '0 10px 20px rgba(212,175,55,0.1)' }}>
+                                    <div style={{ width: '54px', height: '54px', borderRadius: '18px', background: '#fdfaf0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)', fontSize: '1.2rem', boxShadow: '0 10px 20px rgba(212,175,55,0.1)', flexShrink: 0 }}>
                                         <i className="fas fa-envelope-open-text"></i>
                                     </div>
-                                    <div>
+                                    <div style={{ textAlign: 'right' }}>
                                         <div style={{ fontSize: '0.8rem', color: '#999', fontWeight: 700, textTransform: 'uppercase' }}>אימייל</div>
                                         <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1a1a1a' }}>contact@fiesta.co.il</div>
                                     </div>
@@ -799,7 +779,7 @@ export default function HomePage() {
                                         className="premium-input"
                                     />
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                <div className="form-row-mobile" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <div className="form-group-premium">
                                         <label style={{ fontWeight: 800, fontSize: '0.85rem', color: '#888', marginBottom: '10px', display: 'block', marginRight: '5px' }}>טלפון</label>
                                         <input

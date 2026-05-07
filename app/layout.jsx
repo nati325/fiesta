@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
                     rel="stylesheet"
                 />
             </head>
-            <body className={`${assistant.variable} ${playfair.variable}`}>
+            <body className={`${assistant.variable} ${playfair.variable}`} suppressHydrationWarning>
                 <Providers>
                     <div className="app">
                         <Navbar />

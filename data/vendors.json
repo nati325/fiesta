@@ -5,72 +5,72 @@
     "type": "venue",
     "description": "גן אירועים יוקרתי בלב המרכז המשלב טבע ומודרניות, עם מטבח שף עילית ואווירה קלאסית.",
     "contact": "050-1234567",
-    "image": "/images/category_venue_1765749342686.png",
+    "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "חבילת אירוע קלאסית - אולם וקייטרינג",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "45,000 ₪"
       },
       {
         "id": 2,
         "title": "אירוע ערב יוקרתי - כולל עיצוב",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "60,000 ₪"
       },
       {
         "id": 3,
         "title": "חתונת צהריים בגן - אווירה כפרית",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "38,000 ₪"
       },
       {
         "id": 4,
         "title": "חבילת שף פרטית לאירועים קטנים",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "15,000 ₪"
       },
       {
         "id": 5,
         "title": "ערב קוקטייל והשקות עסקיות",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "22,000 ₪"
       },
       {
         "id": 6,
         "title": "עיצוב חופה וקבלת פנים יוקרתית",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "8,500 ₪"
       },
       {
         "id": 7,
         "title": "תפריט טעימות VIP לזוגות",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "800 ₪"
       },
       {
         "id": 8,
         "title": "חבילת בר משקאות חוץ משודרגת",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "5,000 ₪"
       },
       {
         "id": 9,
         "title": "אירוע בוטיק משולב לינה",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "12,000 ₪"
       },
       {
         "id": 10,
         "title": "שירותי הגברה ותאורה מתקדמים",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "4,500 ₪"
       },
       {
         "id": 11,
         "title": "חבילת פרימיום ‘טרה’ הכל כלול",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "85,000 ₪"
       }
     ]
@@ -81,72 +81,72 @@
     "type": "dj",
     "description": "התקליטן המוביל לאירועים שעושים שמח באמת, עם ניסיון של מעל עשור ברחבות הריקודים.",
     "contact": "052-1112223",
-    "image": "/images/category_dj_1765749357637.png",
+    "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "חבילת חתונה פרימיום - כולל הגברה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "5,500 ₪"
       },
       {
         "id": 2,
         "title": "סט מוזיקה לקבלת פנים וחופה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,500 ₪"
       },
       {
         "id": 3,
         "title": "מסיבת אפטר פארטי - עד השעות הקטנות",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "2,000 ₪"
       },
       {
         "id": 4,
         "title": "שירותי VJ ומסכי לד מעוצבים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "3,500 ₪"
       },
       {
         "id": 5,
         "title": "חבילת אירועים עסקיים והשקות",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "4,000 ₪"
       },
       {
         "id": 6,
         "title": "עמדת DJ יוקרתית מעוצבת",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,200 ₪"
       },
       {
         "id": 7,
         "title": "שילוב סקסופוניסט לייב בסט",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 8,
         "title": "מערכת תאורה חכמה לרחבה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,800 ₪"
       },
       {
         "id": 9,
         "title": "פגישת ייעוץ ובניית פלייליסט אישי",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "0 ₪"
       },
       {
         "id": 10,
         "title": "חבילת הגברה לטקס חופה חוץ",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,000 ₪"
       },
       {
         "id": 11,
         "title": "חבילת ‘הכל כלול’ - מסיבת השנה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "8,000 ₪"
       }
     ]
@@ -157,72 +157,72 @@
     "type": "photographer",
     "description": "צילום אומנותי ומרגש לכל סוגי האירועים, צוות מקצועי שמלווה אתכם מהבוקר ועד אחרון האורחים.",
     "contact": "054-9998887",
-    "image": "/images/category_photographer_1765749328393.png",
+    "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "חבילת צילום סטילס יום שלם",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "6,000 ₪"
       },
       {
         "id": 2,
         "title": "צילום וידאו HDR ב-4K",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "4,500 ₪"
       },
       {
         "id": 3,
         "title": "אלבום פרימיום מעוצב בעבודת יד",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "1,200 ₪"
       },
       {
         "id": 4,
         "title": "צילום רחפן (צילומי אוויר)",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "1,500 ₪"
       },
       {
         "id": 5,
         "title": "סשן צילומי זוגיות (Pre-Wedding)",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "2,000 ₪"
       },
       {
         "id": 6,
         "title": "צילומי בוק בת/בר מצווה",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "1,800 ₪"
       },
       {
         "id": 7,
         "title": "סטודיו נייד לאורחים (Photobooth)",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 8,
         "title": "עריכת קליפ High-Light מהיר",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "1,000 ₪"
       },
       {
         "id": 9,
         "title": "צילום אינטנסיבי לאירועי ערב",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "3,000 ₪"
       },
       {
         "id": 10,
         "title": "צילום מגנטים באיכות גבוהה",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "1,500 ₪"
       },
       {
         "id": 11,
         "title": "חבילת צילום ‘הכל כלול’ (2 צלמים)",
-        "image": "/images/category_photographer_1765749369528.png",
+        "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
         "price": "12,000 ₪"
       }
     ]
@@ -743,72 +743,72 @@
     "type": "singers",
     "description": "זמרים ולהקות חיות שיכניסו אנרגיה מטורפת לקבלת הפנים ולריקודים.",
     "contact": "050-6665554",
-    "image": "/images/category_dj_1765749357637.png",
+    "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "להקת אירועים פרימיום (6 נגנים)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "12,000 ₪"
       },
       {
         "id": 2,
         "title": "זמר אורח להופעה של 45 דקות",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "5,000 ₪"
       },
       {
         "id": 3,
         "title": "צמד זמרים לדואט מרגש בחופה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 4,
         "title": "הרכב אקוסטי לקבלת פנים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "3,500 ₪"
       },
       {
         "id": 5,
         "title": "זמר פופ/מזרחי לרחבת הריקודים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "6,500 ₪"
       },
       {
         "id": 6,
         "title": "חבילת ‘Live Band’ משולבת DJ",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "15,000 ₪"
       },
       {
         "id": 7,
         "title": "ליווי סקסופון וכנרת לקבלת פנים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "3,000 ₪"
       },
       {
         "id": 8,
         "title": "להקת קאברים ללהיטים מכל הזמנים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "9,000 ₪"
       },
       {
         "id": 9,
         "title": "מופע כניסה דרמטי של זמר/ת",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,500 ₪"
       },
       {
         "id": 10,
         "title": "חבילת הגברה ותאורה להופעה חיה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 11,
         "title": "חבילת פרימיום ‘Party Star’",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "20,000 ₪"
       }
     ]
@@ -824,67 +824,67 @@
       {
         "id": 1,
         "title": "עיצוב חופה קלאסי (לבן וזהב)",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "5,500 ₪"
       },
       {
         "id": 2,
         "title": "עיצוב מרכזי שולחן (פרחי משי)",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "150 ₪ לשולחן"
       },
       {
         "id": 3,
         "title": "סידורי פרחים רעננים (עונתי)",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "3,500 ₪"
       },
       {
         "id": 4,
         "title": "תפאורת קבלת פנים יוקרתית",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "2,800 ₪"
       },
       {
         "id": 5,
         "title": "מיתוג שולחנות ואביזרי נוי",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "1,200 ₪"
       },
       {
         "id": 6,
         "title": "עיצוב שדרת חופה עם נרות",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "1,800 ₪"
       },
       {
         "id": 7,
         "title": "חבילת ‘Garden Wedding’ (כפרי)",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "4,500 ₪"
       },
       {
         "id": 8,
         "title": "עיצוב כסא כלה מלכותי",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 9,
         "title": "מפות ומפיות פרימיום מעוצבות",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "20 ₪ למנה"
       },
       {
         "id": 10,
         "title": "עיצוב קירות צילום (Flower Wall)",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "2,200 ₪"
       },
       {
         "id": 11,
         "title": "חבילת פרימיום ‘Designer Touch’",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "12,000 ₪"
       }
     ]
@@ -1123,72 +1123,72 @@
     "type": "religious-bands",
     "description": "להקות דתיות להרקדה נפרדת או מעורבת עם מיטב הלהיטים והשירים היהודיים.",
     "contact": "052-5556667",
-    "image": "/images/category_dj_1765749357637.png",
+    "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "להקת פרימיום להרקדה יהודית אותנטית",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "8,500 ₪"
       },
       {
         "id": 2,
         "title": "צמד כליזמרים לקבלת פנים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 3,
         "title": "זמר פייטן לחופה וקידושין",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,800 ₪"
       },
       {
         "id": 4,
         "title": "חבילת מוזיקה משולבת (דתי-ישראלי)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "12,000 ₪"
       },
       {
         "id": 5,
         "title": "להקת ילדים/מקהלה לטקסים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "3,000 ₪"
       },
       {
         "id": 6,
         "title": "מוזיקת עולם יהודית לאירועי בוטיק",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "4,500 ₪"
       },
       {
         "id": 7,
         "title": "סט מוזיקה חסידית לרחבת הריקודים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "5,000 ₪"
       },
       {
         "id": 8,
         "title": "שירותי הגברה ותאורה לאירוע דתי",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 9,
         "title": "הרקדה מזרחית/ים תיכונית דתית",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "6,000 ₪"
       },
       {
         "id": 10,
         "title": "חבילת ‘שמחת עולם’ המלאה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "15,000 ₪"
       },
       {
         "id": 11,
         "title": "ליווי לכלה ביום החתונה (כינור)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,500 ₪"
       }
     ]
@@ -1275,72 +1275,72 @@
     "type": "design",
     "description": "עיצוב חלל האירוע, מרכזי שולחן מפרחים וחופות מעוצבות בטוב טעם.",
     "contact": "050-3332221",
-    "image": "/images/category_venue_1765749342686.png",
+    "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "עיצוב וילונות תחרה לחופה",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "1,200 ₪"
       },
       {
         "id": 2,
         "title": "סידורי שולחן בסגנון בוהו-שיק",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "180 ₪ לשולחן"
       },
       {
         "id": 3,
         "title": "עמדות אלכוהול מעוצבות מעץ",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "2,500 ₪"
       },
       {
         "id": 4,
         "title": "תאורת אווירה (Fairy Lights) לגן",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "3,000 ₪"
       },
       {
         "id": 5,
         "title": "מיתוג אישי על בקבוקי יין",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "35 ₪ ליחידה"
       },
       {
         "id": 6,
         "title": "עיצוב כניסה עם שלטי ברוכים הבאים",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "800 ₪"
       },
       {
         "id": 7,
         "title": "שטיח לבן ועלי כותרת לחופה",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "600 ₪"
       },
       {
         "id": 8,
         "title": "עיצוב בר קינוחים מרהיב",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "4,000 ₪"
       },
       {
         "id": 9,
         "title": "חבילת לוחיות שם מעוצבות",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "5 ₪ ליחידה"
       },
       {
         "id": 10,
         "title": "עיצוב חלל האירוע בפרחים יבשים",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "5,500 ₪"
       },
       {
         "id": 11,
         "title": "חבילת עיצוב פרימיום ‘Art Exclusive’",
-        "image": "/images/category_venue_1765749342686.png",
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
         "price": "15,000 ₪"
       }
     ]
@@ -1731,72 +1731,72 @@
     "type": "cantors",
     "description": "ליווי חופה מרגש במיטב מסורת ישראל, קול זמיר ושמחה אמיתית.",
     "contact": "050-7776665",
-    "image": "/images/category_dj_1765749357637.png",
+    "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
     "portfolio": [
       {
         "id": 1,
         "title": "ליווי חופה בשירה פיוטית ומרגשת",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,500 ₪"
       },
       {
         "id": 2,
         "title": "כניסת חתן בלבוש מסורתי ושירה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "800 ₪"
       },
       {
         "id": 3,
         "title": "הנחיית טקס החופה (קול רדיופוני)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,200 ₪"
       },
       {
         "id": 4,
         "title": "שירת 'אם אשכחך' בלחן ייחודי",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "500 ₪"
       },
       {
         "id": 5,
         "title": "הרכב פייטנים לליווי סעודת המצווה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "3,500 ₪"
       },
       {
         "id": 6,
         "title": "שמחת חתן וכלה בשירים עבריים",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,800 ₪"
       },
       {
         "id": 7,
         "title": "שופרות ומתופפים לכניסה מרשימה",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,200 ₪"
       },
       {
         "id": 8,
         "title": "פייטן לליווי שבע ברכות (ערב)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "1,000 ₪"
       },
       {
         "id": 9,
         "title": "חבילת ‘מוזיקה מהלב’ (3 נגנים)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "4,500 ₪"
       },
       {
         "id": 10,
         "title": "שירה ופיוט בחנייה (לפני החופה)",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "600 ₪"
       },
       {
         "id": 11,
         "title": "חבילת פרימיום ‘Zamir Voice’",
-        "image": "/images/category_dj_1765749357637.png",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
         "price": "7,500 ₪"
       }
     ]
@@ -1816,5 +1816,109 @@
     "contact": "0545467876",
     "description": "הכי טוב בחדר",
     "image": ""
-  }
+  },
+  {
+    "id": 1001,
+    "name": "קייטרינג 'טעם החיים'",
+    "type": "catering",
+    "description": "חוויה קולינרית משובחת עם דגש על חומרי גלם טריים ועיצוב מנות אומנותי.",
+    "contact": "050-7776665",
+    "image": "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80",
+    "location": "מרכז"
+  },
+  {
+    "id": 1002,
+    "name": "קייטרינג 'ארגמן'",
+    "type": "catering",
+    "description": "קייטרינג בוטיק לאירועים קטנים ויוקרתיים, תפריט מותאם אישית לכל לקוח.",
+    "contact": "050-4443332",
+    "image": "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80",
+    "location": "ירושלים"
+  },
+  {
+    "id": 1003,
+    "name": "DJ AMIR",
+    "type": "dj",
+    "description": "מוזיקה שמרעידה את הרחבה. מומחה במוזיקת מיינסטרים ומוזיקה ים תיכונית.",
+    "contact": "052-8887776",
+    "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
+    "location": "כל הארץ"
+  },
+  {
+    "id": 1004,
+    "name": "DJ MAYA",
+    "type": "dj",
+    "description": "תקליטנית עם אנרגיה מטורפת, משלבת לייב אלקטרוני וסטים ייחודיים.",
+    "contact": "052-5554443",
+    "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=800&q=80",
+    "location": "תל אביב"
+  },
+  {
+    "id": 1005,
+    "name": "אולם אירועים 'קאלה'",
+    "type": "venue",
+    "description": "מתחם אירועים אורבני ומעוצב בחיפה, המקום המושלם לחתונה מודרנית.",
+    "contact": "054-2223334",
+    "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
+    "location": "חיפה"
+  },
+  {
+    "id": 1006,
+    "name": "אחוזה בכפר",
+    "type": "venue",
+    "description": "גן אירועים כפרי ופסטורלי טובל בירוק, חוויה כפרית קרובה למרכז.",
+    "contact": "054-6667778",
+    "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
+    "location": "שפלה"
+  },
+  {
+    "id": 1007,
+    "name": "צילום 'זיכרון מתוק'",
+    "type": "photographer",
+    "description": "לוכדים את הרגעים היפים ביותר שלכם בצורה טבעית ומרגשת.",
+    "contact": "054-1112229",
+    "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
+    "location": "דרום"
+  },
+  {
+    "id": 1008,
+    "name": "סטודיו לוק",
+    "type": "photographer",
+    "description": "צילום אופנה ואירועים ברמה הגבוהה ביותר, עם דגש על עיבוד תמונה מוקפד.",
+    "contact": "054-3334445",
+    "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
+    "location": "צפון"
+  },
+  { "id": "v1", "name": "אלכוהול פרימיום", "type": "alcohol", "description": "חבילות אלכוהול יוקרתיות לכל סוגי האירועים.", "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v2", "name": "בר המלכים", "type": "alcohol", "description": "בר אקטיבי ושירותי מזיגה ברמה הגבוהה ביותר.", "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v3", "name": "אטרקציות אקסטרים", "type": "attractions", "description": "מתנפחים, עמדות מולטימדיה ושלל אטרקציות לילדים ומבוגרים.", "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v4", "name": "פיאסטה אטרקציות", "type": "attractions", "description": "זיקוקים, עשן כבד וכל מה שצריך לרגעים המרגשים.", "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v5", "name": "איפור בסטייל", "type": "makeup", "description": "איפור כלה וערב עמיד וזוהר לכל אירוע.", "image": "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v6", "name": "סטודיו ביוטי", "type": "makeup", "description": "מומחית להדגשת תווי פנים ואיפור טבעי.", "image": "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v7", "name": "מספרת הצמרת", "type": "hair", "description": "עיצוב שיער לכלות ולערב בסגנונות קלאסיים ומודרניים.", "image": "https://images.unsplash.com/photo-1560869713-7d0a29430039?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v8", "name": "שיער ויופי", "type": "hair", "description": "תסרוקות מעוצבות ועמידות לאורך כל הערב.", "image": "https://images.unsplash.com/photo-1560869713-7d0a29430039?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v9", "name": "הזמנות יוקרה", "type": "invitations", "description": "עיצוב והדפסת הזמנות אישיות ומעוצבות על נייר איכותי.", "image": "https://images.unsplash.com/photo-1607192233397-51493dd4aa70?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v10", "name": "הזמנה דיגיטלית", "type": "invitations", "description": "פתרון מודרני ומהיר להזמנות לאירוע שלכם.", "image": "https://images.unsplash.com/photo-1607192233397-51493dd4aa70?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v11", "name": "שמלות הלבן", "type": "dresses", "description": "קולקציית שמלות כלה בעיצובים ייחודיים ובדים יוקרתיים.", "image": "https://images.unsplash.com/photo-1594553939328-14936d6f5f3e?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v12", "name": "בוטיק שמלות", "type": "dresses", "description": "שמלות כלה בהתאמה אישית לכל כלה.", "image": "https://images.unsplash.com/photo-1594553939328-14936d6f5f3e?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v13", "name": "חליפות החתן", "type": "suits", "description": "מבחר חליפות חתן וערב בגזרות מודרניות וקלאסיות.", "image": "https://images.unsplash.com/photo-1594932224015-610b8116ce9f?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v14", "name": "חליפת הג'נטלמן", "type": "suits", "description": "התאמת חליפה אישית ליום המושלם.", "image": "https://images.unsplash.com/photo-1594932224015-610b8116ce9f?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v15", "name": "הפקות פאר", "type": "event-production", "description": "ניהול והפקת אירועים מא' ועד ת'.", "image": "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v16", "name": "מפיקי חלומות", "type": "event-production", "description": "אנחנו כאן כדי להפוך את החזון שלכם למציאות.", "image": "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v17", "name": "מלון הבוטיק", "type": "hotels", "description": "סוויטות מפוארות לליל הכלולות ולהתארגנות.", "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v18", "name": "מלון המלכים", "type": "hotels", "description": "אירוח מושלם בלב העיר.", "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v19", "name": "טבעות הזהב", "type": "rings", "description": "מבחר טבעות נישואין ואירוסין בעבודת יד.", "image": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v20", "name": "תכשיטי היוקרה", "type": "rings", "description": "עיצוב תכשיטים אישי וייחודי.", "image": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v21", "name": "רב מרגש", "type": "rabbi", "description": "עריכת חופות בצורה מרגשת ומסורתית.", "image": "https://images.unsplash.com/photo-1505932794465-147d1f1b2c97?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v22", "name": "הרב אברהם", "type": "rabbi", "description": "ליווי אישי וטקס חופה בלתי נשכח.", "image": "https://images.unsplash.com/photo-1505932794465-147d1f1b2c97?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v23", "name": "נעלי הכלה שלי", "type": "bride-shoes", "description": "נעליים נוחות ומעוצבות ליום החתונה.", "image": "https://images.unsplash.com/photo-1549416878-b99b533e46bc?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v24", "name": "נעלי הנסיכה", "type": "bride-shoes", "description": "עיצובים קלאסיים ונוחות מקסימלית.", "image": "https://images.unsplash.com/photo-1549416878-b99b533e46bc?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v25", "name": "נעלי החתן", "type": "groom-shoes", "description": "נעלי עור יוקרתיות ונוחות לאורך כל האירוע.", "image": "https://images.unsplash.com/photo-1539185441755-769473a23957?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v26", "name": "צעד החתן", "type": "groom-shoes", "description": "מבחר נעלי ערב במגוון צבעים וסגנונות.", "image": "https://images.unsplash.com/photo-1539185441755-769473a23957?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v27", "name": "דיאטת Fiesta", "type": "dietitians", "description": "ליווי תזונתי מקצועי להכנה לחתונה.", "image": "https://images.unsplash.com/photo-1490645935967-1306ba001491?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v28", "name": "תזונה נכונה", "type": "dietitians", "description": "בניית תפריט אישי לאורח חיים בריא.", "image": "https://images.unsplash.com/photo-1490645935967-1306ba001491?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v29", "name": "מאמן אישי VIP", "type": "personal-training", "description": "אימוני כושר אישיים להכנה ליום הגדול.", "image": "https://images.unsplash.com/photo-15344383272d6-0a0e22b3b64e?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v30", "name": "סטודיו פיט", "type": "personal-training", "description": "אימונים פונקציונליים בקבוצות קטנות.", "image": "https://images.unsplash.com/photo-15344383272d6-0a0e22b3b64e?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v31", "name": "רכבי יוקרה", "type": "cars", "description": "השכרת רכבי יוקרה ורכבי אספנות ליום החתונה.", "image": "https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?auto=format&fit=crop&w=800&q=80" },
+  { "id": "v32", "name": "לימוזין פלוס", "type": "cars", "description": "שירותי הסעות VIP ולימוזינות מפוארות.", "image": "https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?auto=format&fit=crop&w=800&q=80" }
 ]

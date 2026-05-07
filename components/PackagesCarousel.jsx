@@ -362,32 +362,37 @@ export default function PackagesCarousel() {
                 
                 @media (max-width: 900px) {
                     .featured-carousel-container {
-                        height: 450px !important;
-                    }
-                    .featured-content {
-                        padding: 20px 5vw 30px !important;
-                    }
-                    .action-row {
-                        flex-direction: column;
-                        align-items: flex-end;
-                        gap: 10px !important;
-                    }
-                    .nav-arrow-side {
-                        display: none !important;
-                    }
-                }
-                @media (max-width: 600px) {
-                    .featured-carousel-container {
                         height: 400px !important;
                     }
                     .featured-content {
                         padding: 15px 5vw 25px !important;
                     }
+                    .action-row {
+                        flex-direction: column;
+                        align-items: flex-end;
+                        gap: 12px !important;
+                    }
+                    .nav-arrow-side {
+                        display: none !important;
+                    }
+                    h3 { font-size: 1.8rem !important; }
+                    p { font-size: 0.9rem !important; margin-bottom: 15px !important; }
+                }
+                @media (max-width: 600px) {
+                    .featured-carousel-container {
+                        height: 360px !important;
+                    }
+                    .featured-content {
+                        padding: 10px 5vw 20px !important;
+                    }
                     .action-row .luxury-btn {
-                        padding: 8px 25px !important;
-                        font-size: 0.95rem !important;
+                        padding: 10px 25px !important;
+                        font-size: 0.9rem !important;
                         width: 100%;
                         text-align: center;
+                    }
+                    .featured-slide img {
+                        filter: brightness(0.8) !important;
                     }
                 }
             `}</style>
