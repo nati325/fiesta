@@ -1,13 +1,10 @@
-import ArticleModel from '@/lib/models/Article';
-
-function isAdmin(request) {
-    // TEMPORARY BYPASS FOR TESTING
-    return true;
-}
+import dbConnect from '@/lib/mongodb';
+import Article from '@/lib/models/Article';
 
 export async function GET() {
     try {
-        const articles = ArticleModel.getAll();
+        await dbConnect();
+        const articles = await Article.find({}).sort({ createdAt: -1 });
         return Response.json(articles);
     } catch (error) {
         return Response.json({ message: 'Error fetching articles', error: error.message }, { status: 500 });
@@ -15,12 +12,10 @@ export async function GET() {
 }
 
 export async function POST(request) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
-    }
     try {
+        await dbConnect();
         const body = await request.json();
-        const newArticle = ArticleModel.create(body);
+        const newArticle = await Article.create(body);
         return Response.json(newArticle, { status: 201 });
     } catch (error) {
         return Response.json({ message: error.message }, { status: 400 });

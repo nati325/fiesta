@@ -3,6 +3,7 @@ import './globals.css';
 import Providers from './providers';
 import Navbar from '@/components/Navbar';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import TrafficTracker from '@/components/TrafficTracker';
 
 const assistant = Assistant({
     subsets: ['latin'],
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
             </head>
             <body className={`${assistant.variable} ${playfair.variable}`} suppressHydrationWarning>
                 <Providers>
+                    <TrafficTracker />
                     <div className="app">
                         <Navbar />
                         <main>

@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": 1715088000000,
+    "name": "ישראל ישראלי",
+    "phone": "0501234567",
+    "status": "סגר עם אולם",
+    "closedWithId": 1,
+    "closedWithTitle": "אולם המלוכה",
+    "closedDate": "2026-05-01"
+  },
+  {
+    "id": 1715088100000,
+    "name": "מיכל כהן",
+    "phone": "0529876543",
+    "status": "סגר עם ספק",
+    "closedWithId": 2,
+    "closedWithTitle": "דיג'יי אלפא",
+    "closedDate": "2026-05-03"
+  },
+  {
+    "id": 1715088200000,
+    "name": "דוד לוי",
+    "phone": "0541112233",
+    "status": "סגר עם אולם וספק",
+    "closedWithId": 1,
+    "closedWithTitle": "אולם המלוכה",
+    "closedDate": "2026-05-05"
+  },
+  {
+    "id": 1715088300000,
+    "name": "שרה שוורץ",
+    "phone": "0533334444",
+    "status": "סגר עם אולם",
+    "closedWithId": 3,
+    "closedWithTitle": "צלם הפקות",
+    "closedDate": "2026-05-07"
+  }
+]

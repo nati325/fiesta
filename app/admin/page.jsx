@@ -6,6 +6,9 @@ import { useState, useEffect } from 'react';
 import { useVendors } from '@/context/VendorContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+
 const StatCard = ({ count, label, icon, color, bg }) => (
     <div className="crm-stat-card">
         <div className="crm-stat-icon" style={{ backgroundColor: bg, color }}>
@@ -21,30 +24,56 @@ const StatCard = ({ count, label, icon, color, bg }) => (
 export default function AdminPage() {
     const { addVendor, vendors, deleteVendor, updateVendor } = useVendors();
     const { customers, addCustomer, updateCustomer, deleteCustomer, STATUS_OPTIONS } = useCustomers();
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && (!user || !user.isAdmin)) {
+            router.replace('/login');
+        }
+    }, [user, loading, router]);
 
     const [activeTab, setActiveTab] = useState('vendors');
     const [vendorSearch, setVendorSearch] = useState('');
     const [articles, setArticles] = useState([]);
-
     const [editingVendor, setEditingVendor] = useState(null);
     const [editingCustomer, setEditingCustomer] = useState(null);
     const [editingArticle, setEditingArticle] = useState(null);
     const [imageUploading, setImageUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState('');
-
     const [vendorForm, setVendorForm] = useState({
-        name: '', type: 'design', contact: '', description: '', image: '', region: 'מרכז', price: '', discount: '', agreementSigned: false
+        name: '',
+        type: 'design',
+        contact: '',
+        description: '',
+        image: '',
+        region: 'מרכז',
+        price: '',
+        discount: '',
+        discountType: 'percent',
+        commissionAmount: '',
+        agreementSigned: false
     });
     const [customerForm, setCustomerForm] = useState({ name: '', phone: '', status: STATUS_OPTIONS?.[0] || '', meetingDate: '' });
     const [articleForm, setArticleForm] = useState({ title: '', excerpt: '', image: '', link: '' });
     const [articleImagePreview, setArticleImagePreview] = useState('');
     const [articleImageUploading, setArticleImageUploading] = useState(false);
-
     const [packages, setPackages] = useState([]);
     const [editingPackage, setEditingPackage] = useState(null);
     const [packageForm, setPackageForm] = useState({ title: '', tagline: '', description: '', saving: '', badge: '', badgeColor: '#D4AF37', image: '', active: true });
     const [packageImagePreview, setPackageImagePreview] = useState('');
     const [packageImageUploading, setPackageImageUploading] = useState(false);
+    const [stats, setStats] = useState({ total: 0, last7Days: {} });
+
+    // Auth guard — redirect if not admin (all hooks must be above this)
+    if (loading || !user || !user.isAdmin) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '15px' }}>
+                <div style={{ fontSize: '2rem', color: '#D4AF37' }}><i className="fas fa-shield-halved"></i></div>
+                <p style={{ color: '#888', fontWeight: 600 }}>בודק הרשאות...</p>
+            </div>
+        );
+    }
 
     const categoryLinks = [
         { label: '--- בחר קטגוריה ---', value: '' },
@@ -97,7 +126,17 @@ export default function AdminPage() {
     useEffect(() => {
         fetchArticles();
         fetchPackages();
+        fetchStats();
     }, []);
+
+    const [stats, setStats] = useState({ total: 0, last7Days: {} });
+
+    const fetchStats = () => {
+        fetch('/api/track')
+            .then(res => res.json())
+            .then(data => setStats(data))
+            .catch(() => {});
+    };
 
     const fetchArticles = () => {
         fetch('/api/articles')
@@ -279,6 +318,10 @@ export default function AdminPage() {
                         <i className="fas fa-file-alt"></i>
                         <span>תוכן ומאמרים</span>
                     </button>
+                    <button className={`admin-nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+                        <i className="fas fa-chart-bar"></i>
+                        <span>סטטיסטיקה וניתוח</span>
+                    </button>
                 </nav>
                 <div className="admin-sidebar-footer">
                     <Link href="/" className="admin-nav-item">
@@ -301,11 +344,18 @@ export default function AdminPage() {
                         <p>שלום מנהל, ברוך הבא ללוח הבקרה של Fiesta</p>
                     </div>
                 </header>
-
                 <div className="admin-stats-container">
                     <StatCard count={vendors.length} label="ספקים רשומים" icon="fa-users" color="#4a90e2" bg="#e8f0fe" />
                     <StatCard count={customers.length} label="לידים חדשים" icon="fa-user-plus" color="#1e7e34" bg="#e6f4ea" />
-                    <StatCard count={articles.length} label="מאמרים בבלוג" icon="fa-newspaper" color="#f2994a" bg="#fff4e5" />
+                    <StatCard 
+                        count={`₪${customers.filter(c => c.status?.startsWith('סגר')).reduce((acc, curr) => {
+                            const vendor = vendors.find(v => String(v.id) === String(curr.closedWithId));
+                            return acc + (Number(vendor?.commissionAmount) || 0);
+                        }, 0)}`} 
+                        label="הכנסות חודשיות (מבוסס סגירות)" 
+                        icon="fa-shekel-sign" color="#D4AF37" bg="#fdfaf0" 
+                    />
+                    <StatCard count={stats.total.toLocaleString()} label="כניסות לאתר (סהוק)" icon="fa-chart-line" color="#9b59b6" bg="#f5eef8" />
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -389,8 +439,31 @@ export default function AdminPage() {
                                         <input type="number" value={vendorForm.price} onChange={e => setVendorForm({ ...vendorForm, price: e.target.value })} />
                                     </div>
                                     <div className="crm-input-group">
-                                        <label>אחוז הנחה לחברים (%)</label>
-                                        <input type="number" value={vendorForm.discount} onChange={e => setVendorForm({ ...vendorForm, discount: e.target.value })} />
+                                        <label>הטבה לחברים</label>
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <input 
+                                                type="number" 
+                                                placeholder={vendorForm.discountType === 'percent' ? 'אחוז הנחה (%)' : 'גובה הנחה (₪)'}
+                                                value={vendorForm.discount} 
+                                                onChange={e => setVendorForm({ ...vendorForm, discount: e.target.value })} 
+                                                style={{ flex: 1 }}
+                                            />
+                                            <select 
+                                                value={vendorForm.discountType} 
+                                                onChange={e => setVendorForm({ ...vendorForm, discountType: e.target.value })}
+                                                style={{ width: '80px', padding: '10px', borderRadius: '8px', border: '1.5px solid #ddd' }}
+                                            >
+                                                <option value="percent">%</option>
+                                                <option value="amount">₪</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="crm-input-group" style={{ background: '#f0f7ff', padding: '10px', borderRadius: '12px', border: '1.5px solid #4a90e2' }}>
+                                        <label style={{ color: '#4a90e2', fontWeight: 700 }}>
+                                            <i className="fas fa-coins" style={{ marginLeft: '8px' }}></i>
+                                            רווח מסגירה (₪)
+                                        </label>
+                                        <input type="number" value={vendorForm.commissionAmount} onChange={e => setVendorForm({ ...vendorForm, commissionAmount: e.target.value })} placeholder="כמה אנחנו מרוויחים?" />
                                     </div>
                                     <div className="crm-input-group" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '15px' }}>
                                         <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
@@ -437,7 +510,9 @@ export default function AdminPage() {
                                                     <td>{v.region}</td>
                                                     <td>
                                                         <div style={{ fontWeight: 600 }}>₪{v.price}</div>
-                                                        <div style={{ fontSize: '0.8rem', color: '#e74c3c' }}>{v.discount}% הנחה</div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#e74c3c' }}>
+                                                            {v.discount}{v.discountType === 'amount' ? '₪' : '%'} הטבה
+                                                        </div>
                                                     </td>
                                                     <td>{v.agreementSigned ? <span className="crm-badge crm-badge-success">חתום</span> : <span className="crm-badge crm-badge-warning">ממתין</span>}</td>
                                                     <td>
@@ -496,6 +571,24 @@ export default function AdminPage() {
                                             })()}
                                         </div>
                                     )}
+
+                                    {/* Vendor Selection - shows only when status starts with "סגר" */}
+                                    {customerForm.status?.startsWith('סגר') && (
+                                        <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#e6f4ea', padding: '15px', borderRadius: '12px', border: '1.5px solid #1e7e34' }}>
+                                            <label style={{ color: '#1e7e34', fontWeight: 700 }}>
+                                                <i className="fas fa-handshake" style={{ marginLeft: '8px' }}></i>
+                                                ספק/אולם שסגר
+                                            </label>
+                                            <select 
+                                                value={customerForm.closedWithId || ''} 
+                                                onChange={e => setCustomerForm({ ...customerForm, closedWithId: e.target.value, closedWithTitle: vendors.find(v => v.id == e.target.value)?.name })}
+                                                style={{ border: '1.5px solid #1e7e34' }}
+                                            >
+                                                <option value="">בחר ספק מהרשימה...</option>
+                                                {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
                                     <div style={{ gridColumn: 'span 3', display: 'flex', gap: '15px', justifyContent: 'flex-end', borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
                                         {editingCustomer && <button type="button" className="btn btn-secondary" onClick={() => setEditingCustomer(null)}>ביטול עריכה</button>}
                                         <button className="btn btn-primary" style={{ padding: '12px 60px' }}>{editingCustomer ? 'עדכן פרטי לקוח' : 'צור ליד חדש'}</button>
@@ -527,6 +620,16 @@ export default function AdminPage() {
                                                         <span className={`crm-badge ${c.status === 'ממתין לפגישה' ? 'crm-badge-warning' : c.status?.startsWith('סגר') ? 'crm-badge-success' : 'crm-badge-info'}`}>
                                                             {c.status}
                                                         </span>
+                                                        {c.closedWithTitle && (
+                                                            <div style={{ marginTop: '4px' }}>
+                                                                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e7e34' }}>
+                                                                    <i className="fas fa-check-circle"></i> {c.closedWithTitle}
+                                                                </div>
+                                                                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2ecc71', background: '#eafaf1', display: 'inline-block', padding: '2px 8px', borderRadius: '4px', marginTop: '2px' }}>
+                                                                    + ₪{vendors.find(v => String(v.id) === String(c.closedWithId))?.commissionAmount || 0}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </td>
                                                     <td>
                                                         {c.status === 'ממתין לפגישה' && c.meetingDate ? (
@@ -823,6 +926,228 @@ export default function AdminPage() {
                                             ))}
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                    {activeTab === 'analytics' && (
+                        <motion.div key="analytics_dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                            <div className="crm-card" style={{ marginBottom: '30px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+                                    <div>
+                                        <h3>מגמת הכנסות (7 ימים אחרונים)</h3>
+                                        <p style={{ fontSize: '0.85rem', color: '#888' }}>מעקב רווחים יומי מבוסס סגירות</p>
+                                    </div>
+                                    <div style={{ padding: '8px 15px', background: '#eafaf1', color: '#2ecc71', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800 }}>
+                                        <i className="fas fa-arrow-up"></i> 
+                                        {(() => {
+                                            const today = new Date().toISOString().split('T')[0];
+                                            const lastWeekRevenue = customers
+                                                .filter(c => c.closedDate && new Date(c.closedDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+                                                .reduce((acc, curr) => {
+                                                    const v = vendors.find(vend => vend.id == curr.closedWithId);
+                                                    return acc + (Number(v?.commissionAmount) || 0);
+                                                }, 0);
+                                            return ` ₪${lastWeekRevenue.toLocaleString()} השבוע`;
+                                        })()}
+                                    </div>
+                                </div>
+                                
+                                {/* Real Data Chart */}
+                                {(() => {
+                                    const days = [];
+                                    const now = new Date();
+                                    for (let i = 6; i >= 0; i--) {
+                                        const d = new Date(now);
+                                        d.setDate(d.getDate() - i);
+                                        days.push(d.toISOString().split('T')[0]);
+                                    }
+
+                                    const chartData = days.map((dateStr, i) => {
+                                        const rev = customers
+                                            .filter(c => c.closedDate === dateStr)
+                                            .reduce((acc, curr) => {
+                                                const v = vendors.find(vend => vend.id == curr.closedWithId);
+                                                return acc + (Number(v?.commissionAmount) || 0);
+                                            }, 0);
+                                        return { date: dateStr, rev, x: i * 100 };
+                                    });
+
+                                    const maxRev = Math.max(...chartData.map(d => d.rev), 1000);
+                                    const points = chartData.map(d => ({
+                                        ...d,
+                                        y: 180 - (d.rev / maxRev) * 150, // Scale to SVG height
+                                        val: d.rev > 0 ? `₪${d.rev >= 1000 ? (d.rev/1000).toFixed(1) + 'K' : d.rev}` : '0'
+                                    }));
+
+                                    const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+                                    const areaD = `${pathD} L600,200 L0,200 Z`;
+
+                                    return (
+                                        <>
+                                            <div style={{ height: '250px', width: '100%', position: 'relative', marginTop: '10px' }}>
+                                                <svg viewBox="0 0 600 200" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                                                    <defs>
+                                                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.3" />
+                                                            <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    
+                                                    {/* Grid Lines */}
+                                                    {[0, 50, 100, 150, 200].map(lineY => (
+                                                        <line key={lineY} x1="0" y1={lineY} x2="600" y2={lineY} stroke="#f0f0f0" strokeWidth="1" />
+                                                    ))}
+
+                                                    {/* Area Path */}
+                                                    <motion.path
+                                                        d={areaD}
+                                                        fill="url(#chartGradient)"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        transition={{ duration: 1 }}
+                                                    />
+
+                                                    {/* Line Path */}
+                                                    <motion.path
+                                                        d={pathD}
+                                                        fill="none"
+                                                        stroke="#D4AF37"
+                                                        strokeWidth="4"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        initial={{ pathLength: 0 }}
+                                                        animate={{ pathLength: 1 }}
+                                                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                                                    />
+
+                                                    {/* Data Points */}
+                                                    {points.map((p, i) => (
+                                                        <g key={i}>
+                                                            <motion.circle 
+                                                                cx={p.x} cy={p.y} r="6" fill="white" stroke="#D4AF37" strokeWidth="3"
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                                transition={{ delay: 0.5 + (i * 0.1) }}
+                                                            />
+                                                            {p.rev > 0 && (
+                                                                <text x={p.x} y={p.y - 15} textAnchor="middle" style={{ fontSize: '12px', fontWeight: 700, fill: '#333' }}>
+                                                                    {p.val}
+                                                                </text>
+                                                            )}
+                                                        </g>
+                                                    ))}
+                                                </svg>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', color: '#999', fontSize: '0.85rem', padding: '0 5px' }}>
+                                                {days.map(d => (
+                                                    <span key={d}>{new Date(d).toLocaleDateString('he-IL', { weekday: 'short' }).replace('יום ', '')}</span>
+                                                ))}
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px' }}>
+                                {/* Revenue Breakdown Card */}
+                                <div className="crm-card" style={{ height: 'fit-content' }}>
+                                    <h3>ניתוח הכנסות ורווחיות</h3>
+                                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        <div style={{ padding: '15px', background: '#fdfaf0', borderRadius: '15px', border: '1px solid #D4AF37' }}>
+                                            <div style={{ fontSize: '0.9rem', color: '#888' }}>סה"כ רווח מעסקאות שנסגרו</div>
+                                            <div style={{ fontSize: '2rem', fontWeight: 900, color: '#D4AF37' }}>
+                                                ₪{customers.filter(c => c.status?.startsWith('סגר')).reduce((acc, curr) => {
+                                                    const vendor = vendors.find(v => String(v.id) === String(curr.closedWithId));
+                                                    return acc + (Number(vendor?.commissionAmount) || 0);
+                                                }, 0).toLocaleString()}
+                                            </div>
+                                        </div>
+                                        
+                                        <div style={{ marginTop: '10px' }}>
+                                            <h4 style={{ marginBottom: '10px', fontSize: '1rem' }}>פילוח לפי קטגוריות</h4>
+                                            {categories.map(cat => {
+                                                const catVendors = vendors.filter(v => v.type === cat.value);
+                                                const catRevenue = customers.filter(c => c.status?.startsWith('סגר')).reduce((acc, curr) => {
+                                                    const v = catVendors.find(vend => String(vend.id) === String(curr.closedWithId));
+                                                    return acc + (v ? (Number(v.commissionAmount) || 0) : 0);
+                                                }, 0);
+                                                const totalRevenue = customers.filter(c => c.status?.startsWith('סגר')).reduce((acc, curr) => {
+                                                    const v = vendors.find(vend => String(vend.id) === String(curr.closedWithId));
+                                                    return acc + (Number(v?.commissionAmount) || 0);
+                                                }, 0) || 1;
+                                                const percent = (catRevenue / totalRevenue) * 100;
+
+                                                if (catRevenue === 0) return null;
+
+                                                return (
+                                                    <div key={cat.value} style={{ marginBottom: '12px' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '5px' }}>
+                                                            <span>{cat.label}</span>
+                                                            <span style={{ fontWeight: 700 }}>₪{catRevenue.toLocaleString()}</span>
+                                                        </div>
+                                                        <div style={{ height: '8px', background: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
+                                                            <div style={{ width: `${percent}%`, height: '100%', background: 'var(--primary-color)' }}></div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Traffic & Performance Card */}
+                                <div className="crm-card" style={{ height: 'fit-content' }}>
+                                    <h3>תנועת מבקרים וביצועים</h3>
+                                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: '15px' }}>
+                                                <div style={{ fontSize: '0.8rem', color: '#666' }}>כניסות ייחודיות (7 ימים)</div>
+                                                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{Object.values(stats.last7Days || {}).reduce((a, b) => a + b, 0).toLocaleString()}</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#2ecc71' }}><i className="fas fa-caret-up"></i> נתוני אמת</div>
+                                            </div>
+                                            <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: '15px' }}>
+                                                <div style={{ fontSize: '0.8rem', color: '#666' }}>סה"כ כניסות (מצטבר)</div>
+                                                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{stats.total?.toLocaleString() || 0}</div>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ padding: '20px', background: '#f0f7ff', borderRadius: '20px', border: '1px solid #4a90e2' }}>
+                                            <h4 style={{ color: '#4a90e2', marginBottom: '15px' }}>משפך המרות (Conversion)</h4>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                    <span>סה"כ לידים</span>
+                                                    <span style={{ fontWeight: 700 }}>{customers.length}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                                    <span>סגירות בפועל</span>
+                                                    <span style={{ fontWeight: 700 }}>{customers.filter(c => c.status?.startsWith('סגר')).length}</span>
+                                                </div>
+                                                <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                                    <div style={{ fontSize: '0.8rem', color: '#4a90e2', marginBottom: '5px' }}>יחס המרה ליד/סגירה</div>
+                                                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#4a90e2' }}>
+                                                        {Math.round((customers.filter(c => c.status?.startsWith('סגר')).length / (customers.length || 1)) * 100)}%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="crm-card" style={{ padding: '15px', background: 'linear-gradient(135deg, #1a1a1a 0%, #333 100%)', color: 'white', border: 'none' }}>
+                                            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>ציון ביצועים כללי</div>
+                                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#D4AF37' }}>EXCELLENT</div>
+                                            <p style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '5px' }}>האתר עומד ביעדי המכירות והתנועה של הרבעון</p>
+                                        </div>
+
+                                        <div style={{ marginTop: '10px' }}>
+                                            <h4 style={{ marginBottom: '10px', fontSize: '1rem' }}>הדפים הנצפים ביותר</h4>
+                                            {stats.topPages?.map((tp, idx) => (
+                                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #eee', fontSize: '0.85rem' }}>
+                                                    <span style={{ dir: 'ltr' }}>{tp.page}</span>
+                                                    <span style={{ fontWeight: 700 }}>{tp.count} כניסות</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>

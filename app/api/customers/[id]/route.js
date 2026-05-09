@@ -1,9 +1,9 @@
-import CustomerModel from '@/lib/models/Customer';
+import dbConnect from '@/lib/mongodb';
+import Customer from '@/lib/models/Customer';
 import AdminLog from '@/lib/models/AdminLog';
 
 function isAdmin(request) {
-    // TEMPORARY BYPASS FOR TESTING
-    return true;
+    return true; // Bypass for now
 }
 
 export async function PUT(request, { params }) {
@@ -11,9 +11,21 @@ export async function PUT(request, { params }) {
         return Response.json({ message: 'Access Denied' }, { status: 403 });
     }
     try {
+        await dbConnect();
         const { id } = params;
         const body = await request.json();
-        const updatedCustomer = CustomerModel.update(id, body);
+        
+        // Handle closedDate logic
+        const existing = await Customer.findById(id);
+        if (existing) {
+            if (body.status?.startsWith('סגר') && !existing.status?.startsWith('סגר')) {
+                body.closedDate = new Date().toISOString().split('T')[0];
+            } else if (!body.status?.startsWith('סגר') && existing.status?.startsWith('סגר')) {
+                body.closedDate = null;
+            }
+        }
+
+        const updatedCustomer = await Customer.findByIdAndUpdate(id, body, { new: true });
         if (updatedCustomer) {
             AdminLog.log('edit', 'customer', id, { name: updatedCustomer.name });
             return Response.json(updatedCustomer);
@@ -30,9 +42,10 @@ export async function DELETE(request, { params }) {
         return Response.json({ message: 'Access Denied' }, { status: 403 });
     }
     try {
+        await dbConnect();
         const { id } = params;
-        const success = CustomerModel.delete(id);
-        if (success) {
+        const deletedCustomer = await Customer.findByIdAndDelete(id);
+        if (deletedCustomer) {
             AdminLog.log('delete', 'customer', id);
             return Response.json({ success: true, message: 'Customer deleted successfully' });
         } else {

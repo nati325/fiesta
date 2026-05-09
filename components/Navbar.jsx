@@ -105,9 +105,24 @@ const Navbar = () => {
                                 </Link>
                             ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <Link href="/admin" style={{ color: 'var(--text-dark)', textDecoration: 'none', fontWeight: '500' }}>
-                                        ניהול
-                                    </Link>
+                                    {user.isAdmin && (
+                                        <Link href="/admin" style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            background: 'linear-gradient(135deg, #D4AF37, #b8952a)',
+                                            color: 'white',
+                                            padding: '7px 16px',
+                                            borderRadius: '20px',
+                                            textDecoration: 'none',
+                                            fontWeight: '700',
+                                            fontSize: '0.85rem',
+                                            boxShadow: '0 2px 8px rgba(212,175,55,0.4)'
+                                        }}>
+                                            <i className="fas fa-shield-halved"></i>
+                                            ניהול
+                                        </Link>
+                                    )}
                                     <div onClick={logout} style={{ 
                                         cursor: 'pointer', 
                                         display: 'flex', 
@@ -141,7 +156,9 @@ const Navbar = () => {
 
                 <div className="mobile-main-links">
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-home"></i> דף הבית</Link>
-                    <Link href="/admin" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-user-shield"></i> ניהול</Link>
+                    {user?.isAdmin && (
+                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-shield-halved"></i> ניהול</Link>
+                    )}
                 </div>
 
                 <div className="mobile-category-title">הספקים שלנו:</div>

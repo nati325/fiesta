@@ -9,14 +9,54 @@ export default function PackagesCarousel() {
     const [isPaused, setIsPaused] = useState(false);
     const [direction, setDirection] = useState(1); // 1 for next, -1 for prev
 
+    const DEFAULT_PACKAGES = [
+        {
+            id: 'default-1',
+            title: 'חבילת כלה פרימיום',
+            tagline: 'Special Offer',
+            description: 'צלם, מאפרת, ספק שמלות כלה, ועוד — הכל בחבילה אחת משתלמת שתחסוך לכם אלפי שקלים.',
+            saving: 'חיסכון עד 30%',
+            badge: '🔥 הנמכר ביותר',
+            badgeColor: '#D4AF37',
+            image: '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.35.jpeg',
+            active: true
+        },
+        {
+            id: 'default-2',
+            title: 'חבילת אירוע הכל כלול',
+            tagline: 'Best Value',
+            description: 'DJ מקצועי, קייטרינג מובחר, עיצוב אולם ותאורה — חווית אירוע מושלמת מהרגע הראשון ועד האחרון.',
+            saving: 'חיסכון עד 25%',
+            badge: '✨ בלעדי',
+            badgeColor: '#4CAF50',
+            image: '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.27.jpeg',
+            active: true
+        },
+        {
+            id: 'default-3',
+            title: 'חבילת צילום יוקרתית',
+            tagline: 'Premium Package',
+            description: 'צלם וידאו + צלם סטילס, אלבום מפואר, וסרטון וידאו מקצועי לזיכרון שיישמר לנצח.',
+            saving: 'חיסכון עד 20%',
+            badge: '📷 פופולרי',
+            badgeColor: '#9C27B0',
+            image: '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
+            active: true
+        }
+    ];
+
     useEffect(() => {
         fetch('/api/packages')
             .then(r => r.json())
             .then(data => {
+                if (!Array.isArray(data) || data.length === 0) {
+                    setPackages(DEFAULT_PACKAGES);
+                    return;
+                }
                 const active = data.filter(p => p.active);
-                setPackages(active);
+                setPackages(active.length > 0 ? active : DEFAULT_PACKAGES);
             })
-            .catch(() => setPackages([]));
+            .catch(() => setPackages(DEFAULT_PACKAGES));
     }, []);
 
     // Auto-advance logic

@@ -1,14 +1,10 @@
-import ArticleModel from '@/lib/models/Article';
-
-function isAdmin(request) {
-    // TEMPORARY BYPASS FOR TESTING
-    return true;
-}
+import dbConnect from '@/lib/mongodb';
+import Article from '@/lib/models/Article';
 
 export async function GET(request, { params }) {
     try {
-        const articles = ArticleModel.getAll();
-        const article = articles.find(a => a.id == params.id);
+        await dbConnect();
+        const article = await Article.findById(params.id);
         if (!article) return Response.json({ message: 'Article not found' }, { status: 404 });
         return Response.json(article);
     } catch (error) {
@@ -17,33 +13,23 @@ export async function GET(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
-    }
     try {
+        await dbConnect();
         const body = await request.json();
-        const updatedArticle = ArticleModel.update(params.id, body);
-        if (updatedArticle) {
-            return Response.json(updatedArticle);
-        } else {
-            return Response.json({ message: 'Article not found' }, { status: 404 });
-        }
+        const updated = await Article.findByIdAndUpdate(params.id, body, { new: true });
+        if (!updated) return Response.json({ message: 'Article not found' }, { status: 404 });
+        return Response.json(updated);
     } catch (error) {
         return Response.json({ message: error.message }, { status: 400 });
     }
 }
 
 export async function DELETE(request, { params }) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
-    }
     try {
-        const success = ArticleModel.delete(params.id);
-        if (success) {
-            return Response.json({ success: true, message: 'Article deleted successfully' });
-        } else {
-            return Response.json({ message: 'Article not found' }, { status: 404 });
-        }
+        await dbConnect();
+        const deleted = await Article.findByIdAndDelete(params.id);
+        if (!deleted) return Response.json({ message: 'Article not found' }, { status: 404 });
+        return Response.json({ success: true, message: 'Article deleted successfully' });
     } catch (error) {
         return Response.json({ message: 'Error deleting article', error: error.message }, { status: 500 });
     }

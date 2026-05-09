@@ -1,4 +1,5 @@
-import UserModel from '@/lib/models/User';
+import dbConnect from '@/lib/mongodb';
+import User from '@/lib/models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -9,7 +10,28 @@ export async function POST(request) {
         const { email, password } = await request.json();
         console.log(`Login attempt: email=${email}`);
 
-        const user = UserModel.getAll().find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+        // Master Admin Check (hardcoded, doesn't need DB)
+        const MASTER_ADMIN_EMAILS = ['fiestaafakot@gmail.com'];
+        const MASTER_ADMIN_PASSWORD = 'fiestamadar';
+
+        if (MASTER_ADMIN_EMAILS.includes(email.toLowerCase().trim()) && password === MASTER_ADMIN_PASSWORD) {
+            console.log('Master Admin login successful');
+            const token = jwt.sign(
+                { id: 'master-admin-' + email, email: email, isAdmin: true },
+                SECRET_KEY,
+                { expiresIn: '24h' }
+            );
+            return Response.json({
+                success: true,
+                message: 'Login successful as Master Admin',
+                token,
+                user: { id: 'master-admin-' + email.split('@')[0], email, name: 'מנהל מערכת', isAdmin: true }
+            });
+        }
+
+        await dbConnect();
+        // Use .select('+password') to explicitly get password since toJSON strips it
+        const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password');
 
         if (!user) {
             console.log('Login failed: User not found');
@@ -25,18 +47,16 @@ export async function POST(request) {
         console.log('Login successful');
 
         const token = jwt.sign(
-            { id: user.id, email: user.email, isAdmin: user.isAdmin },
+            { id: user._id, email: user.email, isAdmin: user.isAdmin },
             SECRET_KEY,
             { expiresIn: '24h' }
         );
-
-        const { password: _, ...userWithoutPassword } = user;
 
         return Response.json({
             success: true,
             message: 'Login successful',
             token,
-            user: userWithoutPassword
+            user: { id: user._id, email: user.email, name: user.name, isAdmin: user.isAdmin }
         });
 
     } catch (error) {

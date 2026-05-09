@@ -1,34 +1,25 @@
-import { NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
+import dbConnect from '@/lib/mongodb';
+import Package from '@/lib/models/Package';
 
-const filePath = path.join(process.cwd(), 'data', 'packages.json');
-
-async function readPackages() {
+export async function PUT(request, { params }) {
     try {
-        const data = await readFile(filePath, 'utf-8');
-        return JSON.parse(data);
-    } catch { return []; }
-}
-async function writePackages(packages) {
-    await writeFile(filePath, JSON.stringify(packages, null, 2));
-}
-
-export async function PUT(req, { params }) {
-    const id = Number(params.id);
-    const body = await req.json();
-    const packages = await readPackages();
-    const idx = packages.findIndex(p => p.id === id);
-    if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    packages[idx] = { ...packages[idx], ...body };
-    await writePackages(packages);
-    return NextResponse.json(packages[idx]);
+        await dbConnect();
+        const body = await request.json();
+        const updated = await Package.findByIdAndUpdate(params.id, body, { new: true });
+        if (!updated) return Response.json({ error: 'Not found' }, { status: 404 });
+        return Response.json(updated);
+    } catch (error) {
+        return Response.json({ message: error.message }, { status: 400 });
+    }
 }
 
-export async function DELETE(req, { params }) {
-    const id = Number(params.id);
-    const packages = await readPackages();
-    const filtered = packages.filter(p => p.id !== id);
-    await writePackages(filtered);
-    return NextResponse.json({ ok: true });
+export async function DELETE(request, { params }) {
+    try {
+        await dbConnect();
+        const deleted = await Package.findByIdAndDelete(params.id);
+        if (!deleted) return Response.json({ error: 'Not found' }, { status: 404 });
+        return Response.json({ ok: true });
+    } catch (error) {
+        return Response.json({ message: error.message }, { status: 500 });
+    }
 }

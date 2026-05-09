@@ -15,8 +15,12 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await login(formData.email, formData.password);
-            router.push('/');
+            const data = await login(formData.email, formData.password);
+            if (data.user?.isAdmin) {
+                router.push('/admin');
+            } else {
+                router.push('/');
+            }
         } catch (err) {
             setError(err.message || 'שגיאה בהתחברות');
         }

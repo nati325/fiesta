@@ -80,8 +80,15 @@ export default function VendorDetailPage() {
                         />
                     </div>
 
-                    <div style={{ display: 'inline-block', background: 'rgba(212,175,55,0.1)', color: 'var(--primary-color)', padding: '6px 20px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 800, marginBottom: '20px' }}>
-                        {currentCategory.label}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px' }}>
+                        <div style={{ background: 'rgba(212,175,55,0.1)', color: 'var(--primary-color)', padding: '6px 20px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 800 }}>
+                            {currentCategory.label}
+                        </div>
+                        {vendor.discount && (
+                            <div style={{ background: '#e74c3c', color: 'white', padding: '6px 20px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 800, boxShadow: '0 5px 15px rgba(231, 76, 60, 0.2)' }}>
+                                {vendor.discountType === 'amount' ? '₪' : ''}{vendor.discount}{vendor.discountType === 'amount' ? '' : '%'} הנחה לחברים
+                            </div>
+                        )}
                     </div>
                     
                     <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>{vendor.name}</h1>

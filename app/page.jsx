@@ -89,13 +89,13 @@ export default function HomePage() {
         // Fetch articles
         fetch('/api/articles')
             .then(res => res.json())
-            .then(data => setArticles(data))
+            .then(data => setArticles(Array.isArray(data) ? data : []))
             .catch(error => console.error('Error fetching articles:', error));
 
         // Fetch vendors
         fetch('/api/vendors')
             .then(res => res.json())
-            .then(data => setVendors(data))
+            .then(data => setVendors(Array.isArray(data) ? data : []))
             .catch(error => console.error('Error fetching vendors:', error));
     }, []);
 
@@ -253,7 +253,7 @@ export default function HomePage() {
                     </motion.p>
                     <div className="hero-buttons" style={{ gap: '25px' }}>
                         <motion.button
-                            whileHover={{ scale: 1.05, boxShadow: '0 15px 40px rgba(212, 175, 55, 0.4)' }}
+                            whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                             className="btn btn-primary"
@@ -269,7 +269,7 @@ export default function HomePage() {
                             יעוץ ללא התחייבות
                         </motion.button>
                         <motion.button
-                            whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.15)' }}
+                            whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.15)' }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => document.getElementById('gallery').scrollIntoView({ behavior: 'smooth' })}
                             className="btn btn-outline"
@@ -279,6 +279,7 @@ export default function HomePage() {
                                 borderRadius: '100px', 
                                 fontWeight: 800,
                                 backdropFilter: 'blur(10px)',
+                                backgroundColor: 'transparent',
                                 border: '2px solid rgba(255,255,255,0.5)'
                             }}
                         >
@@ -456,7 +457,7 @@ export default function HomePage() {
                                     const getSupplierImg = (t) => {
                                         const m = {
                                             // Main
-                                            'dj': 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=600&q=80',
+                                            'dj': '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.27.jpeg',
                                             'photographer': 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80',
                                             'alcohol': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80',
                                             'catering': 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=600&q=80',
@@ -464,41 +465,41 @@ export default function HomePage() {
                                             'design': 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80',
                                             
                                             // Look
-                                            'dresses': 'https://images.unsplash.com/photo-1594553939328-14936d6f5f3e?auto=format&fit=crop&w=600&q=80',
-                                            'suits': 'https://images.unsplash.com/photo-1594932224015-610b8116ce9f?auto=format&fit=crop&w=600&q=80',
-                                            'hair': 'https://images.unsplash.com/photo-1560869713-7d0a29430039?auto=format&fit=crop&w=600&q=80',
+                                            'dresses': '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.35.jpeg',
+                                            'suits': '/missing_photos/WhatsApp Image 2026-05-07 at 21.28.43.jpeg',
+                                            'hair': '/missing_photos/WhatsApp Image 2026-05-07 at 21.43.07.jpeg',
                                             'makeup': 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=600&q=80',
                                             'rings': 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=600&q=80',
-                                            'bride-shoes': 'https://images.unsplash.com/photo-1549416878-b99b533e46bc?auto=format&fit=crop&w=600&q=80',
-                                            'groom-shoes': 'https://images.unsplash.com/photo-1539185441755-769473a23957?auto=format&fit=crop&w=600&q=80',
+                                            'bride-shoes': '/missing_photos/WhatsApp Image 2026-05-07 at 21.45.44.jpeg',
+                                            'groom-shoes': '/missing_photos/WhatsApp Image 2026-05-07 at 21.45.50.jpeg',
                                             'tanning': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
-                                            'dietitians': 'https://images.unsplash.com/photo-1490645935967-1306ba001491?auto=format&fit=crop&w=600&q=80',
-                                            'personal-training': 'https://images.unsplash.com/photo-15344383272d6-0a0e22b3b64e?auto=format&fit=crop&w=600&q=80',
+                                            'dietitians': '/missing_photos/WhatsApp Image 2026-05-07 at 21.49.19.jpeg',
+                                            'personal-training': '/missing_photos/WhatsApp Image 2026-05-07 at 21.52.28.jpeg',
                                             
                                             // Planning
                                             'event-production': 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=600&q=80',
                                             'event-managers': 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80',
-                                            'invitations': 'https://images.unsplash.com/photo-1607192233397-51493dd4aa70?auto=format&fit=crop&w=600&q=80',
+                                            'invitations': '/missing_photos/WhatsApp Image 2026-05-07 at 22.02.23.jpeg',
                                             'rsvp-design': 'https://images.unsplash.com/photo-1512418490979-92798cfec83a?auto=format&fit=crop&w=600&q=80',
                                             'arrivals': 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600&q=80',
                                             'transportation': 'https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?auto=format&fit=crop&w=600&q=80',
-                                            'equipment-rental': 'https://images.unsplash.com/photo-1517457373958-b7bdd058a548?auto=format&fit=crop&w=600&q=80',
-                                            'car-decoration': 'https://images.unsplash.com/photo-1494976388531-d105b79d94ab?auto=format&fit=crop&w=600&q=80',
+                                            'equipment-rental': '/missing_photos/WhatsApp Image 2026-05-07 at 22.02.07.jpeg',
+                                            'car-decoration': '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
                                             
                                             // Content
                                             'rabbi': 'https://images.unsplash.com/photo-1505932794465-147d1f1b2c97?auto=format&fit=crop&w=600&q=80',
-                                            'cantors': 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=600&q=80',
-                                            'challa': 'https://images.unsplash.com/photo-1603533872295-88301f2f849e?auto=format&fit=crop&w=600&q=80',
-                                            'religious-bands': 'https://images.unsplash.com/photo-1514525253344-a81d1270ff2c?auto=format&fit=crop&w=600&q=80',
+                                            'cantors': '/missing_photos/WhatsApp Image 2026-05-07 at 22.21.02.jpeg',
+                                            'challa': '/missing_photos/WhatsApp Image 2026-05-07 at 22.17.35.jpeg',
+                                            'religious-bands': '/missing_photos/WhatsApp Image 2026-05-07 at 22.27.45.jpeg',
                                             'singers': 'https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=600&q=80',
                                             'attractions': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=600&q=80',
-                                            'souvenirs': 'https://images.unsplash.com/photo-1513201099475-4320703814de?auto=format&fit=crop&w=600&q=80',
+                                            'souvenirs': '/missing_photos/WhatsApp Image 2026-05-07 at 22.25.03.jpeg',
                                             'recording-studios': 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=600&q=80',
-                                            'aliexpress-ideas': 'https://images.unsplash.com/photo-1607083206966-4c794acc4293?auto=format&fit=crop&w=600&q=80',
+                                            'aliexpress-ideas': '/missing_photos/WhatsApp Image 2026-05-07 at 22.25.11.jpeg',
+                                            'bachelor': '/missing_photos/WhatsApp Image 2026-05-07 at 22.12.40.jpeg',
                                             
                                             // Extra
                                             'hotels': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80',
-                                            'bachelor': 'https://images.unsplash.com/photo-1519671482749-307615f74c2c?auto=format&fit=crop&w=600&q=80',
                                             'spa-travel': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&q=80',
                                             'getting-ready': 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=600&q=80',
                                             'bride-escort': 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80',
@@ -816,7 +817,7 @@ export default function HomePage() {
                                     />
                                 </div>
                                 <motion.button 
-                                    whileHover={{ scale: 1.02, boxShadow: '0 15px 30px rgba(212,175,55,0.4)' }}
+                                    whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     type="submit" 
                                     className="btn btn-primary" 

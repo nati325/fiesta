@@ -14,5 +14,13 @@
     "name": "הודיה  מדר",
     "email": "oodyahar@gmail.com",
     "password": "$2b$10$PIesVjIX.AO.Mhslx2exw.9KXRPZnVpTwLi/n6j7IgRwUWnx3sjTi"
+  },
+  {
+    "id": 1778173186822,
+    "isAdmin": false,
+    "createdAt": "2026-05-07T16:59:46.822Z",
+    "name": "nati",
+    "email": "netaneldama@gmail.com",
+    "password": "$2b$10$yud7Rd0FBQMIkJ3yV9UbIOUcSNJnpO/AW2DCZrVJtfcb.gJVWEqRm"
   }
 ]

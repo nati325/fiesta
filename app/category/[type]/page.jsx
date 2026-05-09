@@ -129,7 +129,7 @@ export default function CategoryPage() {
                                     {/* Badges */}
                                     {v.discount && (
                                         <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--primary-color)', color: 'white', padding: '3px 8px', borderRadius: '50px', fontSize: '0.65rem', fontWeight: 'bold', zIndex: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
-                                            {v.discount}%
+                                            {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'}
                                         </div>
                                     )}
 

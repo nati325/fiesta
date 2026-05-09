@@ -1,9 +1,9 @@
-import VendorModel from '@/lib/models/Vendor';
+import dbConnect from '@/lib/mongodb';
+import Vendor from '@/lib/models/Vendor';
 import AdminLog from '@/lib/models/AdminLog';
 
 function isAdmin(request) {
-    // TEMPORARY BYPASS FOR TESTING
-    return true;
+    return true; // Bypass for now
 }
 
 export async function PUT(request, { params }) {
@@ -11,9 +11,10 @@ export async function PUT(request, { params }) {
         return Response.json({ message: 'Access Denied' }, { status: 403 });
     }
     try {
+        await dbConnect();
         const { id } = params;
         const body = await request.json();
-        const updatedVendor = VendorModel.update(id, body);
+        const updatedVendor = await Vendor.findByIdAndUpdate(id, body, { new: true });
         if (updatedVendor) {
             AdminLog.log('edit', 'vendor', id, { name: updatedVendor.name });
             return Response.json(updatedVendor);
@@ -30,9 +31,10 @@ export async function DELETE(request, { params }) {
         return Response.json({ message: 'Access Denied' }, { status: 403 });
     }
     try {
+        await dbConnect();
         const { id } = params;
-        const success = VendorModel.delete(id);
-        if (success) {
+        const deletedVendor = await Vendor.findByIdAndDelete(id);
+        if (deletedVendor) {
             AdminLog.log('delete', 'vendor', id);
             return Response.json({ success: true, message: 'Vendor deleted successfully' });
         } else {
