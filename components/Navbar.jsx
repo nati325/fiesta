@@ -30,6 +30,14 @@ const Navbar = () => {
                 <nav className="nav">
                     <ul>
                         <li><Link href="/" className={isActive('/')}>ראשי</Link></li>
+                        <li>
+                            <Link href="/design-invitation" className={isActive('/design-invitation')} style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                            }}>
+                                <i className="fas fa-envelope-open-text" style={{ color: '#D4AF37', fontSize: '0.85rem' }}></i>
+                                עיצוב הזמנות
+                            </Link>
+                        </li>
                         <li className="dropdown">
                             <span className="dropdown-trigger">ספקים <i className="fas fa-chevron-down"></i></span>
                             <div className="dropdown-menu mega-menu">
