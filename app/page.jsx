@@ -54,7 +54,7 @@ export default function HomePage() {
                 { type: 'event-managers', icon: 'fa-tasks', title: 'מנהלי אירועים', desc: 'ניהול מקצועי של יום האירוע בשטח.' },
                 { type: 'invitations', icon: 'fa-envelope-open-text', title: 'הזמנות', desc: 'עיצוב הזמנות יוקרתיות ומיתוג אישי.' },
                 { type: 'rsvp-design', icon: 'fa-check-double', title: 'אישורים ועיצוב', desc: 'מערכות לניהול אישורי הגעה ועיצוב הזמנות.' },
-                { type: 'arrivals', icon: 'fa-clipboard-check', title: 'אישורי הגעה', desc: 'ניהול אישורי הגעה וסידורי הושבה מדויקים.' },
+
                 { type: 'transportation', icon: 'fa-bus', title: 'הסעות', desc: 'פתרונות הסעה נוחים ובטוחים לאורחים.' },
                 { type: 'equipment-rental', icon: 'fa-chair', title: 'השכרת ציוד', desc: 'השכרת ריהוט וציוד לכל סוגי האירועים.' },
                 { type: 'car-decoration', icon: 'fa-car', title: 'קישוט רכב', desc: 'עיצובים מרהיבים לרכב שיסיע אתכם לחופה.' },
@@ -487,7 +487,7 @@ export default function HomePage() {
                                             'car-decoration': '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
                                             
                                             // Content
-                                            'rabbi': 'https://images.unsplash.com/photo-1505932794465-147d1f1b2c97?auto=format&fit=crop&w=600&q=80',
+                                            'rabbi': '/images/rabbi_chuppah.png',
                                             'cantors': '/missing_photos/WhatsApp Image 2026-05-07 at 22.21.02.jpeg',
                                             'challa': '/missing_photos/WhatsApp Image 2026-05-07 at 22.17.35.jpeg',
                                             'religious-bands': '/missing_photos/WhatsApp Image 2026-05-07 at 22.27.45.jpeg',

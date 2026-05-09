@@ -60,7 +60,6 @@ const Navbar = () => {
                                     <Link href="/category/event-managers" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-tasks"></i> מנהלי אירועים</Link>
                                     <Link href="/category/invitations" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-envelope-open-text"></i> הזמנות</Link>
                                     <Link href="/category/rsvp-design" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-check-double"></i> אישורים ועיצוב</Link>
-                                    <Link href="/category/arrivals" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-clipboard-check"></i> אישורי הגעה</Link>
                                     <Link href="/category/transportation" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-bus"></i> הסעות</Link>
                                     <Link href="/category/equipment-rental" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-chair"></i> השכרת ציוד</Link>
                                     <Link href="/category/car-decoration" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-car"></i> קישוט רכב</Link>
