@@ -65,6 +65,33 @@ export default function AdminPage() {
     const [packageImageUploading, setPackageImageUploading] = useState(false);
     const [stats, setStats] = useState({ total: 0, last7Days: {} });
 
+    const fetchStats = () => {
+        fetch('/api/track')
+            .then(res => res.json())
+            .then(data => setStats(data))
+            .catch(() => {});
+    };
+
+    const fetchArticles = () => {
+        fetch('/api/articles')
+            .then(res => res.json())
+            .then(data => setArticles(data))
+            .catch(() => setArticles([]));
+    };
+
+    const fetchPackages = () => {
+        fetch('/api/packages')
+            .then(res => res.json())
+            .then(data => setPackages(data))
+            .catch(() => setPackages([]));
+    };
+
+    useEffect(() => {
+        fetchArticles();
+        fetchPackages();
+        fetchStats();
+    }, []);
+
     // Auth guard — redirect if not admin (all hooks must be above this)
     if (loading || !user || !user.isAdmin) {
         return (
@@ -123,34 +150,6 @@ export default function AdminPage() {
         { value: 'alcohol', label: 'בר אלכוהול' }
     ];
 
-    useEffect(() => {
-        fetchArticles();
-        fetchPackages();
-        fetchStats();
-    }, []);
-
-    const [stats, setStats] = useState({ total: 0, last7Days: {} });
-
-    const fetchStats = () => {
-        fetch('/api/track')
-            .then(res => res.json())
-            .then(data => setStats(data))
-            .catch(() => {});
-    };
-
-    const fetchArticles = () => {
-        fetch('/api/articles')
-            .then(res => res.json())
-            .then(data => setArticles(data))
-            .catch(() => setArticles([]));
-    };
-
-    const fetchPackages = () => {
-        fetch('/api/packages')
-            .then(res => res.json())
-            .then(data => setPackages(data))
-            .catch(() => setPackages([]));
-    };
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
