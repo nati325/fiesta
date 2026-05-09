@@ -53,7 +53,7 @@ export default function HomePage() {
                 { type: 'event-production', icon: 'fa-star', title: 'הפקת אירועים', desc: 'הפקה מאלף ועד תו, משלב הרעיון ועד לביצוע.' },
                 { type: 'event-managers', icon: 'fa-tasks', title: 'מנהלי אירועים', desc: 'ניהול מקצועי של יום האירוע בשטח.' },
                 { type: 'invitations', icon: 'fa-envelope-open-text', title: 'הזמנות', desc: 'עיצוב הזמנות יוקרתיות ומיתוג אישי.' },
-                { type: 'rsvp-design', icon: 'fa-check-double', title: 'אישורים ועיצוב', desc: 'מערכות לניהול אישורי הגעה ועיצוב הזמנות.' },
+
                 { type: 'transportation', icon: 'fa-bus', title: 'הסעות', desc: 'פתרונות הסעה נוחים ובטוחים לאורחים.' },
                 { type: 'equipment-rental', icon: 'fa-chair', title: 'השכרת ציוד', desc: 'השכרת ריהוט וציוד לכל סוגי האירועים.' },
                 { type: 'car-decoration', icon: 'fa-car', title: 'קישוט רכב', desc: 'עיצובים מרהיבים לרכב שיסיע אתכם לחופה.' },
@@ -479,9 +479,7 @@ export default function HomePage() {
                                             'event-production': 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=600&q=80',
                                             'event-managers': 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80',
                                             'invitations': '/missing_photos/WhatsApp Image 2026-05-07 at 22.02.23.jpeg',
-                                            'rsvp-design': 'https://images.unsplash.com/photo-1512418490979-92798cfec83a?auto=format&fit=crop&w=600&q=80',
-                                            'arrivals': 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600&q=80',
-                                            'transportation': 'https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?auto=format&fit=crop&w=600&q=80',
+                                            'transportation': 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
                                             'equipment-rental': '/missing_photos/WhatsApp Image 2026-05-07 at 22.02.07.jpeg',
                                             'car-decoration': '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
                                             
