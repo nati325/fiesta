@@ -162,6 +162,9 @@ const Navbar = () => {
 
                 <div className="mobile-main-links">
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-home"></i> דף הבית</Link>
+                    <Link href="/design-invitation" onClick={() => setMobileMenuOpen(false)} style={{ color: '#D4AF37', fontWeight: 'bold' }}>
+                        <i className="fas fa-envelope-open-text"></i> עיצוב הזמנות
+                    </Link>
                     {user?.isAdmin && (
                         <Link href="/admin" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-shield-halved"></i> ניהול</Link>
                     )}
