@@ -151,10 +151,14 @@ export default function DesignInvitationPage() {
     const [formData, setFormData] = useState(DEFAULT_INVITATION_DATA);
 
     useEffect(() => {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js';
-        s.onload = () => setFabricLoaded(true);
-        document.head.appendChild(s);
+        if (window.fabric) {
+            setFabricLoaded(true);
+        } else {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js';
+            s.onload = () => setFabricLoaded(true);
+            document.head.appendChild(s);
+        }
         const l = document.createElement('link');
         l.rel = 'stylesheet';
         l.href = 'https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&family=Heebo:wght@400;700&family=Rubik:wght@400;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+Hebrew:wght@400;700&family=Arimo:ital,wght@0,400;0,700;1,400;1,700&family=Varela+Round&family=Secular+One&family=Frank+Ruhl+Libre:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Amatic+SC:wght@400;700&family=Alef:wght@400;700&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&family=David+Libre:wght@400;500;700&family=Suez+One&family=Karantina:wght@300;400;700&family=Miriam+Libre:wght@400;700&family=Fredoka:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&family=Blinker:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@400;700&display=swap';
@@ -167,9 +171,15 @@ export default function DesignInvitationPage() {
 
         const handleResize = () => {
             if (containerRef.current) {
-                const availableHeight = window.innerHeight - 150;
-                const scale = Math.min(1, availableHeight / 840);
-                setCanvasScale(scale);
+                const isMobile = window.innerWidth <= 900;
+                const padding = isMobile ? 20 : 60;
+                const availableWidth = containerRef.current.offsetWidth - padding;
+                const availableHeight = isMobile ? (window.innerHeight * 0.6) - padding : window.innerHeight - 150;
+                
+                const scaleW = availableWidth / 600;
+                const scaleH = availableHeight / 840;
+                
+                setCanvasScale(Math.min(1, scaleW, scaleH));
             }
         };
         window.addEventListener('resize', handleResize);
@@ -378,34 +388,34 @@ export default function DesignInvitationPage() {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#fdfcf9', paddingTop: '80px', color: '#1a1a1a', overflow: 'hidden', fontFamily: 'Assistant, sans-serif' }}>
+        <div style={{ minHeight: '100vh', background: '#fdfcf9', paddingTop: '70px', color: '#1a1a1a', overflowX: 'hidden', width: '100%', position: 'relative', fontFamily: 'Assistant, sans-serif' }}>
             {/* Hidden div to eagerly preload all fonts for Canvas */}
             <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
                 {FONTS.map(f => <span key={f.id} style={{ fontFamily: f.id }}>טעינה</span>)}
             </div>
 
             {/* Header */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.98)', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '12px 25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, boxShadow: '0 5px 20px rgba(0,0,0,0.05)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <Link href="/" style={{ color: '#666', textDecoration: 'none', fontSize: '1.2rem', transition: 'color 0.3s' }} onMouseOver={e => e.currentTarget.style.color = '#D4AF37'} onMouseOut={e => e.currentTarget.style.color = '#666'}><i className="fas fa-arrow-right"></i></Link>
-                    <h1 style={{ color: '#1a1a1a', margin: 0, fontSize: '1.5rem', fontFamily: 'Playfair Display, serif', fontWeight: 900 }}>
-                        Fiesta <span style={{ color: '#D4AF37', fontWeight: 400, fontFamily: 'Assistant, sans-serif' }}>Studio</span>
+            <div className="studio-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <Link href="/" className="back-btn"><i className="fas fa-arrow-right"></i></Link>
+                    <h1 className="logo-text">
+                        Fiesta <span className="logo-accent">Studio</span>
                     </h1>
                 </div>
-                <div style={{ display: 'flex', gap: '15px' }}>
-                    <button onClick={() => { if(fabricRef.current) { fabricRef.current.remove(fabricRef.current.getActiveObject()); fabricRef.current.renderAll(); } }} style={{ background: '#fff', border: '1px solid #eee', color: '#ff5555', padding: '8px 18px', borderRadius: '50px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.3s' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'} title="מחק טקסט נבחר"><i className="fas fa-trash-alt"></i></button>
-                    <button onClick={handleDownload} style={{ background: 'linear-gradient(135deg, #D4AF37, #b8952a)', border: 'none', color: 'white', padding: '8px 30px', borderRadius: '50px', cursor: 'pointer', fontWeight: 800, fontSize: '1rem', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)', transition: 'all 0.3s' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>ייצוא HD</button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="icon-btn delete-btn" onClick={() => { if(fabricRef.current) { fabricRef.current.remove(fabricRef.current.getActiveObject()); fabricRef.current.renderAll(); } }} title="מחק"><i className="fas fa-trash-alt"></i></button>
+                    <button className="export-btn" onClick={handleDownload}>ייצוא</button>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', height: 'calc(100vh - 80px)' }}>
+            <div className="studio-container">
                 {/* Sidebar */}
-                <div style={{ background: 'white', borderLeft: '1px solid #eee', overflowY: 'auto', boxShadow: '-5px 0 30px rgba(0,0,0,0.02)', zIndex: 10 }}>
-                    <div style={{ display: 'flex', background: '#fafafa', borderBottom: '1px solid #eee' }}>
+                <div className="sidebar">
+                    <div className="sidebar-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee' }}>
                         {[{id:'templates',label:'תבניות עיצוב',icon:'fa-image'},{id:'form',label:'פרטי האירוע',icon:'fa-edit'}].map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, padding: '20px', background: activeTab === tab.id ? 'white' : 'transparent', border: 'none', borderBottom: activeTab === tab.id ? '3px solid #D4AF37' : '3px solid transparent', color: activeTab === tab.id ? '#D4AF37' : '#777', cursor: 'pointer', transition: 'all 0.3s' }}>
-                                <i className={`fas ${tab.icon}`} style={{ display: 'block', fontSize: '1.3rem', marginBottom: '8px' }}></i>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{tab.label}</span>
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, padding: '15px 20px', background: activeTab === tab.id ? 'white' : 'transparent', border: 'none', borderBottom: activeTab === tab.id ? '3px solid #D4AF37' : '3px solid transparent', color: activeTab === tab.id ? '#D4AF37' : '#777', cursor: 'pointer', transition: 'all 0.3s' }}>
+                                <i className={`fas ${tab.icon}`} style={{ display: 'block', fontSize: '1.2rem', marginBottom: '5px' }}></i>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>{tab.label}</span>
                             </button>
                         ))}
                     </div>
@@ -416,7 +426,14 @@ export default function DesignInvitationPage() {
                                 {IMAGE_TEMPLATES.map(t => (
                                     <button key={t.id} onClick={() => handleTemplateSelect(t)} style={{ background: 'white', border: selectedTemplate.id === t.id ? '2px solid #D4AF37' : '1px solid #eee', borderRadius: '16px', padding: '6px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.3s ease', boxShadow: selectedTemplate.id === t.id ? '0 10px 20px rgba(212,175,55,0.15)' : '0 5px 15px rgba(0,0,0,0.04)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                                         <div style={{ position: 'relative', width: '100%', aspectRatio: '600/840', borderRadius: '10px', overflow: 'hidden', marginBottom: '10px' }}>
-                                            <Image src={t.url} alt={t.name} fill style={{ objectFit: 'cover' }} />
+                                            <Image 
+                                                src={t.url} 
+                                                alt={t.name} 
+                                                fill 
+                                                sizes="(max-width: 768px) 50vw, 150px"
+                                                priority={t.id === 'tpl-1' || t.id === 'tpl-2'}
+                                                style={{ objectFit: 'cover' }} 
+                                            />
                                         </div>
                                         <div style={{ color: selectedTemplate.id === t.id ? '#D4AF37' : '#555', fontWeight: 800, fontSize: '0.8rem', paddingBottom: '6px' }}>{t.name}</div>
                                     </button>
@@ -543,7 +560,7 @@ export default function DesignInvitationPage() {
                 </div>
 
                 {/* Studio Canvas Area with Auto-Scale */}
-                <div ref={containerRef} style={{ background: '#f5f7f9', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '30px' }}>
+                <div ref={containerRef} className="canvas-area">
                     <div style={{ 
                         transform: `scale(${canvasScale})`, 
                         transformOrigin: 'center', 
@@ -571,6 +588,122 @@ export default function DesignInvitationPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            <style dangerouslySetInnerHTML={{__html: `
+                .studio-header {
+                    background: rgba(255, 255, 255, 0.98);
+                    border-bottom: 1px solid rgba(0,0,0,0.08);
+                    padding: 10px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    position: fixed;
+                    top: 0; left: 0; right: 0;
+                    z-index: 1000;
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+                .logo-text {
+                    color: #1a1a1a;
+                    margin: 0;
+                    font-size: 1.3rem;
+                    font-family: 'Playfair Display', serif;
+                    font-weight: 900;
+                }
+                .logo-accent {
+                    color: #D4AF37;
+                    font-weight: 400;
+                    font-family: 'Assistant', sans-serif;
+                }
+                .back-btn {
+                    color: #666;
+                    text-decoration: none;
+                    font-size: 1.1rem;
+                }
+                .icon-btn {
+                    background: #fff;
+                    border: 1px solid #eee;
+                    padding: 8px 12px;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .export-btn {
+                    background: linear-gradient(135deg, #D4AF37, #b8952a);
+                    border: none;
+                    color: white;
+                    padding: 8px 20px;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    fontWeight: 800;
+                    font-size: 0.9rem;
+                    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+                }
+                .studio-container {
+                    display: grid;
+                    grid-template-columns: 350px 1fr;
+                    height: calc(100vh - 70px);
+                    width: 100%;
+                    max-width: 100%;
+                }
+                .sidebar {
+                    background: white;
+                    border-left: 1px solid #eee;
+                    overflow-y: auto;
+                    box-shadow: -5px 0 30px rgba(0,0,0,0.02);
+                    z-index: 10;
+                    width: 100%;
+                }
+                .canvas-area {
+                    background: #f0f2f5;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    padding: 40px;
+                    position: relative;
+                    width: 100%;
+                }
+                @media (max-width: 900px) {
+                    .studio-container {
+                        display: flex;
+                        flex-direction: column;
+                        height: auto;
+                        grid-template-columns: 1fr;
+                    }
+                    .logo-text { font-size: 1.1rem; }
+                    .canvas-area {
+                        position: sticky;
+                        top: 60px;
+                        height: 50vh;
+                        min-height: 350px;
+                        padding: 10px;
+                        background: #e1e4e8;
+                        z-index: 500;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                        border-bottom: 1px solid #ddd;
+                        flex-shrink: 0;
+                    }
+                    .sidebar {
+                        border-left: none;
+                        border-radius: 30px 30px 0 0;
+                        margin-top: -25px;
+                        position: relative;
+                        box-shadow: 0 -15px 35px rgba(0,0,0,0.1);
+                        background: white;
+                        padding-bottom: 100px;
+                        z-index: 600;
+                    }
+                    .sidebar-tabs {
+                        position: sticky;
+                        top: 0;
+                        background: rgba(255,255,255,0.95);
+                        backdrop-filter: blur(10px);
+                        border-radius: 30px 30px 0 0;
+                        z-index: 11;
+                    }
+                }
+            `}} />
         </div>
     );
 }
