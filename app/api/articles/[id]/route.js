@@ -1,6 +1,8 @@
 import dbConnect from '@/lib/mongodb';
 import Article from '@/lib/models/Article';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request, { params }) {
     try {
         await dbConnect();

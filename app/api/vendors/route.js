@@ -1,5 +1,7 @@
 import dbConnect from '@/lib/mongodb';
 import Vendor from '@/lib/models/Vendor';
+
+export const dynamic = 'force-dynamic';
 import AdminLog from '@/lib/models/AdminLog';
 
 function isAdmin(request) {
