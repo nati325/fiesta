@@ -1,6 +1,8 @@
 import dbConnect from '@/lib/mongodb';
 import Package from '@/lib/models/Package';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         await dbConnect();

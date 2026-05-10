@@ -1,5 +1,7 @@
 import dbConnect from '@/lib/mongodb';
 import User from '@/lib/models/User';
+
+export const dynamic = 'force-dynamic';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
