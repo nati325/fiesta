@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         const destDir = path.join(process.cwd(), 'public', 'invitation-templates');
