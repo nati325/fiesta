@@ -1,5 +1,7 @@
 import dbConnect from '@/lib/mongodb';
 import mongoose from 'mongoose';
+
+export const dynamic = 'force-dynamic';
 import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'fiesta-secret-admin-key-2025';

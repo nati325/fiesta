@@ -1,4 +1,5 @@
 import dbConnect from '@/lib/mongodb';
+export const dynamic = 'force-dynamic';
 import Visit from '@/lib/models/Visit';
 
 export async function POST(request) {
