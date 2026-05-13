@@ -36,55 +36,70 @@ export default function CategoryPage() {
     }, [type, getVendorsByType, eventPreference, sortBy]);
 
     const categoryData = {
-        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=1200&q=80' },
-        'photographer': { label: 'צלמים', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80' },
-        'alcohol': { label: 'אלכוהול ובר', img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80' },
-        'catering': { label: 'קייטרינג', img: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80' },
-        'attractions': { label: 'אטרקציות', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80' },
-        'makeup': { label: 'איפור כלה', img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1200&q=80' },
-        'hair': { label: 'עיצוב שיער', img: 'https://images.unsplash.com/photo-1560869713-7d0a29430039?auto=format&fit=crop&w=1200&q=80' },
-        'singers': { label: 'זמרים ולהקות', img: 'https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=1200&q=80' },
-        'venue': { label: 'אולמות וגנים', img: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80' },
-        'dresses': { label: 'שמלות כלה', img: 'https://images.unsplash.com/photo-1594553939328-14936d6f5f3e?auto=format&fit=crop&w=1200&q=80' },
-        'suits': { label: 'חליפות חתן', img: 'https://images.unsplash.com/photo-1594932224015-610b8116ce9f?auto=format&fit=crop&w=1200&q=80' },
-        'event-production': { label: 'הפקת אירועים', img: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80' },
-        'rabbi': { label: 'רב לחופה', img: 'https://images.unsplash.com/photo-1505932794465-147d1f1b2c97?auto=format&fit=crop&w=1200&q=80' },
-        'rings': { label: 'טבעות נישואין', img: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80' },
-        'hotels': { label: 'מלונות וסוויטות', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' },
-        'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1549416878-b99b533e46bc?auto=format&fit=crop&w=1200&q=80' },
-        'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1539185441755-769473a23957?auto=format&fit=crop&w=1200&q=80' },
-        'dietitians': { label: 'דיאטניות', img: 'https://images.unsplash.com/photo-1490645935967-1306ba001491?auto=format&fit=crop&w=1200&q=80' },
-        'personal-training': { label: 'כושר וחיטוב', img: 'https://images.unsplash.com/photo-15344383272d6-0a0e22b3b64e?auto=format&fit=crop&w=1200&q=80' },
-        'invitations': { label: 'הזמנות', img: 'https://images.unsplash.com/photo-1607192233397-51493dd4aa70?auto=format&fit=crop&w=1200&q=80' }
+        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80' },
+        'photographer': { label: 'צילום אירועים', img: '/images/event_photographer.png' },
+        'alcohol': { label: 'אלכוהול ובר', img: '/images/bar_hero.png' },
+        'catering': { label: 'קייטרינג', img: '/images/catering.jpeg' },
+        'venue': { label: 'אולמות וגנים', img: '/images/venue_hero.png' },
+        'design': { label: 'עיצוב אירועים', img: '/images/wedding_floral_arch_1765744424651.png' },
+        'dresses': { label: 'שמלות כלה', img: '/images/wedding_dress.jpeg' },
+        'suits': { label: 'חליפות חתן', img: '/images/groom_suits.jpeg' },
+        'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1200&q=80' },
+        'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80' },
+        'hair': { label: 'עיצוב שיער', img: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=1200&q=80' },
+        'makeup': { label: 'איפור', img: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1200&q=80' },
+        'rings': { label: 'טבעות נישואין', img: '/images/jewelry_hero.png' },
+        'event-production': { label: 'הפקת אירועים', img: '/images/event_production.jpeg' },
+        'rsvp': { label: 'אישורי הגעה', img: 'https://images.unsplash.com/photo-1512418490979-92798ccc13fb?auto=format&fit=crop&w=1200&q=80' },
+        'invitations': { label: 'הזמנות', img: '/images/invitations_hero.png' },
+        'transportation': { label: 'הסעות', img: '/images/car_hero.png' },
+        'cars': { label: 'רכבי יוקרה', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80' },
+        'equipment-rental': { label: 'השכרת ציוד', img: '/images/wedding_table_detail_1765744408525.png' },
+        'rabbi': { label: 'רב לחופה', img: '/images/rabbi.jpeg' },
+        'cantors': { label: 'חזנים ופייטנים', img: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&w=1200&q=80' },
+        'singers': { label: 'זמרים ולהקות', img: '/images/entertainment_hero.png' },
+        'religious-bands': { label: 'להקות דתיות', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80' },
+        'challa': { label: 'הפרשת חלה', img: 'https://images.unsplash.com/photo-1610452399201-9a7076594d2f?auto=format&fit=crop&w=1200&q=80' },
+        'attractions': { label: 'אטרקציות', img: '/images/attractions_hero.png' },
+        'souvenirs': { label: 'מזכרות', img: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=1200&q=80' },
+        'hotels': { label: 'מלונות', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' },
+        'bachelor': { label: 'מסיבות רווקים', img: 'https://images.unsplash.com/photo-1514525253344-f81bcd3ce942?auto=format&fit=crop&w=1200&q=80' },
+        'getting-ready': { label: 'התארגנות כלה', img: '/images/wedding_lounge_1765744440712.png' },
+        'dietitians': { label: 'תזונה ודיאטה', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80' },
+        'personal-training': { label: 'כושר ואימון', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80' }
     };
 
     const currentCategory = categoryData[type] || { label: 'ספקים', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80' };
 
     return (
         <div style={{ minHeight: '100vh', background: '#fdfcf9', paddingBottom: '100px' }}>
-            {/* Header Hero Area - More Compact */}
+            {/* Header Hero Area - More Impactful */}
             <div style={{
-                height: '18vh',
-                minHeight: '140px',
+                height: '35vh',
+                minHeight: '280px',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                <img src={currentCategory.img} alt={currentCategory.label} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.5)' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)' }} />
-                <div style={{ position: 'absolute', bottom: '20px', right: '30px', color: 'white', textAlign: 'right' }}>
+                <img src={currentCategory.img} alt={currentCategory.label} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.6)' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)' }} />
+                <div style={{ position: 'absolute', bottom: '40px', right: '40px', color: 'white', textAlign: 'right' }}>
                     <h1 style={{ 
-                        fontSize: '2.2rem', 
+                        fontSize: '3rem', 
                         fontWeight: 900, 
-                        marginBottom: '4px',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.8)',
-                        fontFamily: 'var(--font-display)'
+                        marginBottom: '8px',
+                        textShadow: '0 4px 15px rgba(0,0,0,0.9)',
+                        fontFamily: 'var(--font-display)',
+                        letterSpacing: '-0.02em'
                     }}>{currentCategory.label}</h1>
-                    <p style={{ 
-                        fontSize: '0.95rem', 
-                        opacity: 0.95, 
-                        fontWeight: 600,
-                        textShadow: '0 1px 5px rgba(0,0,0,0.8)'
-                    }}>{vendors.length} ספקים מובחרים</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
+                        <div style={{ height: '2px', width: '40px', background: 'var(--primary-color)' }}></div>
+                        <p style={{ 
+                            fontSize: '1.1rem', 
+                            opacity: 0.95, 
+                            fontWeight: 600,
+                            textShadow: '0 2px 8px rgba(0,0,0,0.8)'
+                        }}>{vendors.length} ספקים מובילים מחכים לכם</p>
+                    </div>
                 </div>
                 <button
                     onClick={() => router.back()}
@@ -157,7 +172,20 @@ export default function CategoryPage() {
                         }}>
                             {vendors.map((v, i) => {
                                 const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
-                                const displayImage = mainProduct?.image || (v.image && v.image.trim() !== '' ? v.image : currentCategory.img);
+                                
+                                // Dynamic unique image logic
+                                let displayImage = mainProduct?.image || v.image;
+                                if (!displayImage || displayImage.trim() === '' || displayImage === currentCategory.img) {
+                                    // Generate a unique unsplash image based on index and category type
+                                    const seeds = [
+                                        '1516280440614-37939bbacd41', '1571266028243-3716f02d2d2e', '1470229722913-7c090be05e7f', 
+                                        '1598387181032-a3103a2db5b3', '1514525253161-7a46d19cd819', '1511285560929-80b456fea0bc',
+                                        '1520854221256-17451cc331bf', '1537151608828-ea2b11777ee8'
+                                    ];
+                                    const seed = seeds[i % seeds.length];
+                                    displayImage = `https://images.unsplash.com/photo-${seed}?auto=format&fit=crop&w=800&q=80`;
+                                }
+
                                 const displayPrice = mainProduct?.price || v.price;
                                 const displayOriginalPrice = mainProduct?.originalPrice || v.originalPrice;
                                 const displayName = mainProduct ? `${v.name} - ${mainProduct.name}` : v.name;

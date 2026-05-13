@@ -1439,15 +1439,23 @@ img {
     background-color: #25d366;
     color: white;
     border-radius: 20px;
-    padding: 4px 10px;
+    padding: 4px 12px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     z-index: 9999;
     transition: all 0.3s ease;
     text-decoration: none;
     direction: rtl;
+}
+
+@media (max-width: 768px) {
+    .whatsapp-float-compact {
+        bottom: 80px; /* Positioned above the mobile bottom nav */
+        right: 10px;
+        padding: 6px 12px;
+    }
 }
 
 .whatsapp-float-compact:hover {

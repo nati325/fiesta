@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import SearchModal from './SearchModal';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const { user, logout } = useAuth();
+    const [searchModalOpen, setSearchModalOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -44,6 +46,42 @@ const Navbar = () => {
                         שירות חינם
                     </div>
                 </div>
+
+                <div className="nav-search-trigger" onClick={() => setSearchModalOpen(true)}>
+                    <i className="fas fa-search"></i>
+                    <span>חפשו ספק...</span>
+                </div>
+
+                <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
+
+                <style jsx>{`
+                    .nav-search-trigger {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        background: rgba(212, 175, 55, 0.08);
+                        border: 1px solid rgba(212, 175, 55, 0.2);
+                        padding: 10px 25px;
+                        border-radius: 50px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        color: #666;
+                        font-weight: 600;
+                        margin: 0 20px;
+                    }
+                    .nav-search-trigger:hover {
+                        background: rgba(212, 175, 55, 0.15);
+                        border-color: var(--primary-color);
+                        transform: translateY(-1px);
+                    }
+                    .nav-search-trigger i {
+                        color: var(--primary-color);
+                        font-size: 1.1rem;
+                    }
+                    @media (max-width: 900px) {
+                        .nav-search-trigger { display: none; }
+                    }
+                `}</style>
 
                 <nav className="nav">
                     <ul>
@@ -187,6 +225,20 @@ const Navbar = () => {
                 </div>
 
                 <div className="mobile-main-links">
+                    <div onClick={() => { setSearchModalOpen(true); setMobileMenuOpen(false); }} style={{ 
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        background: 'var(--off-white)',
+                        fontSize: '1.2rem',
+                        fontWeight: '600'
+                    }}>
+                        <i className="fas fa-search" style={{ color: 'var(--primary-color)' }}></i>
+                        <span>חיפוש ספקים ואנשי מקצוע לאירוע</span>
+                    </div>
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-home"></i> דף הבית</Link>
                     <Link href="/design-invitation" onClick={() => setMobileMenuOpen(false)} style={{ color: '#D4AF37', fontWeight: 'bold' }}>
                         <i className="fas fa-envelope-open-text"></i> עיצוב הזמנות
