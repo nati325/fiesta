@@ -149,8 +149,14 @@ export default function HomePage() {
                             תיהנו ממחירים בלעדיים, שקיפות מלאה וליווי מקצועי - והכל ללא עלות.
                         </p>
                         <div className="hero-btns">
-                            <button className="btn-gold" onClick={() => document.getElementById('browse').scrollIntoView({ behavior: 'smooth' })}>מצאו ספק מושלם</button>
-                            <button className="btn-outline-white" onClick={() => setShowOnboarding(true)}>התאמה אישית חכמה</button>
+                            <button className="btn-premium-gold" onClick={() => document.getElementById('browse').scrollIntoView({ behavior: 'smooth' })}>
+                                <span>מצאו ספק מושלם</span>
+                                <i className="fas fa-chevron-left"></i>
+                            </button>
+                            <button className="btn-premium-outline" onClick={() => setShowOnboarding(true)}>
+                                <span>התאמה אישית חכמה</span>
+                                <i className="fas fa-magic"></i>
+                            </button>
                         </div>
                     </motion.div>
                 </div>
@@ -336,15 +342,24 @@ export default function HomePage() {
                     padding: 0 20px;
                 }
                 .hero-badge {
-                    display: inline-block;
-                    background: rgba(212, 175, 55, 0.2);
-                    border: 1px solid #D4AF37;
-                    color: #D4AF37;
-                    padding: 8px 20px;
-                    border-radius: 50px;
-                    font-weight: 800;
-                    font-size: 0.9rem;
-                    margin-bottom: 25px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(212, 175, 55, 0.15);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(212, 175, 55, 0.4);
+                    color: #FFD700;
+                    padding: 10px 24px;
+                    border-radius: 100px;
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    margin-bottom: 30px;
+                    letter-spacing: 0.5px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                .hero-badge::before {
+                    content: '✨';
+                    font-size: 1.1rem;
                 }
                 .hero-card h1 {
                     font-size: clamp(2.5rem, 6vw, 4.8rem);
@@ -358,51 +373,100 @@ export default function HomePage() {
                     text-shadow: 0 4px 30px rgba(0,0,0,0.9);
                 }
                 .fashion-white {
-                    font-family: var(--font-playfair), serif;
-                    font-weight: 700;
-                    background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
+                    font-family: var(--font-display), serif;
+                    font-weight: 800;
+                    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     display: inline-block;
+                    letter-spacing: -0.02em;
+                }
+                .gold-text { 
+                    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    display: inline-block;
+                    font-weight: 900;
                 }
                 .hero-card p {
                     font-size: clamp(1.1rem, 1.5vw, 1.3rem);
-                    margin-bottom: 85px;
-                    line-height: 1.6;
-                    font-weight: 600;
-                    color: #ffffff !important;
+                    margin-bottom: 80px;
+                    line-height: 1.8;
+                    font-weight: 500;
+                    color: rgba(255, 255, 255, 0.95) !important;
+                    max-width: 700px;
+                    margin-left: auto;
+                    margin-right: auto;
                 }
                 .hero-btns {
                     display: flex;
-                    gap: 20px;
+                    gap: 24px;
                     justify-content: center;
                     flex-wrap: wrap;
-                    margin-top: 20px;
+                    margin-top: 40px;
                 }
-                .btn-gold {
-                    background: #D4AF37;
-                    color: white;
+                
+                /* Premium Buttons */
+                .btn-premium-gold {
+                    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+                    color: #1a1a1a;
                     border: none;
-                    padding: 18px 45px;
+                    padding: 18px 40px;
                     border-radius: 100px;
                     font-weight: 800;
                     font-size: 1.1rem;
                     cursor: pointer;
-                    transition: 0.3s;
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+                    position: relative;
+                    overflow: hidden;
                 }
-                .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); }
-                .btn-outline-white {
-                    background: transparent;
+                
+                .btn-premium-gold:hover {
+                    transform: translateY(-5px) scale(1.02);
+                    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+                    color: #000;
+                }
+                
+                .btn-premium-gold i {
+                    font-size: 0.9rem;
+                    transition: transform 0.3s;
+                }
+                
+                .btn-premium-gold:hover i {
+                    transform: translateX(-5px);
+                }
+
+                .btn-premium-outline {
+                    background: rgba(255, 255, 255, 0.05);
                     color: white;
-                    border: 2px solid rgba(255,255,255,0.4);
-                    padding: 18px 45px;
+                    border: 1.5px solid rgba(255, 255, 255, 0.3);
+                    padding: 18px 40px;
                     border-radius: 100px;
-                    font-weight: 800;
+                    font-weight: 700;
                     font-size: 1.1rem;
                     cursor: pointer;
-                    transition: 0.3s;
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    backdrop-filter: blur(10px);
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
                 }
-                .btn-outline-white:hover { background: white; color: black; }
+                
+                .btn-premium-outline:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                    border-color: white;
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+                }
+                
+                .btn-premium-outline i {
+                    font-size: 0.9rem;
+                    opacity: 0.8;
+                }
 
                 /* Stats Bar */
                 .stats-bar { background: #1a1a1a; padding: 40px 0; color: white; }
@@ -511,10 +575,26 @@ export default function HomePage() {
                     .categories-visual-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
                     .hero-premium { height: 50vh; min-height: 420px; }
                     .hero-badge { display: none !important; }
-                    .hero-card p { display: block !important; font-size: 0.95rem; margin-bottom: 75px; line-height: 1.5; opacity: 0.9; }
+                    .hero-card p { display: block !important; font-size: 0.95rem; margin-bottom: 90px; line-height: 1.5; opacity: 0.9; }
                     .hero-card h1 { font-size: 2.1rem; margin-bottom: 15px; line-height: 1.2; }
-                    .hero-btns { gap: 12px; margin-top: 15px !important; }
-                    .btn-gold, .btn-outline-white { padding: 10px 22px; font-size: 0.9rem; }
+                    .btn-premium-gold, .btn-premium-outline { 
+                        padding: 10px 14px; 
+                        font-size: 0.85rem; 
+                        flex: 1;
+                        justify-content: center;
+                        white-space: nowrap;
+                        gap: 6px;
+                    }
+                    .btn-premium-gold i, .btn-premium-outline i {
+                        font-size: 0.75rem;
+                    }
+                    .hero-btns {
+                        flex-direction: row;
+                        gap: 10px;
+                        width: 100%;
+                        max-width: 100%;
+                        margin: 20px auto 0;
+                    }
                 }
 
                 /* Personal Banner */
