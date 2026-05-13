@@ -648,7 +648,7 @@ export default function DesignInvitationPage() {
                     .zoom-controls-floating { bottom: 100px; right: 20px; left: auto; flex-direction: column; padding: 8px; border-radius: 15px; }
                     .ctx-menu { left: 50% !important; transform: translateX(-50%) !important; bottom: 120px; top: auto !important; }
                 }
-            `}</style>
+            `}} />
             {/* Tutorial Overlay */}
             <AnimatePresence>
                 {showTutorial && (

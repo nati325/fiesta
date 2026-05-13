@@ -496,8 +496,7 @@ export default function AdminPage() {
                                             )}
                                         </div>
                                     </div>
-                            </div>
-                            <div className="crm-input-group">
+                                    <div className="crm-input-group">
                                 <label>מחיר מקורי (₪)</label>
                                 <input type="number" value={vendorForm.originalPrice || ''} onChange={e => setVendorForm({ ...vendorForm, originalPrice: e.target.value })} />
                             </div>
