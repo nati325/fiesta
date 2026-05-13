@@ -436,11 +436,6 @@ export default function HomePage() {
                         ))}
                     </div>
                 </div>
-                <style jsx>{`
-                    @media (max-width: 900px) {
-                        .step-arrow { display: none; }
-                    }
-                `}</style>
             </section>
 
             {/* Packages Carousel & Search Integration */}
@@ -1174,6 +1169,9 @@ export default function HomePage() {
                 <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(212,175,55,0.03) 0%, transparent 70%)', borderRadius: '50%', zIndex: 1 }} />
             </footer>
             <style jsx>{`
+                @media (max-width: 900px) {
+                    .step-arrow { display: none; }
+                }
                 .premium-search-bar.light-luxury {
                     display: flex;
                     align-items: center;
@@ -1514,7 +1512,7 @@ export default function HomePage() {
                 
                 .onboarding-skip { background: none; border: none; color: #94a3b8; font-weight: 600; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
                 .onboarding-skip:hover { color: #64748b; }
-            `}} />
+            `}}></style>
         </div>
     );
 }
