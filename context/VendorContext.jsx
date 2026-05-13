@@ -8,6 +8,16 @@ export const useVendors = () => useContext(VendorContext);
 
 export const VendorProvider = ({ children }) => {
     const [vendors, setVendors] = useState([]);
+    const [favorites, setFavorites] = useState([]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem('fiesta_favorites');
+        if (saved) setFavorites(JSON.parse(saved));
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('fiesta_favorites', JSON.stringify(favorites));
+    }, [favorites]);
 
     useEffect(() => {
         fetch('/api/vendors')
@@ -76,8 +86,18 @@ export const VendorProvider = ({ children }) => {
         return vendors.filter(v => v.type === type);
     };
 
+    const toggleFavorite = (id) => {
+        setFavorites(prev => 
+            prev.includes(id) 
+                ? prev.filter(f => f !== id) 
+                : [...prev, id]
+        );
+    };
+
+    const isFavorite = (id) => favorites.includes(id);
+
     return (
-        <VendorContext.Provider value={{ vendors, addVendor, deleteVendor, updateVendor, getVendorsByType }}>
+        <VendorContext.Provider value={{ vendors, addVendor, deleteVendor, updateVendor, getVendorsByType, favorites, toggleFavorite, isFavorite }}>
             {children}
         </VendorContext.Provider>
     );

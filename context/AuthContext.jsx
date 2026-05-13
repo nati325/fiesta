@@ -10,15 +10,16 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [eventPreference, setEventPreference] = useState(null);
 
     useEffect(() => {
         const savedToken = localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
-        if (savedToken) {
-            setToken(savedToken);
-            if (savedUser) {
-                setUser(JSON.parse(savedUser));
-            }
+        const savedEvent = localStorage.getItem('eventPreference');
+        if (savedEvent) setEventPreference(savedEvent);
+        setToken(savedToken);
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
         }
         setLoading(false);
     }, []);
@@ -62,14 +63,24 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        setUser(null);
         setToken(null);
+        setUser(null);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     };
 
+    const updateEventPreference = (pref) => {
+        setEventPreference(pref);
+        localStorage.setItem('eventPreference', pref);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin: user?.isAdmin }}>
+        <AuthContext.Provider value={{ 
+            user, token, loading, login, register, logout, 
+            isAdmin: user?.isAdmin,
+            eventPreference,
+            setEventPreference: updateEventPreference
+        }}>
             {children}
         </AuthContext.Provider>
     );

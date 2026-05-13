@@ -42,6 +42,17 @@ export default function PackagesCarousel() {
             badgeColor: '#9C27B0',
             image: '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
             active: true
+        },
+        {
+            id: 'default-bonus',
+            title: 'מתנה בלעדית לסוגרים דרך פייסטה',
+            tagline: 'Exclusive Bonus',
+            description: 'סוגרים 2 ספקים ומעלה דרך האתר ומקבלים אישורי הגעה וסידור שולחנות בחינם לגמרי!',
+            saving: 'בשווי ₪1,500',
+            badge: '🎁 מתנה',
+            badgeColor: '#2E7D32',
+            image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80',
+            active: true
         }
     ];
 
@@ -137,7 +148,7 @@ export default function PackagesCarousel() {
                         חבילות <span style={{ color: 'var(--primary-color)' }}>פרימיום</span>
                     </h2>
                     <p style={{ color: '#666', fontSize: '1.1rem', margin: 0 }}>
-                        ההצעות המשתלמות והמקיפות ביותר לאירוע של פעם בחיים
+                        הורדנו את המחירים עבורכם - חבילות משתלמות במיוחד בבלעדיות ל-Fiesta
                     </p>
                 </div>
             </div>
@@ -207,7 +218,7 @@ export default function PackagesCarousel() {
                                     animate={{ opacity: 1, y: 0 }}
                                     style={{
                                         position: 'absolute', top: '30px', left: '5vw',
-                                        background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
+                                        background: currentPackage.badgeColor ? `linear-gradient(135deg, ${currentPackage.badgeColor} 0%, rgba(0,0,0,0.8) 100%)` : 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
                                         color: '#fff',
                                         padding: '8px 25px', borderRadius: '50px', fontSize: '0.85rem', 
                                         fontWeight: 800, letterSpacing: '1px',

@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import PackagesCarousel from '@/components/PackagesCarousel';
+import { useAuth } from '@/context/AuthContext';
+import { AnimatePresence } from 'framer-motion';
 
 export default function HomePage() {
     const [articles, setArticles] = useState([]);
@@ -17,7 +19,16 @@ export default function HomePage() {
     const [activeTab, setActiveTab] = useState('all');
     const supplierInputRef = useRef(null);
     const areaInputRef = useRef(null);
+    const { user, eventPreference, setEventPreference } = useAuth();
+    const [showOnboarding, setShowOnboarding] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        // Show onboarding if logged in but no preference set
+        if (user && !eventPreference) {
+            setShowOnboarding(true);
+        }
+    }, [user, eventPreference]);
 
     const openDropdown = (type) => {
         setActiveDropdown(type);
@@ -241,14 +252,15 @@ export default function HomePage() {
                             fontSize: 'clamp(1.1rem, 2vw, 1.6rem)', 
                             fontWeight: 300, 
                             marginBottom: '50px', 
-                            maxWidth: '700px', 
+                            maxWidth: '800px', 
                             margin: '0 auto 50px',
                             opacity: 0.9,
                             lineHeight: 1.4
                         }}
                     >
-                        מגשימים את החלומות המרגשים ביותר עם צוות הספקים המוביל בישראל. <br />
-                        <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>האירוע המושלם שלכם מתחיל כאן.</span>
+                        אנחנו כאן כדי להנגיש את עולם האירועים לכולם. הורדנו את המחירים, <br />
+                        קיצרנו את התיווך, והכל כדי שתוכלו לחגוג בלי להתפשר על איכות. <br />
+                        <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>כל המחירים באתר נמוכים ממחיר המקור - והשירות שלנו ניתן לכם בחינם לגמרי.</span>
                     </motion.p>
                     <div className="hero-buttons" style={{ gap: '25px' }}>
                         <motion.button
@@ -288,6 +300,149 @@ export default function HomePage() {
                 </motion.div>
             </section>
 
+            {/* Why Fiesta Section - NEW */}
+            <section className="why-fiesta" style={{ padding: '80px 0', background: 'linear-gradient(to bottom, #fff, #fdfcf9)' }}>
+                <div className="container" style={{ maxWidth: '1200px' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                        <h2 style={{ 
+                            fontSize: 'clamp(2rem, 4vw, 2.8rem)', 
+                            fontFamily: 'var(--font-display)', 
+                            fontWeight: 800, 
+                            color: '#1a1a1a', 
+                            marginBottom: '15px' 
+                        }}>
+                            למה <span style={{ color: 'var(--primary-color)' }}>Fiesta</span>?
+                        </h2>
+                        <div style={{ width: '60px', height: '3px', background: 'var(--primary-color)', margin: '0 auto' }}></div>
+                    </div>
+
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+                        gap: '40px' 
+                    }}>
+                        {[
+                            {
+                                icon: 'fa-gift',
+                                title: 'השירות בחינם לגמרי',
+                                desc: 'אנחנו לא גובים מכם שקל. סוגרים 2 ספקים ומעלה? קבלו אישורי הגעה וסידור שולחנות במתנה!'
+                            },
+                            {
+                                icon: 'fa-tags',
+                                title: 'הורדנו את המחירים',
+                                desc: 'אנחנו נלחמים עבור הצרכן. כל המחירים באתר עברו "קיצוץ פייסטה" והם נמוכים משמעותית ממחיר השוק המקורי.'
+                            },
+                            {
+                                icon: 'fa-handshake-angle',
+                                title: 'אנחנו כאן בשבילכם',
+                                desc: 'לא בשביל הספקים, לא בשביל העמלות. המטרה שלנו היא אחת: להנגיש לכם את האירוע שתמיד חלמתם עליו במחיר הוגן.'
+                            },
+                            {
+                                icon: 'fa-clock-rotate-left',
+                                title: 'חוסכים לכם זמן ועצבים',
+                                desc: 'במקום לרדוף אחרי הצעות מחיר, הכל מחכה לכם כאן - שקוף, ברור ומשתלם מהרגע הראשון.'
+                            }
+                        ].map((item, idx) => (
+                            <motion.div 
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                style={{
+                                    textAlign: 'center',
+                                    padding: '30px',
+                                    background: 'white',
+                                    borderRadius: '24px',
+                                    boxShadow: '0 15px 40px rgba(0,0,0,0.03)',
+                                    border: '1px solid #f0f0f0'
+                                }}
+                            >
+                                <div style={{ 
+                                    width: '70px', height: '70px', 
+                                    background: 'rgba(212,175,55,0.1)', 
+                                    borderRadius: '20px', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    margin: '0 auto 20px',
+                                    fontSize: '1.8rem', color: 'var(--primary-color)'
+                                }}>
+                                    <i className={`fas ${item.icon}`}></i>
+                                </div>
+                                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '12px' }}>{item.title}</h3>
+                                <p style={{ color: '#666', lineHeight: 1.6, fontSize: '0.95rem' }}>{item.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* How it Works Section - NEW */}
+            <section className="how-it-works" style={{ padding: '80px 0', background: '#fff' }}>
+                <div className="container" style={{ maxWidth: '1200px' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                        <h2 style={{ 
+                            fontSize: 'clamp(2rem, 4vw, 2.8rem)', 
+                            fontFamily: 'var(--font-display)', 
+                            fontWeight: 800, 
+                            color: '#1a1a1a', 
+                            marginBottom: '15px' 
+                        }}>
+                            איך זה <span style={{ color: 'var(--primary-color)' }}>עובד</span>?
+                        </h2>
+                        <p style={{ fontSize: '1.1rem', color: '#666' }}>הדרך המהירה והחסכונית ביותר לאירוע המושלם שלכם</p>
+                    </div>
+
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                        gap: '30px',
+                        position: 'relative'
+                    }}>
+                        {[
+                            { step: '1', title: 'בוחרים ספקים', desc: 'גולשים בין הקטגוריות השונות ומוצאים את הספקים המובילים במחירים הכי טובים בארץ.', icon: 'fa-search' },
+                            { step: '2', title: 'סוגרים דרך פייסטה', desc: 'יוצרים איתנו קשר או פונים לספק ישירות - אנחנו דואגים שתקבלו את "מחיר פייסטה" הנמוך והבלעדי.', icon: 'fa-handshake' },
+                            { step: '3', title: 'חוסכים וחוגגים', desc: 'נהנים מהאירוע בראש שקט, בידיעה שחסכתם אלפי שקלים והשירות שלנו ניתן לכם בחינם.', icon: 'fa-glass-cheers' }
+                        ].map((item, idx) => (
+                            <div key={idx} style={{ textAlign: 'center', position: 'relative', padding: '20px' }}>
+                                <div style={{ 
+                                    width: '100px', height: '100px', 
+                                    background: 'white', 
+                                    borderRadius: '50%', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    margin: '0 auto 25px',
+                                    fontSize: '2.5rem', color: 'var(--primary-color)',
+                                    boxShadow: '0 10px 30px rgba(212,175,55,0.15)',
+                                    border: '2px solid #fdfcf9',
+                                    position: 'relative'
+                                }}>
+                                    <i className={`fas ${item.icon}`}></i>
+                                    <span style={{ 
+                                        position: 'absolute', top: '-5px', right: '-5px', 
+                                        width: '35px', height: '35px', background: 'var(--primary-color)', 
+                                        color: 'white', borderRadius: '50%', display: 'flex', 
+                                        alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900 
+                                    }}>{item.step}</span>
+                                </div>
+                                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '12px' }}>{item.title}</h3>
+                                <p style={{ color: '#666', lineHeight: 1.6 }}>{item.desc}</p>
+                                
+                                {idx < 2 && (
+                                    <div className="step-arrow" style={{
+                                        position: 'absolute', top: '50px', left: '-15%', width: '30%', height: '2px', 
+                                        background: 'linear-gradient(to left, var(--primary-color), transparent)',
+                                        opacity: 0.3, zIndex: 0
+                                    }}></div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <style jsx>{`
+                    @media (max-width: 900px) {
+                        .step-arrow { display: none; }
+                    }
+                `}</style>
+            </section>
+
             {/* Packages Carousel & Search Integration */}
             <div className="carousel-search-integrated" style={{ position: 'relative' }}>
                 <PackagesCarousel />
@@ -310,7 +465,7 @@ export default function HomePage() {
                                 color: '#1a1a1a', 
                                 margin: 0 
                             }}>
-                                מצאו את ה<span style={{ color: 'var(--primary-color)' }}>ספקים המושלמים</span> לאירוע שלכם
+                                מצאו את ה<span style={{ color: 'var(--primary-color)' }}>ספקים המושלמים</span> במחירים שפויים
                             </h2>
                         </div>
                         
@@ -417,6 +572,121 @@ export default function HomePage() {
             <section id="gallery" className="gallery" style={{ paddingTop: '60px' }}>
                 <div className="container" style={{ maxWidth: '1400px' }}>
                     <div className="section-title" style={{ marginBottom: '20px' }}>
+                        {eventPreference && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -10 }} 
+                                animate={{ opacity: 1, y: 0 }}
+                                className="personalized-header"
+                                style={{
+                                    background: 'linear-gradient(135deg, #fdfaf0 0%, #fff 100%)',
+                                    padding: '25px',
+                                    borderRadius: '24px',
+                                    marginBottom: '40px',
+                                    border: '1px solid #f3e8c1',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    textAlign: 'right'
+                                }}
+                            >
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#1a1a1a' }}>
+                                        <span style={{ marginLeft: '10px' }}>✨</span> 
+                                        ספקים מומלצים עבור ה{eventPreference} שלכם
+                                    </h3>
+                                    <p style={{ margin: '5px 0 0', color: '#666', fontSize: '0.95rem' }}>סיננו עבורכם את אנשי המקצוע המובילים שמתמחים בדיוק בסוג האירוע הזה.</p>
+                                </div>
+                                <button 
+                                    onClick={() => setShowOnboarding(true)}
+                                    style={{
+                                        background: 'white', border: '1.5px solid #D4AF37',
+                                        color: '#D4AF37', padding: '10px 20px', borderRadius: '12px',
+                                        fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer',
+                                        boxShadow: '0 4px 12px rgba(212,175,55,0.1)'
+                                    }}
+                                >
+                                    <i className="fas fa-redo" style={{ marginLeft: '8px' }}></i>
+                                    שינוי סוג אירוע
+                                </button>
+                            </motion.div>
+                        )}
+
+                        {eventPreference && vendors.length > 0 && (
+                            <div className="personalized-vendors-grid" style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                                gap: '25px',
+                                marginBottom: '60px'
+                            }}>
+                                {vendors.filter(v => 
+                                    v.eventTypes?.includes(eventPreference) || 
+                                    v.eventTypes?.includes('מתאים לכל האירועים')
+                                ).slice(0, 4).map((v, i) => {
+                                    const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
+                                    const displayImage = mainProduct?.image || (v.image && v.image.trim() !== '' ? v.image : '');
+                                    const displayPrice = mainProduct?.price || v.price;
+                                    const displayOriginalPrice = mainProduct?.originalPrice || v.originalPrice;
+                                    const displayName = mainProduct ? `${v.name} - ${mainProduct.name}` : v.name;
+
+                                    return (
+                                    <Link key={v.id} href={`/vendor/${v.id}`} style={{ textDecoration: 'none' }}>
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.1 }}
+                                            className="recommended-vendor-card"
+                                            style={{
+                                                background: 'white',
+                                                borderRadius: '24px',
+                                                overflow: 'hidden',
+                                                boxShadow: '0 10px 40px rgba(0,0,0,0.05)',
+                                                border: '1px solid #eee'
+                                            }}
+                                        >
+                                            <div style={{ height: '180px', position: 'relative' }}>
+                                                <img src={displayImage || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80'} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <div style={{ position: 'absolute', top: '15px', right: '15px', background: 'rgba(255,255,255,0.9)', padding: '5px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 800, color: '#D4AF37' }}>
+                                                    {v.type === 'dj' ? 'DJ ומוזיקה' : v.type === 'photographer' ? 'צילום' : v.type === 'venue' ? 'אולם' : 'ספק מומלץ'}
+                                                </div>
+                                            </div>
+                                            <div style={{ padding: '20px', textAlign: 'right' }}>
+                                                <h4 style={{ margin: '0 0 5px', fontSize: '1.1rem', fontWeight: 900 }}>{displayName}</h4>
+                                                
+                                                {displayPrice && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            {displayOriginalPrice && (
+                                                                <span style={{ fontSize: '0.75rem', textDecoration: 'line-through', opacity: 0.5, color: '#666' }}>₪{displayOriginalPrice}</span>
+                                                            )}
+                                                            <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--primary-color)' }}>₪{displayPrice}</span>
+                                                        </div>
+                                                        {displayOriginalPrice && (
+                                                            <span style={{ 
+                                                                background: '#E8F5E9', 
+                                                                color: '#2E7D32', 
+                                                                fontSize: '0.65rem', 
+                                                                fontWeight: 800, 
+                                                                padding: '3px 8px', 
+                                                                borderRadius: '6px',
+                                                                marginRight: 'auto'
+                                                            }}>
+                                                                חסכון של ₪{displayOriginalPrice - displayPrice}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#888', fontSize: '0.85rem' }}>
+                                                    <i className="fas fa-map-marker-alt" style={{ color: '#D4AF37' }}></i>
+                                                    {v.region}
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    </Link>
+                                )})}
+                            </div>
+                        )}
+
                         <h2>הספקים שלנו</h2>
                         <div className="divider"></div>
                         <p>נבחרת הספקים המנצחת שלנו - מחולקת לפי קטגוריות לנוחותכם</p>
@@ -1172,6 +1442,79 @@ export default function HomePage() {
                     }
                 }
             `}</style>
+            {/* Onboarding Modal */}
+            <AnimatePresence>
+                {showOnboarding && (
+                    <div className="onboarding-overlay">
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="onboarding-card"
+                        >
+                            <div className="onboarding-header">
+                                <div className="onboarding-icon-main">✨</div>
+                                <h2>נעים להכיר! איזה אירוע חוגגים?</h2>
+                                <p>כדי שנוכל להתאים לכם את הספקים וההטבות הכי רלוונטיות, ספרו לנו מה אתם מתכננים:</p>
+                            </div>
+
+                            <div className="onboarding-options">
+                                {[
+                                    { id: 'חתונה', icon: '💍', label: 'חתונה' },
+                                    { id: 'בר/בת מצווה', icon: '✡️', label: 'בר/בת מצווה' },
+                                    { id: 'ברית/ה', icon: '👶', label: 'ברית/ה' },
+                                    { id: 'אירוע עסקי', icon: '💼', label: 'אירוע עסקי' },
+                                    { id: 'מסיבת רווקים/ות', icon: '🥂', label: 'מסיבה' }
+                                ].map(opt => (
+                                    <button 
+                                        key={opt.id} 
+                                        className="onboarding-opt-btn"
+                                        onClick={() => {
+                                            setEventPreference(opt.id);
+                                            setShowOnboarding(false);
+                                        }}
+                                    >
+                                        <span className="opt-icon">{opt.icon}</span>
+                                        <span className="opt-label">{opt.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button className="onboarding-skip" onClick={() => setShowOnboarding(false)}>כרגע אני רק מסתכל...</button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .onboarding-overlay {
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+                    display: flex; align-items: center; justify-content: center;
+                    z-index: 10000; padding: 20px;
+                }
+                .onboarding-card {
+                    background: white; width: 100%; max-width: 500px;
+                    border-radius: 32px; padding: 40px; text-align: center;
+                    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+                }
+                .onboarding-icon-main { font-size: 3rem; margin-bottom: 20px; }
+                .onboarding-header h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; color: #1a1a1a; }
+                .onboarding-header p { color: #666; line-height: 1.6; margin-bottom: 30px; }
+                
+                .onboarding-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+                .onboarding-opt-btn {
+                    background: #f8fafc; border: 2px solid #f1f5f9; padding: 20px;
+                    border-radius: 20px; cursor: pointer; transition: all 0.2s;
+                    display: flex; flex-direction: column; align-items: center; gap: 10px;
+                }
+                .onboarding-opt-btn:hover { background: #fff; border-color: #D4AF37; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(212,175,55,0.1); }
+                .onboarding-opt-btn .opt-icon { font-size: 1.8rem; }
+                .onboarding-opt-btn .opt-label { font-weight: 800; color: #334155; }
+                
+                .onboarding-skip { background: none; border: none; color: #94a3b8; font-weight: 600; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
+                .onboarding-skip:hover { color: #64748b; }
+            `}} />
         </div>
     );
 }

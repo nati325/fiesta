@@ -22,10 +22,28 @@ const Navbar = () => {
     return (
         <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
             <div className="header-container">
-                <Link href="/" className="logo" style={{ textDecoration: 'none' }}>
-                    <h1>Fiesta</h1>
-                    <span className="tagline">הפקת אירועים בסטייל</span>
-                </Link>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Link href="/" className="logo" style={{ textDecoration: 'none' }}>
+                        <h1>Fiesta</h1>
+                        <span className="tagline">הפקת אירועים בסטייל</span>
+                    </Link>
+                    <div style={{
+                        background: 'rgba(212, 175, 55, 0.1)',
+                        color: '#D4AF37',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.7rem',
+                        fontWeight: '800',
+                        border: '1px solid rgba(212, 175, 55, 0.3)',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                    }}>
+                        <i className="fas fa-gift"></i>
+                        שירות חינם
+                    </div>
+                </div>
 
                 <nav className="nav">
                     <ul>
@@ -36,6 +54,14 @@ const Navbar = () => {
                             }}>
                                 <i className="fas fa-envelope-open-text" style={{ color: '#D4AF37', fontSize: '0.85rem' }}></i>
                                 עיצוב הזמנות
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/budget-planner" className={isActive('/budget-planner')} style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                            }}>
+                                <i className="fas fa-calculator" style={{ color: '#D4AF37', fontSize: '0.85rem' }}></i>
+                                מחשבון תקציב
                             </Link>
                         </li>
                         <li className="dropdown">
@@ -164,6 +190,9 @@ const Navbar = () => {
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-home"></i> דף הבית</Link>
                     <Link href="/design-invitation" onClick={() => setMobileMenuOpen(false)} style={{ color: '#D4AF37', fontWeight: 'bold' }}>
                         <i className="fas fa-envelope-open-text"></i> עיצוב הזמנות
+                    </Link>
+                    <Link href="/budget-planner" onClick={() => setMobileMenuOpen(false)} style={{ color: '#D4AF37', fontWeight: 'bold' }}>
+                        <i className="fas fa-calculator"></i> מחשבון תקציב
                     </Link>
                     {user?.isAdmin && (
                         <Link href="/admin" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-shield-halved"></i> ניהול</Link>

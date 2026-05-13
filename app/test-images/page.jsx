@@ -5,7 +5,15 @@ export default function TestImages() {
         '/invitation-templates/new-tpl-3.jpeg',
         '/invitation-templates/new-tpl-4.jpeg',
         '/invitation-templates/new-tpl-5.jpeg',
-        '/invitation-templates/new-tpl-6.jpeg'
+        '/invitation-templates/new-tpl-6.jpeg',
+        '/invitation-templates/tpl-1.png',
+        '/invitation-templates/tpl-2.png',
+        '/invitation-templates/tpl-3.png',
+        '/invitation-templates/tpl-4.png',
+        '/invitation-templates/tpl-5.png',
+        '/invitation-templates/tpl-6.png',
+        '/invitation-templates/tpl-7.png',
+        '/invitation-templates/tpl-8.png'
     ];
 
     return (

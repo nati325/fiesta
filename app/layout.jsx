@@ -2,6 +2,7 @@ import { Assistant, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
 import Navbar from '@/components/Navbar';
+import MobileNav from '@/components/MobileNav';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import TrafficTracker from '@/components/TrafficTracker';
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }) {
                             </div>
                         </footer>
                         <WhatsAppButton />
+                        <MobileNav />
                     </div>
                 </Providers>
             </body>

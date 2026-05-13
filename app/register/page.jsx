@@ -35,7 +35,8 @@ export default function RegisterPage() {
                         <i className="fas fa-arrow-right" style={{ marginLeft: '8px' }}></i> חזרה
                     </Link>
                 </div>
-                <h2 style={{ textAlign: 'center', color: '#D4AF37', marginBottom: '30px' }}>הרשמה</h2>
+                <h2 style={{ textAlign: 'center', color: '#D4AF37', marginBottom: '10px' }}>הרשמה</h2>
+                <p style={{ textAlign: 'center', color: '#2E7D32', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '30px' }}>השימוש ב-Fiesta חינם לגמרי - תמיד!</p>
 
                 {error && <div style={{ color: 'white', background: '#ff4d4f', padding: '10px', borderRadius: '5px', marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
 

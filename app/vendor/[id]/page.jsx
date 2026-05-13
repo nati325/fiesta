@@ -73,8 +73,8 @@ export default function VendorDetailPage() {
                         background: '#eee'
                     }}>
                         <img 
-                            src={vendor.image && vendor.image.trim() !== '' ? vendor.image : currentCategory.img} 
-                            alt={vendor.name} 
+                            src={vendor.products?.find(p => p.id === vendor.mainProductId)?.image || (vendor.image && vendor.image.trim() !== '' ? vendor.image : currentCategory.img)} 
+                            alt={vendor.products?.find(p => p.id === vendor.mainProductId)?.name ? `${vendor.name} - ${vendor.products.find(p => p.id === vendor.mainProductId).name}` : vendor.name} 
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             onError={(e) => { e.target.src = currentCategory.img; }}
                         />
@@ -93,7 +93,7 @@ export default function VendorDetailPage() {
                     
                     <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>{vendor.name}</h1>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: '#888', marginBottom: '40px', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: '#888', marginBottom: '20px', fontWeight: 600 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <i className="fas fa-map-marker-alt" style={{ color: 'var(--primary-color)' }}></i>
                             <span>{vendor.location || 'כל הארץ'}</span>
@@ -105,10 +105,65 @@ export default function VendorDetailPage() {
                         </div>
                     </div>
 
+                    {vendor.price && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
+                                {vendor.originalPrice && (
+                                    <span style={{ fontSize: '1.4rem', color: '#999', textDecoration: 'line-through' }}>₪{vendor.originalPrice}</span>
+                                )}
+                                <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary-color)' }}>₪{vendor.price}</span>
+                            </div>
+                            {vendor.originalPrice && (
+                                <div style={{ 
+                                    marginTop: '10px',
+                                    background: '#E8F5E9', 
+                                    color: '#2E7D32', 
+                                    padding: '8px 25px', 
+                                    borderRadius: '50px', 
+                                    fontSize: '1rem', 
+                                    fontWeight: 800,
+                                    border: '1px solid rgba(46, 125, 50, 0.2)'
+                                }}>
+                                    <i className="fas fa-tag" style={{ marginLeft: '8px' }}></i>
+                                    מחיר פייסטה: חסכון של ₪{vendor.originalPrice - vendor.price}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     <div style={{ maxWidth: '750px', margin: '0 auto 50px' }}>
                         <p style={{ fontSize: '1.25rem', color: '#555', lineHeight: '1.8' }}>
-                            {vendor.description || `אנחנו ב-${vendor.name} מאמינים שכל אירוע הוא סיפור ייחודי. עם ניסיון של מעל עשור בתחום ה-${currentCategory.label}, אנחנו מביאים איתנו שילוב מנצח של יצירתיות, מקצועיות ללא פשרות ויחס אישי לכל זוג. המטרה שלנו היא אחת: להפוך את החלום שלכם למציאות נוצצת.`}
+                            {vendor.description ? (
+                                <>
+                                    <span style={{ display: 'block', marginBottom: '15px', fontWeight: 'bold' }}>קצת עלינו:</span>
+                                    {vendor.description}
+                                </>
+                            ) : (
+                                `אנחנו ב-${vendor.name} מאמינים שכל אירוע הוא סיפור ייחודי. עם ניסיון של מעל עשור בתחום ה-${currentCategory.label}, אנחנו מביאים איתנו שילוב מנצח של יצירתיות, מקצועיות ללא פשרות ויחס אישי לכל זוג. המטרה שלנו היא אחת: להפוך את החלום שלכם למציאות נוצצת.`
+                            )}
                         </p>
+                    </div>
+
+                    {/* Google Reviews */}
+                    <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
+                        <a 
+                            href="https://www.google.com/maps/search/reviews" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '10px',
+                                background: 'white', padding: '15px 30px', borderRadius: '50px',
+                                boxShadow: '0 5px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0',
+                                textDecoration: 'none', color: '#1a1a1a', fontWeight: 700, transition: 'all 0.2s'
+                            }}
+                            className="google-review-btn"
+                        >
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '24px' }} />
+                            <span>קראו 120 ביקורות אמיתיות בגוגל</span>
+                            <div style={{ color: '#FFD700', display: 'flex', gap: '2px', fontSize: '0.9rem' }}>
+                                <i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i>
+                            </div>
+                        </a>
                     </div>
 
                     {/* Action Bar */}
@@ -152,31 +207,146 @@ export default function VendorDetailPage() {
                     </div>
                 </div>
 
-                {/* Portfolio Preview */}
+                {/* Portfolio / Services section */}
                 <div style={{ marginTop: '80px' }}>
+                    {/* Services & Prices (Conditional) */}
+                    {((vendor.portfolio && vendor.portfolio.some(item => item.price)) || (vendor.products && vendor.products.length > 0)) && (
+                        <div style={{ marginBottom: '60px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                                <h2 style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>שירותים ומחירים</h2>
+                                <div style={{ width: '100px', height: '2px', background: '#eee' }}></div>
+                            </div>
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                                {(vendor.products && vendor.products.length > 0 ? vendor.products : (vendor.portfolio || []).filter(item => item.price)).map((item, i) => (
+                                    <motion.div 
+                                        key={i} 
+                                        whileHover={{ y: -5 }}
+                                        style={{ 
+                                            display: 'flex', alignItems: 'center', gap: '15px',
+                                            background: 'white', padding: '15px', borderRadius: '20px',
+                                            boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #f8f9fa'
+                                        }}
+                                    >
+                                        <div style={{ width: '80px', height: '80px', borderRadius: '15px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                                            <img 
+                                                src={item.image || currentCategory.img} 
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                alt={item.title || item.name} 
+                                                onError={(e) => { e.target.src = currentCategory.img; }}
+                                            />
+                                            {vendor.mainProductId === item.id && (
+                                                <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--primary-color)', color: 'white', fontSize: '0.6rem', padding: '2px 5px', borderBottomLeftRadius: '8px' }}>
+                                                    ראשי
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1a1a1a', margin: '0 0 5px 0' }}>{item.title || item.name || 'שירות מותאם אישית'}</h3>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    {item.originalPrice && (
+                                                        <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>₪{item.originalPrice}</span>
+                                                    )}
+                                                    <span style={{ color: 'var(--primary-color)', fontWeight: 900, fontSize: '1.1rem' }}>
+                                                        {typeof item.price === 'number' ? `₪${item.price}` : (item.price?.includes('₪') ? item.price : `₪${item.price}`)}
+                                                    </span>
+                                                </div>
+                                                {item.originalPrice && (
+                                                    <span style={{ background: '#E8F5E9', color: '#2E7D32', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
+                                                        חסכון: ₪{item.originalPrice - item.price}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Pure Image Gallery */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>גלריה ועבודות</h2>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>גלריית עבודות</h2>
                         <div style={{ width: '100px', height: '2px', background: '#eee' }}></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                        {[1, 2, 3, 4, 5, 6].map(i => (
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
+                        {((vendor.products && vendor.products.length > 0) ? vendor.products : (vendor.portfolio && vendor.portfolio.length > 0 ? vendor.portfolio : [1, 2, 3, 4, 5, 6])).map((item, i) => (
                             <motion.div 
                                 key={i} 
-                                whileHover={{ scale: 1.03 }}
-                                style={{ height: '300px', borderRadius: '25px', overflow: 'hidden', background: '#eee', cursor: 'zoom-in' }}
+                                whileHover={{ scale: 1.02 }}
+                                style={{ height: '250px', borderRadius: '20px', overflow: 'hidden', background: '#eee', cursor: 'zoom-in', position: 'relative' }}
                             >
-                                <img src={currentCategory.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="portfolio" />
+                                <img 
+                                    src={item.image || currentCategory.img} 
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} 
+                                    alt="portfolio image" 
+                                    className="gallery-img"
+                                    onError={(e) => { e.target.src = currentCategory.img; }}
+                                />
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', opacity: 0, transition: 'opacity 0.3s' }} className="gallery-overlay">
+                                    <i className="fas fa-search-plus" style={{ color: 'white', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2rem' }}></i>
+                                </div>
                             </motion.div>
                         ))}
                     </div>
                 </div>
             </div>
 
+            {/* Mobile Sticky WhatsApp CTA */}
+            <div className="mobile-sticky-cta">
+                <a
+                    href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי, אני רוצה לקבוע פגישה עם ${vendor.name}`)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="sticky-whatsapp-btn"
+                >
+                    <i className="fab fa-whatsapp"></i>
+                    פנייה בוואטסאפ ל-{vendor.name}
+                </a>
+            </div>
+
             <style jsx>{`
                 @media (max-width: 768px) {
                     h1 { font-size: 2.5rem !important; }
                     .container { margin-top: -80px !important; }
-                    button, a { width: 100% !important; }
+                    .mobile-sticky-cta {
+                        display: block !important;
+                        position: fixed;
+                        bottom: 70px; /* Above mobile nav */
+                        left: 0;
+                        right: 0;
+                        padding: 15px;
+                        background: linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0));
+                        z-index: 999;
+                        pointer-events: none;
+                    }
+                    .sticky-whatsapp-btn {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        background: #25D366;
+                        color: white;
+                        text-decoration: none;
+                        padding: 15px;
+                        borderRadius: 15px;
+                        fontWeight: 900;
+                        fontSize: 1.1rem;
+                        boxShadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+                        pointer-events: auto;
+                        width: 100%;
+                    }
+                }
+                .mobile-sticky-cta {
+                    display: none;
+                }
+                .google-review-btn:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+                }
+                .portfolio-img:hover {
+                    transform: scale(1.1);
                 }
             `}</style>
         </div>

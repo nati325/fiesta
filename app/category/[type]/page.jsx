@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useVendors } from '@/context/VendorContext';
+import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -10,12 +11,29 @@ export default function CategoryPage() {
     const params = useParams();
     const router = useRouter();
     const type = params.type;
-    const { getVendorsByType } = useVendors();
+    const { getVendorsByType, toggleFavorite, isFavorite } = useVendors();
+    const { eventPreference } = useAuth();
     const [vendors, setVendors] = useState([]);
+    const [sortBy, setSortBy] = useState('popularity');
     
     useEffect(() => {
-        setVendors(getVendorsByType(type));
-    }, [type, getVendorsByType]);
+        const allVendors = getVendorsByType(type);
+        const filtered = allVendors.filter(v => 
+            !eventPreference || 
+            v.eventTypes?.includes(eventPreference) || 
+            v.eventTypes?.includes('מתאים לכל האירועים')
+        );
+
+        // Sort vendors
+        const sorted = [...filtered].sort((a, b) => {
+            if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
+            if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
+            if (sortBy === 'rating') return 4.9 - 4.9; // Placeholder for real ratings
+            return 0; // Default popularity
+        });
+
+        setVendors(sorted);
+    }, [type, getVendorsByType, eventPreference, sortBy]);
 
     const categoryData = {
         'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=1200&q=80' },
@@ -82,6 +100,49 @@ export default function CategoryPage() {
             </div>
 
             <div className="container" style={{ maxWidth: '1200px', marginTop: '20px' }}>
+                {/* Sorting Bar */}
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginBottom: '20px', 
+                    padding: '0 10px',
+                    flexWrap: 'wrap',
+                    gap: '15px'
+                }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a' }}>
+                        {vendors.length} ספקים נמצאו
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '5px' }}>
+                        {[
+                            { id: 'popularity', label: 'פופולריות' },
+                            { id: 'price-low', label: 'מהזול ליקר' },
+                            { id: 'price-high', label: 'מהיקר לזול' },
+                            { id: 'rating', label: 'דירוג גוגל' }
+                        ].map(btn => (
+                            <button
+                                key={btn.id}
+                                onClick={() => setSortBy(btn.id)}
+                                style={{
+                                    padding: '6px 15px',
+                                    borderRadius: '50px',
+                                    border: '1px solid #eee',
+                                    background: sortBy === btn.id ? 'var(--primary-color)' : 'white',
+                                    color: sortBy === btn.id ? 'white' : '#666',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    transition: 'all 0.2s',
+                                    boxShadow: sortBy === btn.id ? '0 5px 15px rgba(212,175,55,0.2)' : 'none'
+                                }}
+                            >
+                                {btn.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <AnimatePresence>
                     {vendors.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: '30px' }}>
@@ -94,7 +155,14 @@ export default function CategoryPage() {
                             gap: '15px',
                             padding: '0 10px'
                         }}>
-                            {vendors.map((v, i) => (
+                            {vendors.map((v, i) => {
+                                const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
+                                const displayImage = mainProduct?.image || (v.image && v.image.trim() !== '' ? v.image : currentCategory.img);
+                                const displayPrice = mainProduct?.price || v.price;
+                                const displayOriginalPrice = mainProduct?.originalPrice || v.originalPrice;
+                                const displayName = mainProduct ? `${v.name} - ${mainProduct.name}` : v.name;
+
+                                return (
                                 <motion.div
                                     key={v.id}
                                     initial={{ opacity: 0, y: 10 }}
@@ -113,8 +181,8 @@ export default function CategoryPage() {
                                 >
                                     {/* Full Background Image */}
                                     <img 
-                                        src={v.image && v.image.trim() !== '' ? v.image : currentCategory.img} 
-                                        alt={v.name} 
+                                        src={displayImage} 
+                                        alt={displayName} 
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                                         onError={(e) => { e.target.src = currentCategory.img; }}
                                     />
@@ -126,12 +194,37 @@ export default function CategoryPage() {
                                         background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 35%, transparent 75%)'
                                     }} />
 
-                                    {/* Badges */}
-                                    {v.discount && (
-                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--primary-color)', color: 'white', padding: '3px 8px', borderRadius: '50px', fontSize: '0.65rem', fontWeight: 'bold', zIndex: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
-                                            {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'}
-                                        </div>
-                                    )}
+                                    {/* Badges & Favorites */}
+                                    <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', zIndex: 10 }}>
+                                        {v.discount && (
+                                            <div style={{ background: 'var(--primary-color)', color: 'white', padding: '3px 8px', borderRadius: '50px', fontSize: '0.65rem', fontWeight: 'bold', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+                                                {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'} הנחה
+                                            </div>
+                                        )}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleFavorite(v.id);
+                                            }}
+                                            style={{
+                                                background: 'white',
+                                                border: 'none',
+                                                width: '28px',
+                                                height: '28px',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: isFavorite(v.id) ? '#e74c3c' : '#ccc',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem',
+                                                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <i className={isFavorite(v.id) ? "fas fa-heart" : "far fa-heart"}></i>
+                                        </button>
+                                    </div>
 
                                     {/* Content Overlay */}
                                     <div style={{
@@ -151,8 +244,32 @@ export default function CategoryPage() {
                                             color: '#ffffff',
                                             textShadow: '0 2px 8px rgba(0,0,0,0.8)'
                                         }}>
-                                            {v.name}
+                                            {displayName}
                                         </h3>
+                                        
+                                        {displayPrice && (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: '4px', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+                                                {displayOriginalPrice && (
+                                                    <span style={{ fontSize: '0.7rem', textDecoration: 'line-through', opacity: 0.6, color: '#fff' }}>₪{displayOriginalPrice}</span>
+                                                )}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--primary-color)' }}>₪{displayPrice}</span>
+                                                    {displayOriginalPrice && (
+                                                        <span style={{ 
+                                                            background: 'rgba(46, 125, 50, 0.9)', 
+                                                            color: 'white', 
+                                                            fontSize: '0.6rem', 
+                                                            fontWeight: 800, 
+                                                            padding: '2px 6px', 
+                                                            borderRadius: '4px'
+                                                        }}>
+                                                            -{Math.round((1 - (displayPrice / displayOriginalPrice)) * 100)}%
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffffff', fontSize: '0.7rem', fontWeight: 600 }}>
                                             <i className="fas fa-map-marker-alt" style={{ color: 'var(--primary-color)', fontSize: '0.65rem', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}></i>
                                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{v.location || 'כל הארץ'}</span>
@@ -161,7 +278,7 @@ export default function CategoryPage() {
                                         </div>
                                     </div>
                                 </motion.div>
-                            ))}
+                            )})}
                         </div>
                     )}
                 </AnimatePresence>
