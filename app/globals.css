@@ -151,6 +151,19 @@ img {
     margin-bottom: 2px;
 }
 
+/* --- Anti-Scraping & Protection --- */
+body:not(.admin-area) {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body:not(.admin-area) img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
 .logo .tagline {
     font-size: 0.75rem;
     color: var(--text-light);

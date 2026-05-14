@@ -96,12 +96,12 @@ export default function VendorDetailPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: '#888', marginBottom: '20px', fontWeight: 600 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <i className="fas fa-map-marker-alt" style={{ color: 'var(--primary-color)' }}></i>
-                            <span>{vendor.location || 'כל הארץ'}</span>
+                            <span>{vendor.region || vendor.location || 'כל הארץ'}</span>
                         </div>
                         <div style={{ width: '1px', height: '15px', background: '#eee' }}></div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700' }}>
                             <i className="fas fa-star"></i>
-                            <span style={{ color: '#1a1a1a' }}>4.9 (120 חוות דעת)</span>
+                            <span style={{ color: '#1a1a1a' }}>{vendor.googleRating || '5.0'} ({vendor.googleReviewsCount || '0'} חוות דעת)</span>
                         </div>
                     </div>
 
@@ -145,26 +145,69 @@ export default function VendorDetailPage() {
                     </div>
 
                     {/* Google Reviews */}
-                    <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
-                        <a 
-                            href="https://www.google.com/maps/search/reviews" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '10px',
-                                background: 'white', padding: '15px 30px', borderRadius: '50px',
-                                boxShadow: '0 5px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0',
-                                textDecoration: 'none', color: '#1a1a1a', fontWeight: 700, transition: 'all 0.2s'
-                            }}
-                            className="google-review-btn"
-                        >
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '24px' }} />
-                            <span>קראו 120 ביקורות אמיתיות בגוגל</span>
-                            <div style={{ color: '#FFD700', display: 'flex', gap: '2px', fontSize: '0.9rem' }}>
-                                <i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i><i className="fas fa-star"></i>
+                    {vendor.googleReviewsLink && (
+                        <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
+                            <a 
+                                href={vendor.googleReviewsLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '10px',
+                                    background: 'white', padding: '15px 30px', borderRadius: '50px',
+                                    boxShadow: '0 5px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0',
+                                    textDecoration: 'none', color: '#1a1a1a', fontWeight: 700, transition: 'all 0.2s'
+                                }}
+                                className="google-review-btn"
+                            >
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '24px' }} />
+                                <span>קראו {vendor.googleReviewsCount || ''} ביקורות אמיתיות בגוגל</span>
+                                <div style={{ color: '#FFD700', display: 'flex', gap: '2px', fontSize: '0.9rem' }}>
+                                    {[...Array(Math.floor(vendor.googleRating || 5))].map((_, i) => (
+                                        <i key={i} className="fas fa-star"></i>
+                                    ))}
+                                    {(vendor.googleRating % 1 !== 0) && <i className="fas fa-star-half-alt"></i>}
+                                </div>
+                            </a>
+                        </div>
+                    )}
+
+                    {/* Videos Section */}
+                    {vendor.videos && vendor.videos.length > 0 && (
+                        <div style={{ marginTop: '60px', marginBottom: '40px' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '10px' }}>🎥 וידאו וסרטונים</h2>
+                                <div style={{ width: '60px', height: '4px', background: 'var(--primary-color)', margin: '0 auto' }}></div>
                             </div>
-                        </a>
-                    </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+                                {vendor.videos.map((video, idx) => {
+                                    if (!video) return null;
+                                    // Simple regex to convert youtube/vimeo links to embed links
+                                    let embedUrl = video;
+                                    if (video.includes('youtube.com/watch?v=')) {
+                                        embedUrl = video.replace('watch?v=', 'embed/');
+                                    } else if (video.includes('youtu.be/')) {
+                                        embedUrl = video.replace('youtu.be/', 'youtube.com/embed/');
+                                    } else if (video.includes('vimeo.com/')) {
+                                        embedUrl = video.replace('vimeo.com/', 'player.vimeo.com/video/');
+                                    }
+
+                                    return (
+                                        <div key={idx} style={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 15px 35px rgba(0,0,0,0.1)', aspectRatio: '16/9' }}>
+                                            <iframe 
+                                                width="100%" 
+                                                height="100%" 
+                                                src={embedUrl} 
+                                                title={`Video ${idx + 1}`} 
+                                                frameBorder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowFullScreen
+                                            ></iframe>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Action Bar */}
                     <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
@@ -245,14 +288,14 @@ export default function VendorDetailPage() {
                                             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1a1a1a', margin: '0 0 5px 0' }}>{item.title || item.name || 'שירות מותאם אישית'}</h3>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                    {item.originalPrice && (
+                                                    {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
                                                         <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>₪{item.originalPrice}</span>
                                                     )}
                                                     <span style={{ color: 'var(--primary-color)', fontWeight: 900, fontSize: '1.1rem' }}>
-                                                        {typeof item.price === 'number' ? `₪${item.price}` : (item.price?.includes('₪') ? item.price : `₪${item.price}`)}
+                                                        ₪{item.price}
                                                     </span>
                                                 </div>
-                                                {item.originalPrice && (
+                                                {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
                                                     <span style={{ background: '#E8F5E9', color: '#2E7D32', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
                                                         חסכון: ₪{item.originalPrice - item.price}
                                                     </span>

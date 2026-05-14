@@ -55,6 +55,14 @@ export default function AdminPage() {
         discountType: 'percent',
         commissionAmount: '',
         agreementSigned: false,
+        agreementImage: '',
+        adminNotes: '',
+        googleReviewsLink: '',
+        googleRating: 5,
+        googleReviewsCount: 0,
+        instagramLink: '',
+        priceIncludesVat: true,
+        videos: [],
         products: [],
         mainProductId: ''
     });
@@ -139,6 +147,7 @@ export default function AdminPage() {
         { label: 'דיאטנים', value: '/category/dietitians' },
         { label: 'כושר אישי', value: '/category/personal-training' },
         { label: 'עלי אקספרס', value: '/category/aliexpress-ideas' },
+        { label: 'קרוב ללב - VIP למשפחה', value: '/category/family-vip' },
     ];
 
     const categories = [
@@ -151,7 +160,8 @@ export default function AdminPage() {
         { value: 'suits', label: 'חליפות חתן' },
         { value: 'dresses', label: 'שמלות כלה' },
         { value: 'makeup', label: 'איפור' },
-        { value: 'alcohol', label: 'בר אלכוהול' }
+        { value: 'alcohol', label: 'בר אלכוהול' },
+        { value: 'family-vip', label: 'קרוב ללב - VIP למשפחה' }
     ];
 
     const EVENT_TYPES = [
@@ -204,14 +214,56 @@ export default function AdminPage() {
 
     const handleVendorSubmit = (e) => {
         e.preventDefault();
+        
+        // Validation: If it's a venue, contact is mandatory
+        if (vendorForm.type === 'venue' && !vendorForm.contact) {
+            alert('חובה להזין מספר טלפון של מנהל האולם עבור אולם/גן אירועים');
+            return;
+        }
+
+        // Validation: Google Reviews Link is mandatory
+        if (!vendorForm.googleReviewsLink) {
+            alert('חובה להזין קישור לביקורות בגוגל עבור הספק');
+            return;
+        }
+
         if (editingVendor) {
             updateVendor(editingVendor.id, vendorForm);
         } else {
             addVendor(vendorForm);
         }
-        setVendorForm({ name: '', type: 'design', contact: '', description: '', image: '', region: 'מרכז', eventTypes: ['חתונה'], originalPrice: '', price: '', discount: '', discountType: 'percent', commissionAmount: '', agreementSigned: false, products: [], mainProductId: '' });
+        setVendorForm({ name: '', type: 'design', contact: '', description: '', image: '', region: 'מרכז', eventTypes: ['חתונה'], originalPrice: '', price: '', discount: '', discountType: 'percent', commissionAmount: '', agreementSigned: false, agreementImage: '', adminNotes: '', googleReviewsLink: '', googleRating: 5, googleReviewsCount: 0, products: [], mainProductId: '' });
         setEditingVendor(null);
         setImagePreview('');
+    };
+
+    const calculateClientPrice = () => {
+        const orig = Number(vendorForm.originalPrice) || 0;
+        const disc = Number(vendorForm.discount) || 0;
+        if (vendorForm.discountType === 'percent') {
+            return orig - (orig * (disc / 100));
+        }
+        return orig - disc;
+    };
+
+    const sendVendorAvailabilityCheck = (vendor) => {
+        const date = prompt('עבור איזה תאריך לבדוק זמינות? (לדוגמה: 14.09)');
+        if (!date) return;
+        
+        const msg = `היי ${vendor.name}, מה קורה? 😊\nרציתי לבדוק זמינות עבור תאריך ה-${date}.\nנשמח לעדכון אם פנוי! ✨\nמצוות פייסטה`;
+        const phone = vendor.contact?.replace(/[^0-9]/g, '') || '';
+        const fullPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+        window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    const sendVendorDealSummary = (vendor) => {
+        const clientPrice = vendor.price;
+        const fiestaComm = vendor.commissionAmount;
+        
+        const msg = `סיכום הצעה - ${vendor.name} 📝\n\n💰 מחיר ללקוח: ₪${clientPrice}\n🤝 עמלת פייסטה: ₪${fiestaComm}\n\nנא לאשר שזה תואם את מה שסיכמנו!`;
+        const phone = vendor.contact?.replace(/[^0-9]/g, '') || '';
+        const fullPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+        window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
     const handleProductImageUpload = async (e, index) => {
@@ -236,13 +288,43 @@ export default function AdminPage() {
 
     const handleCustomerSubmit = (e) => {
         e.preventDefault();
+
+        // Validation: If status is 'ממתין לפגישה', meetingDate is mandatory
+        if (customerForm.status === 'ממתין לפגישה' && !customerForm.meetingDate) {
+            alert('חובה להזין תאריך פגישה כאשר הסטטוס הוא "ממתין לפגישה"');
+            return;
+        }
+        
         if (editingCustomer) {
             updateCustomer(editingCustomer.id, customerForm);
         } else {
             addCustomer(customerForm);
         }
-        setCustomerForm({ name: '', phone: '', status: STATUS_OPTIONS?.[0] || '', meetingDate: '' });
+        setCustomerForm({ 
+            name: '', 
+            phone: '', 
+            status: STATUS_OPTIONS?.[0] || '', 
+            meetingDate: '', 
+            eventDate: '', 
+            leadSource: 'אורגני', 
+            budget: '', 
+            instagram: '', 
+            vat: false 
+        });
         setEditingCustomer(null);
+    };
+
+    const sendAdminDailyTask = (customer) => {
+        const msg = `🔔 תזכורת יום אירוע - ${customer.name}!\n\nהיום מתקיים האירוע של ${customer.name}.\n\nמשימות לביצוע:\n✅ לוודא גביית תשלום מכל הספקים הרלוונטיים.\n✅ לוודא שביעות רצון מול הזוג במהלך/סוף האירוע.\n✅ לבדוק אם יש חוסרים או בעיות של הרגע האחרון.\n\nבהצלחה! ✨`;
+        const adminPhone = '972535378985'; // Fiesta Admin Official Line
+        window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    const sendMeetingFollowUp = (customer) => {
+        const msg = `היי ${customer.name}, מה קורה? 😊\nרציתי לשאול איך הייתה הפגישה שלכם היום עם הספק? 🤝\n\nהאם הכל עבר כשורה? הרגשתם חיבור? סגרתם בסוף? 😉\n\nנשמח מאוד לשמוע עדכון כדי שנוכל להמשיך לעזור לכם להפיק את האירוע המושלם!\nשלכם, צוות פייסטה ✨`;
+        const phone = customer.phone?.replace(/[^0-9]/g, '') || '';
+        const fullPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+        window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
     const getWhatsAppMsg = (customer) => {
@@ -403,6 +485,87 @@ export default function AdminPage() {
                     <StatCard count={stats.total.toLocaleString()} label="כניסות לאתר (סהוק)" icon="fa-chart-line" color="#9b59b6" bg="#f5eef8" />
                 </div>
 
+                {/* Daily Admin Alerts Section */}
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.4rem', color: '#1e293b' }}>
+                            <i className="fas fa-calendar-day" style={{ color: '#e74c3c', marginLeft: '10px' }}></i>
+                            אירועים שמתקיימים היום
+                        </h3>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                        {customers.filter(c => c.eventDate && new Date(c.eventDate).toDateString() === new Date().toDateString()).length > 0 ? (
+                            customers.filter(c => c.eventDate && new Date(c.eventDate).toDateString() === new Date().toDateString()).map(c => (
+                                <div key={c.id} style={{ background: 'white', padding: '20px', borderRadius: '20px', borderRight: '5px solid #e74c3c', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{c.name}</h4>
+                                        <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>{c.status}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => sendAdminDailyTask(c)}
+                                        style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}
+                                    >
+                                        שלח התראת ניהול
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <div style={{ gridColumn: 'span 3', padding: '20px', background: '#f8fafc', borderRadius: '15px', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>
+                                אין אירועים רשומים להיום.
+                            </div>
+                        )}
+                    </div>
+                </div>
+                                    <div className="crm-input-group">
+                                        <label>לינק לאינסטגרם</label>
+                                        <input 
+                                            value={vendorForm.instagramLink} 
+                                            onChange={e => setVendorForm({ ...vendorForm, instagramLink: e.target.value })} 
+                                            placeholder="https://instagram.com/..." 
+                                        />
+                                    </div>
+                                    <div className="crm-input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={vendorForm.priceIncludesVat} 
+                                            onChange={e => setVendorForm({ ...vendorForm, priceIncludesVat: e.target.checked })} 
+                                            style={{ width: 'auto' }}
+                                        />
+                                        <label style={{ marginBottom: 0 }}>המחיר כולל מע"מ</label>
+                                    </div>
+
+                {/* Daily Meetings Alerts Section */}
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.4rem', color: '#1e293b' }}>
+                            <i className="fas fa-comments" style={{ color: '#3498db', marginLeft: '10px' }}></i>
+                            פגישות שמתקיימות היום
+                        </h3>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                        {customers.filter(c => c.meetingDate && new Date(c.meetingDate).toDateString() === new Date().toDateString()).length > 0 ? (
+                            customers.filter(c => c.meetingDate && new Date(c.meetingDate).toDateString() === new Date().toDateString()).map(c => (
+                                <div key={c.id} style={{ background: 'white', padding: '20px', borderRadius: '20px', borderRight: '5px solid #3498db', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{c.name}</h4>
+                                        <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>פגישה עם ספק</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => sendMeetingFollowUp(c)}
+                                        style={{ background: '#3498db', color: white, border: 'none', padding: '8px 15px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}
+                                    >
+                                        שלח פולו-אפ ללקוח
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <div style={{ gridColumn: 'span 3', padding: '20px', background: '#f8fafc', borderRadius: '15px', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>
+                                אין פגישות רשומות להיום.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <AnimatePresence mode="wait">
                     {activeTab === 'vendors' && (
                         <motion.div key="vendors_crm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
@@ -425,6 +588,68 @@ export default function AdminPage() {
                                             {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                                         </select>
                                     </div>
+                                    <div className="crm-input-group">
+                                        <label>{vendorForm.type === 'venue' ? 'טלפון מנהל האולם (חובה)' : 'טלפון ליצירת קשר (סודי)'}</label>
+                                        <input 
+                                            value={vendorForm.contact} 
+                                            onChange={e => setVendorForm({ ...vendorForm, contact: e.target.value })} 
+                                            placeholder="לדוגמה: 050-1234567" 
+                                            required={vendorForm.type === 'venue'}
+                                        />
+                                    </div>
+                                    <div className="crm-input-group">
+                                        <label>קישור לביקורות בגוגל (חובה)</label>
+                                        <input 
+                                            value={vendorForm.googleReviewsLink} 
+                                            onChange={e => setVendorForm({ ...vendorForm, googleReviewsLink: e.target.value })} 
+                                            placeholder="הדביקו כאן את הלינק לביקורות בגוגל" 
+                                            required 
+                                        />
+                                    </div>
+                                    <div className="crm-input-group">
+                                        <label>דירוג גוגל (0-5)</label>
+                                        <input 
+                                            type="number" step="0.1" max="5" min="0"
+                                            value={vendorForm.googleRating} 
+                                            onChange={e => setVendorForm({ ...vendorForm, googleRating: e.target.value })} 
+                                        />
+                                    </div>
+                                    <div className="crm-input-group">
+                                        <label>כמות ביקורות</label>
+                                        <input 
+                                            type="number"
+                                            value={vendorForm.googleReviewsCount} 
+                                            onChange={e => setVendorForm({ ...vendorForm, googleReviewsCount: e.target.value })} 
+                                        />
+                                    </div>
+                                    <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
+                                        <label style={{ fontWeight: 700, marginBottom: '10px', display: 'block' }}>סרטוני וידאו (קישורי YouTube/Vimeo)</label>
+                                        <div style={{ display: 'grid', gap: '10px' }}>
+                                            {(vendorForm.videos || []).map((video, idx) => (
+                                                <div key={idx} style={{ display: 'flex', gap: '10px' }}>
+                                                    <input 
+                                                        value={video} 
+                                                        onChange={e => {
+                                                            const newVideos = [...vendorForm.videos];
+                                                            newVideos[idx] = e.target.value;
+                                                            setVendorForm({ ...vendorForm, videos: newVideos });
+                                                        }} 
+                                                        placeholder="הדביקו לינק לסרטון כאן..." 
+                                                    />
+                                                    <button type="button" onClick={() => {
+                                                        const newVideos = vendorForm.videos.filter((_, i) => i !== idx);
+                                                        setVendorForm({ ...vendorForm, videos: newVideos });
+                                                    }} className="btn-icon" style={{ color: '#e74c3c' }}>
+                                                        <i className="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button type="button" onClick={() => setVendorForm({ ...vendorForm, videos: [...(vendorForm.videos || []), ''] })} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '5px 15px' }}>
+                                                + הוסף סרטון
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
                                         <label style={{ fontWeight: 700, marginBottom: '10px', display: 'block' }}>סוגי אירועים מתאימים</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -447,7 +672,16 @@ export default function AdminPage() {
                                     </div>
                                     <div className="crm-input-group" style={{ gridColumn: 'span 3' }}>
                                         <label>תיאור העסק (יוצג באתר)</label>
-                                        <textarea value={vendorForm.description} onChange={e => setVendorForm({ ...vendorForm, description: e.target.value })} rows="3" />
+                                        <textarea value={vendorForm.description} onChange={e => setVendorForm({ ...vendorForm, description: e.target.value })} rows="2" />
+                                    </div>
+                                    <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#fff9e6', padding: '10px', borderRadius: '12px', border: '1px solid #ffeeba' }}>
+                                        <label style={{ color: '#856404', fontWeight: 700 }}>הערות מנהל (סודי - לא מוצג באתר)</label>
+                                        <textarea 
+                                            value={vendorForm.adminNotes} 
+                                            onChange={e => setVendorForm({ ...vendorForm, adminNotes: e.target.value })} 
+                                            rows="2" 
+                                            placeholder="הערות פנימיות, סיכומים עם הספק, דגשים לניהול..."
+                                        />
                                     </div>
                                     {/* Image Upload Field */}
                                     <div className="crm-input-group" style={{ gridColumn: 'span 3' }}>
@@ -514,6 +748,38 @@ export default function AdminPage() {
                                         onChange={e => setVendorForm({ ...vendorForm, discount: e.target.value })}
                                         style={{ flex: 1 }}
                                     />
+                                     <div className="crm-input-group" style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', paddingBottom: '15px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                            <input type="checkbox" checked={vendorForm.agreementSigned} onChange={e => setVendorForm({ ...vendorForm, agreementSigned: e.target.checked })} />
+                                            <span>הסכם חתום</span>
+                                        </label>
+                                        
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <label htmlFor="agreement-upload" style={{ cursor: 'pointer', color: '#4a90e2', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <i className="fas fa-file-signature"></i>
+                                                {vendorForm.agreementImage ? 'החלף חוזה/צילום סגירה' : 'העלה חוזה/צילום סגירה'}
+                                            </label>
+                                            <input 
+                                                id="agreement-upload" 
+                                                type="file" 
+                                                style={{ display: 'none' }} 
+                                                onChange={async (e) => {
+                                                    const file = e.target.files[0];
+                                                    if (!file) return;
+                                                    const formData = new FormData();
+                                                    formData.append('image', file);
+                                                    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                                                    const data = await res.json();
+                                                    if (data.url) setVendorForm(prev => ({ ...prev, agreementImage: data.url }));
+                                                }}
+                                            />
+                                            {vendorForm.agreementImage && (
+                                                <a href={vendorForm.agreementImage} target="_blank" rel="noopener noreferrer" style={{ color: '#2ecc71' }}>
+                                                    <i className="fas fa-eye"></i> צפה
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
                                     <select
                                         value={vendorForm.discountType}
                                         onChange={e => setVendorForm({ ...vendorForm, discountType: e.target.value })}
@@ -530,12 +796,11 @@ export default function AdminPage() {
                                     רווח מסגירה (₪)
                                 </label>
                                 <input type="number" value={vendorForm.commissionAmount} onChange={e => setVendorForm({ ...vendorForm, commissionAmount: e.target.value })} placeholder="כמה אנחנו מרוויחים?" />
-                            </div>
-                            <div className="crm-input-group" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '15px' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                                    <input type="checkbox" checked={vendorForm.agreementSigned} onChange={e => setVendorForm({ ...vendorForm, agreementSigned: e.target.checked })} />
-                                    <span>הסכם חתום</span>
-                                </label>
+                                <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#4a90e2', fontWeight: 600 }}>
+                                    {vendorForm.originalPrice && vendorForm.discount && (
+                                        <span>מחיר סופי ללקוח: ₪{calculateClientPrice()}</span>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Products Section */}
@@ -649,6 +914,7 @@ export default function AdminPage() {
                                 <tr>
                                     <th>שם ספק</th>
                                     <th>קטגוריה</th>
+                                    <th>טלפון (מנהל)</th>
                                     <th>אזור</th>
                                     <th>מחיר והנחה</th>
                                     <th>סטטוס הסכם</th>
@@ -661,10 +927,20 @@ export default function AdminPage() {
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 {v.image && <img src={v.image} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }} />}
-                                                <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{v.name}</span>
+                                                <div>
+                                                    <div style={{ fontWeight: 700, color: '#1a1a1a' }}>{v.name}</div>
+                                                    {v.adminNotes && (
+                                                        <div style={{ fontSize: '0.7rem', color: '#856404', background: '#fff9e6', padding: '1px 5px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                                            <i className="fas fa-sticky-note"></i> הערה
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
                                         <td><span className="crm-badge crm-badge-info">{categories.find(c => c.value === v.type)?.label}</span></td>
+                                        <td style={{ fontWeight: 600, color: '#4a90e2' }}>
+                                            {v.contact || 'לא הוזן'}
+                                        </td>
                                         <td>{v.region}</td>
                                         <td>
                                             <div style={{ fontWeight: 600 }}>₪{v.price}</div>
@@ -672,23 +948,30 @@ export default function AdminPage() {
                                                 {v.discount}{v.discountType === 'amount' ? '₪' : '%'} הטבה
                                             </div>
                                         </td>
-                                        <td>{v.agreementSigned ? <span className="crm-badge crm-badge-success">חתום</span> : <span className="crm-badge crm-badge-warning">ממתין</span>}</td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button title="עריכה" onClick={() => {
-                                                    const formData = {
-                                                        ...v,
-                                                        products: v.products || [],
-                                                        originalPrice: v.originalPrice || '',
-                                                        mainProductId: v.mainProductId || ''
-                                                    };
-                                                    setEditingVendor(v);
-                                                    setVendorForm(formData);
-                                                    setImagePreview(v.image || '');
-                                                }} className="btn-icon"><i className="fas fa-edit"></i></button>
-                                                <button title="מחיקה" onClick={() => deleteVendor(v.id)} className="btn-icon" style={{ color: '#e74c3c' }}><i className="fas fa-trash"></i></button>
-                                            </div>
+                                         <td>
+                                            {v.agreementSigned ? <span className="crm-badge crm-badge-success">חתום</span> : <span className="crm-badge crm-badge-warning">ממתין</span>}
+                                            {v.agreementImage && (
+                                                <a href={v.agreementImage} target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', color: '#4a90e2' }} title="צפה בחוזה">
+                                                    <i className="fas fa-file-alt"></i>
+                                                </a>
+                                            )}
                                         </td>
+                                        <td>
+                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
+                                                        <button onClick={() => sendVendorAvailabilityCheck(v)} title="בדוק זמינות" style={{ background: '#3498db', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                            <i className="far fa-calendar-check"></i>
+                                                        </button>
+                                                        <button onClick={() => sendVendorDealSummary(v)} title="שלח סיכום סגירה" style={{ background: '#f39c12', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                            <i className="fas fa-file-invoice-dollar"></i>
+                                                        </button>
+                                                        <button onClick={() => { setEditingVendor(v); setVendorForm(v); window.scrollTo(0, 0); }} style={{ background: '#2ecc71', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                            <i className="fas fa-edit"></i>
+                                                        </button>
+                                                        <button onClick={() => deleteVendor(v.id)} style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                            <i className="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -711,9 +994,28 @@ export default function AdminPage() {
                                 <input value={customerForm.phone} onChange={e => setCustomerForm({ ...customerForm, phone: e.target.value })} required />
                             </div>
                             <div className="crm-input-group">
+                                <label>תאריך האירוע</label>
+                                <input type="date" value={customerForm.eventDate} onChange={e => setCustomerForm({ ...customerForm, eventDate: e.target.value })} />
+                            </div>
+                            <div className="crm-input-group">
+                                <label>מקור ליד</label>
+                                <select value={customerForm.leadSource} onChange={e => setCustomerForm({ ...customerForm, leadSource: e.target.value })}>
+                                    <option value="אורגני">אורגני</option>
+                                    <option value="פייסבוק">פייסבוק</option>
+                                    <option value="אינסטגרם">אינסטגרם</option>
+                                    <option value="המלצה">המלצה</option>
+                                    <option value="גוגל">גוגל</option>
+                                    <option value="אחר">אחר</option>
+                                </select>
+                            </div>
+                            <div className="crm-input-group">
+                                <label>תקציב משוער (₪)</label>
+                                <input type="number" value={customerForm.budget} onChange={e => setCustomerForm({ ...customerForm, budget: e.target.value })} placeholder="לדוגמה: 100,000" />
+                            </div>
+                            <div className="crm-input-group">
                                 <label>סטטוס טיפול</label>
                                 <select value={customerForm.status} onChange={e => setCustomerForm({ ...customerForm, status: e.target.value })}>
-                                    {STATUS_OPTIONS?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                    {STATUS_OPTIONS?.map(opt => <option key={opt} value={opt}>{opt}</opt>)}
                                 </select>
                             </div>
                             {/* Meeting date - shows only when status = ממתין לפגישה */}
