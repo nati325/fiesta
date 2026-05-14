@@ -656,6 +656,25 @@ export default function DesignInvitationPage() {
                     .zoom-controls-floating { bottom: 100px; right: 20px; left: auto; flex-direction: column; padding: 8px; border-radius: 15px; }
                     .hero-premium { height: 50vh; min-height: 420px; }
                     .ctx-menu { left: 50% !important; transform: translateX(-50%) !important; bottom: 120px; top: auto !important; }
+                    
+                    /* Mobile Drawer Styling */
+                    .drawer-header-mobile { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+                    .drawer-close-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f5f5f5; color: #333; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+                    .drawer-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto; }
+                    
+                    /* Mobile Toolbar Styling */
+                    .mobile-toolbar button { display: flex; flex-direction: column; align-items: center; gap: 4px; border: none; background: none; color: #999; font-size: 0.7rem; font-weight: 700; transition: 0.2s; }
+                    .mobile-toolbar button i { font-size: 1.2rem; }
+                    .mobile-toolbar button.active { color: #D4AF37; }
+                    
+                    /* Canvas Mobile Fixes */
+                    .canvas-wrapper-outer { box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important; max-width: 90vw; }
+                    .canvas-area { height: calc(100vh - 180px); display: flex; align-items: center; justify-content: center; }
+                    
+                    /* Template Grid Mobile */
+                    .template-grid-mobile { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; }
+                    .tpl-card-mobile { border-radius: 12px; overflow: hidden; border: 2px solid transparent; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+                    .tpl-card-mobile.active { border-color: #D4AF37; transform: scale(1.05); }
                 }
             `}} />
             <AnimatePresence>
