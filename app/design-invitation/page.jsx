@@ -135,7 +135,16 @@ export default function DesignInvitationPage() {
         else {
             const s = document.createElement('script');
             s.src = 'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js';
-            s.onload = () => setFabricLoaded(true);
+            s.onload = () => {
+                const canvas = new window.fabric.Canvas(canvasRef.current, { width: 600, height: 840, backgroundColor: '#ffffff' });
+                fabricRef.current = canvas;
+                canvas.on('text:changed', (e) => { if (e.target.fieldId) setFormData(prev => ({ ...prev, [e.target.fieldId]: e.target.text })); });
+                canvas.on('selection:cleared', () => { setActiveObject(null); setActiveTab(null); });
+                canvas.on('selection:created', (e) => { setActiveObject(e.selected[0]); });
+                canvas.on('selection:updated', (e) => { setActiveObject(e.selected[0]); });
+                canvas.allowTouchScrolling = true;
+                setFabricLoaded(true);
+            };
             document.head.appendChild(s);
         }
         const l = document.createElement('link');
@@ -165,25 +174,12 @@ export default function DesignInvitationPage() {
     }, [userZoom, fabricLoaded]);
 
     useEffect(() => {
-        if (!fabricLoaded || !canvasRef.current) return;
-        const canvas = new window.fabric.Canvas(canvasRef.current, { width: 600, height: 840, backgroundColor: '#ffffff' });
-        fabricRef.current = canvas;
-        canvas.on('text:changed', (e) => { if (e.target.fieldId) setFormData(prev => ({ ...prev, [e.target.fieldId]: e.target.text })); });
-        canvas.on('selection:created selection:updated', () => {
-            setActiveObject(canvas.getActiveObject());
-            setUpdateTrigger(v => v + 1);
-        });
-        canvas.on('selection:cleared', () => {
-            setActiveObject(null);
-            setUpdateTrigger(v => v + 1);
-        });
-
-        // Long press for mobile
+        if (!fabricLoaded || !fabricRef.current) return;
+        const canvas = fabricRef.current;
         canvas.on('mouse:down', (e) => {
             if (e.target) {
                 longPressTimer.current = setTimeout(() => {
                     const pointer = canvas.getPointer(e.e);
-                    // On mobile we use clientX/Y from the original event
                     const touch = e.e.touches ? e.e.touches[0] : e.e;
                     setContextMenu({ x: touch.clientX, y: touch.clientY });
                     if (window.navigator.vibrate) window.navigator.vibrate(50);
@@ -192,9 +188,7 @@ export default function DesignInvitationPage() {
         });
         canvas.on('mouse:up', () => { if (longPressTimer.current) clearTimeout(longPressTimer.current); });
         canvas.on('mouse:move', () => { if (longPressTimer.current) clearTimeout(longPressTimer.current); });
-
         renderTemplate(canvas, selectedTemplate);
-        return () => canvas.dispose();
     }, [fabricLoaded]);
 
     const renderTemplate = (canvas, tpl) => {
@@ -294,7 +288,7 @@ export default function DesignInvitationPage() {
                 </div>
             </div>
 
-            <div className="studio-main-container">
+            <main className="studio-main-container">
                 <div className="sidebar desktop-only">
                     <div className="sidebar-nav">
                         <button onClick={() => setActiveTab('templates')} className={activeTab === 'templates' ? 'active' : ''}>
@@ -406,7 +400,13 @@ export default function DesignInvitationPage() {
                     </div>
                 </div>
 
-                <div className="canvas-area" ref={containerRef} onContextMenu={handleContextMenu}>
+                <div className="canvas-area" ref={containerRef} onContextMenu={handleContextMenu} onClick={(e) => {
+                    if (e.target.className === 'canvas-area') {
+                        setActiveTab(null);
+                        setActiveObject(null);
+                        if (fabricRef.current) fabricRef.current.discardActiveObject().renderAll();
+                    }
+                }}>
                     <div className="zoom-controls-floating">
                         <button onClick={() => setUserZoom(p => Math.min(p + 0.2, 3))} title="זום אין"><i className="fas fa-search-plus"></i></button>
                         <div className="zoom-display">{Math.round(userZoom * 100)}%</div>
@@ -415,11 +415,11 @@ export default function DesignInvitationPage() {
                         <button onClick={() => setUserZoom(1)} title="איפוס גודל"><i className="fas fa-sync-alt"></i></button>
                     </div>
                     
-                    <motion.div animate={{ scale: canvasScale }} transition={{ type: 'spring', damping: 25, stiffness: 120 }} style={{ transformOrigin: 'center', boxShadow: '0 40px 100px rgba(0,0,0,0.2)', background: '#fff', margin: 'auto', position: 'relative' }}>
+                    <motion.div className="canvas-wrapper-outer" animate={{ scale: canvasScale }} transition={{ type: 'spring', damping: 25, stiffness: 120 }} style={{ transformOrigin: 'center', boxShadow: '0 40px 100px rgba(0,0,0,0.2)', background: '#fff', margin: 'auto', position: 'relative' }}>
                         <canvas ref={canvasRef} />
                     </motion.div>
                 </div>
-            </div>
+            </main>
 
             <div className="mobile-toolbar">
                 <button onClick={() => setActiveTab('templates')} className={activeTab === 'templates' ? 'active' : ''}><i className="fas fa-image"></i><span>תבניות</span></button>
@@ -499,7 +499,12 @@ export default function DesignInvitationPage() {
                     <>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveTab(null)} className="drawer-overlay" />
                         <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="bottom-drawer">
-                            <div className="drawer-handle" />
+                            <div className="drawer-header-mobile">
+                                <div className="drawer-handle" />
+                                <button className="drawer-close-btn" onClick={() => setActiveTab(null)}>
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
                             <div className="drawer-scroll">
                                 {activeTab === 'templates' ? (
                                     <div className="template-grid-mobile">
@@ -649,10 +654,10 @@ export default function DesignInvitationPage() {
                     .mobile-toolbar { display: flex; position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 24px; padding: 12px; justify-content: space-around; box-shadow: 0 20px 40px rgba(0,0,0,0.15); z-index: 1100; }
                     .bottom-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 30px 30px 0 0; padding: 24px; z-index: 1300; max-height: 80vh; overflow-y: auto; }
                     .zoom-controls-floating { bottom: 100px; right: 20px; left: auto; flex-direction: column; padding: 8px; border-radius: 15px; }
+                    .hero-premium { height: 50vh; min-height: 420px; }
                     .ctx-menu { left: 50% !important; transform: translateX(-50%) !important; bottom: 120px; top: auto !important; }
                 }
             `}} />
-            {/* Tutorial Overlay */}
             <AnimatePresence>
                 {showTutorial && (
                     <motion.div 

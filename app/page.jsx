@@ -315,8 +315,8 @@ export default function HomePage() {
                 /* Hero Premium */
                 .hero-premium {
                     position: relative;
-                    height: 85vh;
-                    min-height: 600px;
+                    height: 65vh;
+                    min-height: 500px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -651,7 +651,7 @@ export default function HomePage() {
                 .c-form button:hover { background: black; transform: scale(1.02); }
 
                 @media (max-width: 900px) {
-                    .hero-premium { height: 75vh; }
+                    .hero-premium { height: 50vh; }
                     .benefits-grid, .contact-card, .p-banner { grid-template-columns: 1fr; flex-direction: column; text-align: center; }
                     .contact-card { padding: 40px 20px; gap: 30px; }
                     .c-form { width: 100%; }
