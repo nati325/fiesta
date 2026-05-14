@@ -99,8 +99,10 @@ export default function DesignInvitationPage() {
     const [canvasScale, setCanvasScale] = useState(1);
     const [userZoom, setUserZoom] = useState(1);
     const [showTutorial, setShowTutorial] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
+        setIsMobile(window.innerWidth <= 900);
         const hasSeenTutorial = localStorage.getItem('fiesta_studio_tutorial');
         if (!hasSeenTutorial) {
             setShowTutorial(true);
@@ -145,8 +147,9 @@ export default function DesignInvitationPage() {
     useEffect(() => {
         const updateScale = () => {
             if (containerRef.current) {
-                const isMobile = window.innerWidth <= 900;
-                const paddingW = isMobile ? 40 : 120;
+                const mobileMode = window.innerWidth <= 900;
+                setIsMobile(mobileMode);
+                const paddingW = mobileMode ? 40 : 120;
                 const paddingH = isMobile ? 220 : 120;
                 const availableWidth = isMobile ? window.innerWidth - paddingW : (containerRef.current?.offsetWidth || window.innerWidth - 400) - paddingW;
                 const availableHeight = window.innerHeight - paddingH;
@@ -492,7 +495,7 @@ export default function DesignInvitationPage() {
             </AnimatePresence>
 
             <AnimatePresence>
-                {activeTab && window.innerWidth <= 900 && (
+                {activeTab && isMobile && (
                     <>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveTab(null)} className="drawer-overlay" />
                         <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="bottom-drawer">

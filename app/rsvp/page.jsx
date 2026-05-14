@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
-export default function RSVPPage() {
+function RSVPContent() {
     const [step, setStep] = useState(1); // 1: Welcome/Names, 2: Form, 3: Thank you
     const [isComing, setIsComing] = useState(null);
     const [formData, setFormData] = useState({
@@ -391,5 +391,13 @@ export default function RSVPPage() {
                 }
             `}</style>
         </div>
+    );
+}
+
+export default function RSVPPage() {
+    return (
+        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Assistant' }}>טוען...</div>}>
+            <RSVPContent />
+        </Suspense>
     );
 }
