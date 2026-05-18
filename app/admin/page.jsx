@@ -708,7 +708,7 @@ export default function AdminPage() {
                                                         <button onClick={() => sendVendorDealSummary(v)} title="שלח סיכום סגירה" style={{ background: '#f39c12', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-file-invoice-dollar"></i>
                                                         </button>
-                                                        <button onClick={() => { setEditingVendor(v); setVendorForm(v); window.scrollTo(0, 0); }} style={{ background: '#2ecc71', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                        <button onClick={() => { setEditingVendor(v); setVendorForm(v); setImagePreview(v.image || ''); window.scrollTo(0, 0); }} style={{ background: '#2ecc71', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-edit"></i>
                                                         </button>
                                                         <button onClick={() => deleteVendor(v.id)} style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
