@@ -13,13 +13,13 @@ const copyFiles = () => {
   }
 
   const files = {
-    'dj_tomer_1779017009511.png': 'dj_tomer.png',
-    'dj_roy_1779017022727.png': 'dj_roy.png',
-    'dj_idan_1779017038227.png': 'dj_idan.png',
-    'dj_asaf_1779018921882.png': 'dj_asaf.png',
-    'dj_guy_1779018938144.png': 'dj_guy.png',
-    'dj_noa_1779018951852.png': 'dj_noa.png',
-    'dj_ben_1779018965426.png': 'dj_ben.png'
+    'dj_booth_1_1779019308567.png': 'dj_booth_1.png',
+    'dj_booth_2_1779019321779.png': 'dj_booth_2.png',
+    'dj_booth_3_1779019335111.png': 'dj_booth_3.png',
+    'dj_booth_4_1779019351278.png': 'dj_booth_4.png',
+    'dj_booth_5_1779019365039.png': 'dj_booth_5.png',
+    'dj_booth_6_1779019379806.png': 'dj_booth_6.png',
+    'dj_booth_7_1779019393202.png': 'dj_booth_7.png'
   };
 
   for (const [srcName, destName] of Object.entries(files)) {
@@ -81,7 +81,7 @@ const djs = [
     type: "dj",
     description: "תומר אהרון הוא מבכירי הדי ג'יים בישראל, מתמחה בחתונות מרימות ואנרגיות מטורפות. עם מעל עשור של ניסיון במועדונים הנחשבים ביותר, תומר מביא את הווייב של קלאב אמיתי לרחבת הריקודים שלכם. הוא יודע בדיוק איך לקרוא את הקהל, לשלב סגנונות בצורה חלקה, ולהשאיר את האורחים שלכם על הרגליים עד אור הבוקר.",
     contact: "054-1234567",
-    image: "/images/dj_tomer.png",
+    image: "/images/dj_booth_1.png",
     region: "מרכז",
     price: "7500",
     originalPrice: "8500",
@@ -96,11 +96,11 @@ const djs = [
     portfolio: []
   },
   {
-    name: "די ג'יי רועי בן צבי",
+    name: "די ג'יי נדב בן צבי",
     type: "dj",
-    description: "מחפשים קלאס באפס מאמץ? רועי בן צבי הוא הבחירה המושלמת לחתונות אלגנטיות, חתונות צהריים, ואירועי בוטיק. עם ידע מוזיקלי עשיר ויכולת התאמה אישית של כל פלייליסט, רועי הופך כל קבלת פנים לחוויה קסומה ואת המסיבה עצמה למסע מוזיקלי מרגש שחוצה דורות ומחבר בין כולם.",
+    description: "מחפשים קלאס באפס מאמץ? נדב הוא הבחירה המושלמת לחתונות אלגנטיות, חתונות צהריים, ואירועי בוטיק. עם ידע מוזיקלי עשיר ויכולת התאמה אישית של כל פלייליסט, נדב הופך כל קבלת פנים לחוויה קסומה ואת המסיבה עצמה למסע מוזיקלי מרגש שחוצה דורות ומחבר בין כולם.",
     contact: "052-7654321",
-    image: "/images/dj_roy.png",
+    image: "/images/dj_booth_2.png",
     region: "שרון",
     price: "6800",
     originalPrice: "7500",
@@ -119,7 +119,7 @@ const djs = [
     type: "dj",
     description: "לזוגות שמחפשים משהו קצת אחר, עידן כהן מביא סאונד מודרני, אלקטרוני ובועט. מתמחה בחתונות שטח, אירועי שישי, ושילוב של לייב ביטים על העמדה. עידן הוא אמן יוצר בפני עצמו שיודע לקחת שירים מוכרים ולתת להם טוויסט מפתיע שמשאיר את האורחים פעורי פה ורוקדים בלי הפסקה.",
     contact: "050-9876543",
-    image: "/images/dj_idan.png",
+    image: "/images/dj_booth_3.png",
     region: "כל הארץ",
     price: "8000",
     originalPrice: "9000",
@@ -138,7 +138,7 @@ const djs = [
     type: "dj",
     description: "אסף מביא את המיינסטרים והפופ בגרסאות הכי עדכניות שיש. מומחה בקריאת קהל צעיר שרוצה פשוט לרקוד את כל הלהיטים, עם מעברים חלקים שמקפיצים את הרחבה. אם אתם רוצים מסיבה שמרגישה כמו פסטיבל פופ – אסף הוא האיש שלכם.",
     contact: "053-4567890",
-    image: "/images/dj_asaf.png",
+    image: "/images/dj_booth_4.png",
     region: "דרום",
     price: "6500",
     originalPrice: "7200",
@@ -157,7 +157,7 @@ const djs = [
     type: "dj",
     description: "גיא מור הוא אגדה בתחום חתונות הרטרו. אם אתם אוהבים אייטיז, ניינטיז, פאנק ודיסקו - גיא יעשה לכם מסיבה של פעם בחיים. הוא מביא איתו ניסיון עצום, ספריות מוזיקה נדירות, ויכולת חיבור מדהימה לכל גיל. מומחה לשבירת שגרה מוזיקלית.",
     contact: "050-1122334",
-    image: "/images/dj_guy.png",
+    image: "/images/dj_booth_5.png",
     region: "מרכז",
     price: "8500",
     originalPrice: "9500",
@@ -176,7 +176,7 @@ const djs = [
     type: "dj",
     description: "נועה שקד פרצה בסערה לעולם חתונות האינדי והאלטרנטיב. היא משלבת רוק, פופ קצבי, ואינדי בדרך שגורמת לכולם לקפוץ. היא מביאה איתה אנרגיות שיא, חיוך שלא יורד, ויכולת לשלב בין הבקשות הכי מיוחדות שלכם ללהיטים שכולם מכירים ואוהבים.",
     contact: "052-9988776",
-    image: "/images/dj_noa.png",
+    image: "/images/dj_booth_6.png",
     region: "ירושלים והסביבה",
     price: "7000",
     originalPrice: "8000",
@@ -195,7 +195,7 @@ const djs = [
     type: "dj",
     description: "אין חפלה טובה בלי בן דויד. אלוף במוזיקה מזרחית, ים-תיכונית ולהיטי חתונות שמרקידים את כולם, מסבתא ועד אחרון החברים מהצבא. בן יודע להרים את הקהל, לעשות שמח אמיתי מכל הלב, ולשמור על הקצב בשיא עד השעות הקטנות של הלילה.",
     contact: "054-5566778",
-    image: "/images/dj_ben.png",
+    image: "/images/dj_booth_7.png",
     region: "צפון",
     price: "7200",
     originalPrice: "7800",
@@ -220,7 +220,11 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected successfully.');
 
-    console.log('Inserting DJs...');
+    console.log('Deleting old DJs from the database...');
+    const deleteResult = await Vendor.deleteMany({ type: 'dj' });
+    console.log(`Deleted ${deleteResult.deletedCount} old DJs.`);
+
+    console.log('Inserting 7 new DJs...');
     for (const dj of djs) {
       await Vendor.findOneAndUpdate(
         { name: dj.name },
