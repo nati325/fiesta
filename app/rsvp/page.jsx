@@ -19,27 +19,50 @@ function RSVPContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const searchParams = useSearchParams();
+    const eventId = searchParams.get('event') || '';
     const [hasShuttleSetting, setHasShuttleSetting] = useState(false);
+    const [eventInfo, setEventInfo] = useState(null);
+    const [eventLoading, setEventLoading] = useState(true);
 
     useEffect(() => {
-        // In a real app, we would fetch this from the event settings API
-        // For now, we check the URL param ?shuttle=1
         if (searchParams.get('shuttle') === '1') {
             setHasShuttleSetting(true);
         }
     }, [searchParams]);
 
-    // Mock Event Data
-    const eventData = {
-        couple: 'נועה & דניאל',
-        date: 'יום שלישי, 14.09.2026',
-        location: 'מתחם האירועים "שדות"',
-        city: 'עמק חפר',
+    useEffect(() => {
+        if (!eventId) {
+            setEventLoading(false);
+            return;
+        }
+        fetch(`/api/events/${encodeURIComponent(eventId)}`)
+            .then(res => res.ok ? res.json() : null)
+            .then(data => setEventInfo(data))
+            .finally(() => setEventLoading(false));
+    }, [eventId]);
+
+    const displayEvent = eventInfo ? {
+        couple: eventInfo.coupleName,
+        date: eventInfo.eventDate
+            ? new Date(eventInfo.eventDate).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' })
+            : 'תאריך יעודכן',
+        location: 'מקום האירוע',
+        city: '',
+        time: '19:30'
+    } : {
+        couple: 'הזוג המאושר',
+        date: 'תאריך האירוע',
+        location: 'מקום האירוע',
+        city: '',
         time: '19:30'
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!eventId) {
+            alert('קישור RSVP לא תקין — חסר קוד אירוע');
+            return;
+        }
         setIsSubmitting(true);
         try {
             const response = await fetch('/api/rsvp', {
@@ -48,7 +71,7 @@ function RSVPContent() {
                 body: JSON.stringify({
                     ...formData,
                     isComing,
-                    eventId: 'test-event-123' // This would be dynamic in production
+                    eventId
                 })
             });
             
@@ -64,6 +87,17 @@ function RSVPContent() {
             setIsSubmitting(false);
         }
     };
+
+    if (!eventId && !eventLoading) {
+        return (
+            <div className="rsvp-root" dir="rtl" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
+                <div>
+                    <h1 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>קישור RSVP לא תקין</h1>
+                    <p style={{ color: '#64748b' }}>אנא פנו לזוג לקבלת הקישור המלא לאישור ההגעה.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="rsvp-root" dir="rtl">
@@ -83,11 +117,11 @@ function RSVPContent() {
                         >
                             <div className="decoration">✨</div>
                             <h2 className="event-label">מתחתנים!</h2>
-                            <h1 className="couple-names">{eventData.couple}</h1>
+                            <h1 className="couple-names">{displayEvent.couple}</h1>
                             <div className="event-details">
-                                <p><i className="far fa-calendar-alt"></i> {eventData.date}</p>
-                                <p><i className="fas fa-map-marker-alt"></i> {eventData.location}, {eventData.city}</p>
-                                <p><i className="far fa-clock"></i> קבלת פנים: {eventData.time}</p>
+                                <p><i className="far fa-calendar-alt"></i> {displayEvent.date}</p>
+                                <p><i className="fas fa-map-marker-alt"></i> {displayEvent.location}, {displayEvent.city}</p>
+                                <p><i className="far fa-clock"></i> קבלת פנים: {displayEvent.time}</p>
                             </div>
                             
                             <div className="action-buttons">
@@ -238,10 +272,10 @@ function RSVPContent() {
                             </p>
                             
                             <div className="success-actions">
-                                <button className="btn-outline-dark" onClick={() => window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=החתונה+של+נועה+ודניאל&dates=20260914T163000Z/20260914T210000Z&details=נתראה+בשמחות!&location=${eventData.location}`, '_blank')}>
+                                <button className="btn-outline-dark" onClick={() => window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=החתונה+של+נועה+ודניאל&dates=20260914T163000Z/20260914T210000Z&details=נתראה+בשמחות!&location=${displayEvent.location}`, '_blank')}>
                                     <i className="far fa-calendar-plus"></i> הוספה ליומן
                                 </button>
-                                <button className="btn-outline-dark" onClick={() => window.open(`https://waze.com/ul?q=${encodeURIComponent(eventData.location + ' ' + eventData.city)}`, '_blank')}>
+                                <button className="btn-outline-dark" onClick={() => window.open(`https://waze.com/ul?q=${encodeURIComponent(displayEvent.location + ' ' + displayEvent.city)}`, '_blank')}>
                                     <i className="fab fa-waze"></i> ניווט לאירוע
                                 </button>
                             </div>

@@ -1,6 +1,7 @@
 import dbConnect from '@/lib/mongodb';
 export const dynamic = 'force-dynamic';
 import Visit from '@/lib/models/Visit';
+import { isAdminRequest, adminDeniedResponse } from '@/lib/adminAuth';
 
 export async function POST(request) {
     try {
@@ -17,7 +18,10 @@ export async function POST(request) {
     }
 }
 
-export async function GET() {
+export async function GET(request) {
+    if (!isAdminRequest(request)) {
+        return adminDeniedResponse();
+    }
     try {
         await dbConnect();
         const total = await Visit.countDocuments();

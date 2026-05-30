@@ -1608,6 +1608,13 @@ body:not(.admin-area) img {
 }
 
 
+/* Hide public site chrome on admin pages */
+body.admin-mode .footer,
+body.admin-mode .mobile-nav-wrapper,
+body.admin-mode .whatsapp-float-compact {
+    display: none !important;
+}
+
 /* CRM / Dashboard Professional Admin UI - REDESIGNED FOR FIESTA */
 .admin-root {
     background-color: #fafbfc;
@@ -1966,6 +1973,166 @@ body:not(.admin-area) img {
     padding-top: 20px;
 }
 
+/* Simplified vendor form */
+.vendor-form-simple {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.vendor-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.vendor-form-section h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 800;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.vendor-form-grid-simple {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.vendor-form-grid-simple .span-2 {
+    grid-column: span 2;
+}
+
+.vendor-form-grid-simple .span-3 {
+    grid-column: span 3;
+}
+
+.vendor-files-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.file-upload-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.file-upload-hint {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: -2px;
+}
+
+.file-upload-card {
+    min-height: 120px;
+    border-radius: 14px;
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.file-upload-card:hover {
+    border-color: var(--primary-color);
+    background: #fefcf0;
+}
+
+.file-upload-empty,
+.file-upload-file-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    color: #475569;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.file-upload-empty i,
+.file-upload-file-info i {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.file-upload-file-info span {
+    word-break: break-all;
+    max-width: 100%;
+}
+
+.file-upload-preview {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.vendor-advanced-toggle {
+    background: none;
+    border: none;
+    color: #4a90e2;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 8px 0;
+    text-align: right;
+    width: fit-content;
+}
+
+.vendor-advanced-toggle:hover {
+    text-decoration: underline;
+}
+
+.vendor-advanced-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.agreement-signed-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.agreement-signed-row input {
+    width: auto;
+}
+
+@media (max-width: 900px) {
+    .vendor-form-grid-simple,
+    .vendor-advanced-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .vendor-form-grid-simple .span-2,
+    .vendor-form-grid-simple .span-3 {
+        grid-column: span 1;
+    }
+
+    .vendor-files-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Beautiful CRM Table System */
 .crm-table-container {
     overflow-x: auto;
@@ -2252,4 +2419,4 @@ body:not(.admin-area) img {
     .premium-service-card h3 {
         font-size: 0.9rem !important;
     }
-}
+}

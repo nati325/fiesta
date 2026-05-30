@@ -2,12 +2,94 @@
 
 import Link from 'next/link';
 import { useCustomers } from '@/context/CustomerContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useVendors } from '@/context/VendorContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { getAdminHeaders } from '@/lib/getAdminHeaders';
+
+const EMPTY_VENDOR_FORM = {
+    name: '',
+    type: 'design',
+    contact: '',
+    description: '',
+    image: '',
+    region: 'מרכז',
+    eventTypes: ['חתונה'],
+    originalPrice: '',
+    price: '',
+    discount: '',
+    discountType: 'percent',
+    commissionAmount: '',
+    agreementSigned: false,
+    agreementImage: '',
+    adminNotes: '',
+    googleReviewsLink: '',
+    googleRating: 5,
+    googleReviewsCount: 0,
+    instagramLink: '',
+    priceIncludesVat: true,
+    videos: [],
+    products: [],
+    mainProductId: ''
+};
+
+const VENDOR_CATEGORIES = [
+    { value: 'venue', label: 'אולם / גן אירועים' },
+    { value: 'design', label: 'עיצוב אירועים' },
+    { value: 'catering', label: 'קייטרינג' },
+    { value: 'bar', label: 'שירותי בר' },
+    { value: 'photography', label: 'צילום' },
+    { value: 'music', label: 'מוזיקה / DJ' },
+    { value: 'suits', label: 'חליפות חתן' },
+    { value: 'dresses', label: 'שמלות כלה' },
+    { value: 'makeup', label: 'איפור' },
+    { value: 'alcohol', label: 'בר אלכוהול' },
+    { value: 'family-vip', label: 'קרוב ללב - VIP למשפחה' }
+];
+
+const EVENT_TYPES = [
+    'חתונה', 'בר מצווה', 'בת מצווה', 'ברית', 'בריתה', 'אירוע עסקי', 'יום הולדת'
+];
+
+const DOCUMENT_ACCEPT = '.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.heic,.gif,.txt,.xls,.xlsx';
+
+function FileUploadField({ label, hint, accept, uploading, fileName, previewUrl, onFileSelect, icon = 'fa-cloud-upload-alt' }) {
+    const inputRef = useRef(null);
+    const isImagePreview = previewUrl && /\.(jpg|jpeg|png|webp|gif)$/i.test(previewUrl);
+
+    return (
+        <div className="file-upload-field">
+            <label>{label}</label>
+            {hint && <span className="file-upload-hint">{hint}</span>}
+            <div className="file-upload-card" onClick={() => !uploading && inputRef.current?.click()}>
+                {isImagePreview ? (
+                    <img src={previewUrl} alt="" className="file-upload-preview" />
+                ) : fileName ? (
+                    <div className="file-upload-file-info">
+                        <i className={`fas ${/\.pdf$/i.test(fileName) ? 'fa-file-pdf' : 'fa-file-alt'}`}></i>
+                        <span>{fileName}</span>
+                    </div>
+                ) : (
+                    <div className="file-upload-empty">
+                        <i className={`fas ${icon}`}></i>
+                        <span>לחצו לבחירת קובץ מהמחשב</span>
+                    </div>
+                )}
+                {uploading && <div className="upload-overlay">מעלה...</div>}
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept={accept}
+                    onChange={onFileSelect}
+                    style={{ display: 'none' }}
+                />
+            </div>
+        </div>
+    );
+}
 
 const StatCard = ({ count, label, icon, color, bg }) => (
     <div className="crm-stat-card">
@@ -22,50 +104,21 @@ const StatCard = ({ count, label, icon, color, bg }) => (
 );
 
 export default function AdminPage() {
-    const { addVendor, vendors, deleteVendor, updateVendor } = useVendors();
-    const { customers, addCustomer, updateCustomer, deleteCustomer, STATUS_OPTIONS } = useCustomers();
-    const { user, loading } = useAuth();
+    const { addVendor, vendors, deleteVendor, updateVendor, loading: vendorsLoading } = useVendors();
+    const { customers, addCustomer, updateCustomer, deleteCustomer, STATUS_OPTIONS, loading: customersLoading } = useCustomers();
+    const { user, logout } = useAuth();
     const router = useRouter();
-
-    useEffect(() => {
-        if (!loading && (!user || !user.isAdmin)) {
-            router.replace('/login');
-        }
-    }, [user, loading, router]);
 
     const [activeTab, setActiveTab] = useState('vendors');
     const [vendorSearch, setVendorSearch] = useState('');
-    const [articles, setArticles] = useState([]);
     const [editingVendor, setEditingVendor] = useState(null);
     const [editingCustomer, setEditingCustomer] = useState(null);
-    const [editingArticle, setEditingArticle] = useState(null);
     const [imageUploading, setImageUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState('');
-    const [vendorForm, setVendorForm] = useState({
-        name: '',
-        type: 'design',
-        contact: '',
-        description: '',
-        image: '',
-        region: 'מרכז',
-        eventTypes: ['חתונה'], // Default
-        originalPrice: '',
-        price: '',
-        discount: '',
-        discountType: 'percent',
-        commissionAmount: '',
-        agreementSigned: false,
-        agreementImage: '',
-        adminNotes: '',
-        googleReviewsLink: '',
-        googleRating: 5,
-        googleReviewsCount: 0,
-        instagramLink: '',
-        priceIncludesVat: true,
-        videos: [],
-        products: [],
-        mainProductId: ''
-    });
+    const [agreementUploading, setAgreementUploading] = useState(false);
+    const [agreementFileName, setAgreementFileName] = useState('');
+    const [showVendorAdvanced, setShowVendorAdvanced] = useState(false);
+    const [vendorForm, setVendorForm] = useState({ ...EMPTY_VENDOR_FORM });
     const [customerForm, setCustomerForm] = useState({ 
         name: '', 
         phone: '', 
@@ -78,75 +131,117 @@ export default function AdminPage() {
         vat: false,
         videos: []
     });
-    const [articleForm, setArticleForm] = useState({ title: '', excerpt: '', image: '', link: '' });
-    const [articleImagePreview, setArticleImagePreview] = useState('');
-    const [articleImageUploading, setArticleImageUploading] = useState(false);
-    const [packages, setPackages] = useState([]);
-    const [editingPackage, setEditingPackage] = useState(null);
-    const [packageForm, setPackageForm] = useState({ title: '', tagline: '', description: '', saving: '', badge: '', badgeColor: '#D4AF37', image: '', active: true });
-    const [packageImagePreview, setPackageImagePreview] = useState('');
-    const [packageImageUploading, setPackageImageUploading] = useState(false);
     const [stats, setStats] = useState({ total: 0, last7Days: {} });
 
     const fetchStats = () => {
-        fetch('/api/track')
-            .then(res => res.json())
+        fetch('/api/track', { headers: getAdminHeaders(false) })
+            .then(res => res.ok ? res.json() : { total: 0, last7Days: {} })
             .then(data => setStats(data))
             .catch(() => { });
     };
 
-    const fetchArticles = () => {
-        fetch('/api/articles')
-            .then(res => res.json())
-            .then(data => setArticles(data))
-            .catch(() => setArticles([]));
-    };
-
-    const fetchPackages = () => {
-        fetch('/api/packages')
-            .then(res => res.json())
-            .then(data => setPackages(data))
-            .catch(() => setPackages([]));
-    };
-
     useEffect(() => {
         fetchStats();
-        fetchArticles();
-        fetchPackages();
     }, []);
+
+    const todayKey = useMemo(() => new Date().toDateString(), []);
+
+    const filteredVendors = useMemo(() => {
+        const q = vendorSearch.trim().toLowerCase();
+        if (!q) return vendors;
+        return vendors.filter(v => v.name.toLowerCase().includes(q));
+    }, [vendors, vendorSearch]);
+
+    const todayEvents = useMemo(
+        () => customers.filter(c => c.eventDate && new Date(c.eventDate).toDateString() === todayKey),
+        [customers, todayKey]
+    );
+
+    const todayMeetings = useMemo(
+        () => customers.filter(c => c.meetingDate && new Date(c.meetingDate).toDateString() === todayKey),
+        [customers, todayKey]
+    );
+
+    const closedDealsCount = useMemo(
+        () => customers.filter(c => c.status?.startsWith('סגר')).length,
+        [customers]
+    );
+
+    const handleLogout = async () => {
+        await logout();
+        router.push('/login');
+    };
+
+    const handleDeleteVendor = (id, name) => {
+        if (confirm(`למחוק את הספק "${name}"?`)) {
+            deleteVendor(id);
+        }
+    };
+
+    const handleDeleteCustomer = (id, name) => {
+        if (confirm(`למחוק את הלקוח "${name}"?`)) {
+            deleteCustomer(id);
+        }
+    };
+
+    const resetVendorForm = () => {
+        setVendorForm({ ...EMPTY_VENDOR_FORM });
+        setEditingVendor(null);
+        setImagePreview('');
+        setAgreementFileName('');
+        setShowVendorAdvanced(false);
+    };
+
+    const calculateClientPrice = (form = vendorForm) => {
+        const orig = Number(form.originalPrice) || 0;
+        const disc = Number(form.discount) || 0;
+        if (form.discountType === 'percent') {
+            return orig - (orig * (disc / 100));
+        }
+        return orig - disc;
+    };
+
+    const uploadVendorFile = async (file, uploadType) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', uploadType);
+
+        const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: getAdminHeaders(false),
+            body: formData
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) {
+            throw new Error(data.error || 'שגיאה בהעלאה');
+        }
+        return data;
+    };
 
     const handleVendorSubmit = (e) => {
         e.preventDefault();
         
-        // Validation: If it's a venue, contact is mandatory
         if (vendorForm.type === 'venue' && !vendorForm.contact) {
             alert('חובה להזין מספר טלפון של מנהל האולם עבור אולם/גן אירועים');
             return;
         }
 
-        // Validation: Google Reviews Link is mandatory
         if (!vendorForm.googleReviewsLink) {
             alert('חובה להזין קישור לביקורות בגוגל עבור הספק');
             return;
         }
 
-        if (editingVendor) {
-            updateVendor(editingVendor.id, vendorForm);
-        } else {
-            addVendor(vendorForm);
+        const payload = { ...vendorForm };
+        if (!payload.price && payload.originalPrice) {
+            payload.price = String(Math.round(calculateClientPrice(payload)));
         }
-        setVendorForm({ name: '', type: 'design', contact: '', description: '', image: '', region: 'מרכז', eventTypes: ['חתונה'], originalPrice: '', price: '', discount: '', discountType: 'percent', commissionAmount: '', agreementSigned: false, agreementImage: '', adminNotes: '', googleReviewsLink: '', googleRating: 5, googleReviewsCount: 0, instagramLink: '', priceIncludesVat: true, videos: [], products: [], mainProductId: '' });
-        setEditingVendor(null);
-        setImagePreview('');
-    };
 
-    const calculateClientPrice = () => {
-        const orig = Number(vendorForm.originalPrice) || 0;
-        const disc = Number(vendorForm.discount) || 0;
-        if (vendorForm.discountType === 'percent') {
-            return orig - (orig * (disc / 100));
+        if (editingVendor) {
+            updateVendor(editingVendor.id, payload);
+        } else {
+            addVendor(payload);
         }
-        return orig - disc;
+        resetVendorForm();
     };
 
     const sendVendorAvailabilityCheck = (vendor) => {
@@ -168,30 +263,6 @@ export default function AdminPage() {
         const fullPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
         window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     };
-
-    const handleProductImageUpload = async (e, index) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        try {
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (data.url) {
-                const newProducts = [...vendorForm.products];
-                newProducts[index].image = data.url;
-                setVendorForm(prev => ({ ...prev, products: newProducts }));
-            }
-        } catch (err) {
-            alert('שגיאה בהעלאת התמונה');
-        }
-    };
-
 
     const handleCustomerSubmit = (e) => {
         e.preventDefault();
@@ -245,23 +316,15 @@ export default function AdminPage() {
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        e.target.value = '';
 
         setImageUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
         try {
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (data.url) {
-                setVendorForm({ ...vendorForm, image: data.url });
-                setImagePreview(data.url);
-            }
+            const data = await uploadVendorFile(file, 'image');
+            setVendorForm(prev => ({ ...prev, image: data.url }));
+            setImagePreview(data.url);
         } catch (err) {
-            alert('שגיאה בהעלאת התמונה');
+            alert(err.message || 'שגיאה בהעלאת התמונה');
         } finally {
             setImageUploading(false);
         }
@@ -270,23 +333,35 @@ export default function AdminPage() {
     const handleAgreementUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        e.target.value = '';
 
-        const formData = new FormData();
-        formData.append('file', file);
-
+        setAgreementUploading(true);
         try {
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (data.url) {
-                setVendorForm({ ...vendorForm, agreementImage: data.url });
-                alert('הסכם הועלה בהצלחה');
-            }
+            const data = await uploadVendorFile(file, 'document');
+            setVendorForm(prev => ({
+                ...prev,
+                agreementImage: data.url,
+                agreementSigned: true
+            }));
+            setAgreementFileName(data.fileName || file.name);
         } catch (err) {
-            alert('שגיאה בהעלאת ההסכם');
+            alert(err.message || 'שגיאה בהעלאת הקובץ');
+        } finally {
+            setAgreementUploading(false);
         }
+    };
+
+    const startEditVendor = (vendor) => {
+        setEditingVendor(vendor);
+        setVendorForm({ ...EMPTY_VENDOR_FORM, ...vendor });
+        setImagePreview(vendor.image || '');
+        setAgreementFileName(
+            vendor.agreementImage
+                ? decodeURIComponent(vendor.agreementImage.split('/').pop() || '')
+                : ''
+        );
+        setShowVendorAdvanced(true);
+        window.scrollTo(0, 0);
     };
 
     const getMeetingCountdown = (date) => {
@@ -304,25 +379,18 @@ export default function AdminPage() {
         return { text: `בעוד ${days} ימים`, color: '#2ecc71' };
     };
 
-    const categories = [
-        { value: 'venue', label: 'אולם / גן אירועים' },
-        { value: 'design', label: 'עיצוב אירועים' },
-        { value: 'catering', label: 'קייטרינג' },
-        { value: 'bar', label: 'שירותי בר' },
-        { value: 'photography', label: 'צילום' },
-        { value: 'music', label: 'מוזיקה / DJ' },
-        { value: 'suits', label: 'חליפות חתן' },
-        { value: 'dresses', label: 'שמלות כלה' },
-        { value: 'makeup', label: 'איפור' },
-        { value: 'alcohol', label: 'בר אלכוהול' },
-        { value: 'family-vip', label: 'קרוב ללב - VIP למשפחה' }
-    ];
-
-    const EVENT_TYPES = [
-        'חתונה', 'בר מצווה', 'בת מצווה', 'ברית', 'בריתה', 'אירוע עסקי', 'יום הולדת'
-    ];
-
-    if (loading || !user || !user.isAdmin) return <div style={{ padding: '100px', textAlign: 'center' }}>טוען...</div>;
+    const updatePricingField = (field, value) => {
+        setVendorForm(prev => {
+            const next = { ...prev, [field]: value };
+            if (field === 'originalPrice' || field === 'discount' || field === 'discountType') {
+                const calculated = calculateClientPrice(next);
+                if (calculated > 0) {
+                    next.price = String(Math.round(calculated));
+                }
+            }
+            return next;
+        });
+    };
 
     return (
         <div className="admin-root" dir="rtl">
@@ -336,23 +404,26 @@ export default function AdminPage() {
                         <button className={activeTab === 'vendors' ? 'active' : ''} onClick={() => setActiveTab('vendors')}>ניהול ספקים</button>
                         <button className={activeTab === 'customers' ? 'active' : ''} onClick={() => setActiveTab('customers')}>ניהול לקוחות</button>
                         <button className={activeTab === 'stats' ? 'active' : ''} onClick={() => setActiveTab('stats')}>ביצועים וסטטיסטיקה</button>
-                        <Link href="/admin/rsvp" className="nav-btn-special">ניהול אישורי הגעה ✨</Link>
+                        <Link href="/admin/rsvp" className="nav-btn-special">אישורי הגעה ✨</Link>
+                        <Link href="/admin/tools/alcohol" className="nav-btn-special">מחשבון אלכוהול 🥂</Link>
                     </div>
                     <div className="crm-user">
-                        <span>שלום, {user.email}</span>
-                        <button onClick={() => router.push('/logout')} className="btn-logout">התנתק</button>
+                        <span>שלום, {user?.email}</span>
+                        <button onClick={handleLogout} className="btn-logout">התנתק</button>
                     </div>
                 </div>
             </nav>
 
             <main className="crm-main">
                 <div className="crm-stats-row">
-                    <StatCard count={vendors.length} label="ספקים במערכת" icon="fa-handshake" color="#4a90e2" bg="#ebf4ff" />
-                    <StatCard count={customers.length} label="לידים פעילים" icon="fa-users" color="#2ecc71" bg="#eafaf1" />
-                    <StatCard count={customers.filter(c => c.status?.startsWith('סגר')).length} label="עסקאות שנסגרו" icon="fa-check-circle" color="#f39c12" bg="#fef9e7" />
-                    <StatCard count={stats.total.toLocaleString()} label="כניסות לאתר (סהוק)" icon="fa-chart-line" color="#9b59b6" bg="#f5eef8" />
+                    <StatCard count={vendorsLoading ? '...' : vendors.length} label="ספקים במערכת" icon="fa-handshake" color="#4a90e2" bg="#ebf4ff" />
+                    <StatCard count={customersLoading ? '...' : customers.length} label="לידים פעילים" icon="fa-users" color="#2ecc71" bg="#eafaf1" />
+                    <StatCard count={customersLoading ? '...' : closedDealsCount} label="עסקאות שנסגרו" icon="fa-check-circle" color="#f39c12" bg="#fef9e7" />
+                    <StatCard count={stats.total.toLocaleString()} label="כניסות לאתר (סה״כ)" icon="fa-chart-line" color="#9b59b6" bg="#f5eef8" />
                 </div>
 
+                {(activeTab === 'vendors' || activeTab === 'customers') && (
+                <>
                 {/* Daily Admin Alerts Section */}
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
@@ -362,8 +433,8 @@ export default function AdminPage() {
                         </h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                        {customers.filter(c => c.eventDate && new Date(c.eventDate).toDateString() === new Date().toDateString()).length > 0 ? (
-                            customers.filter(c => c.eventDate && new Date(c.eventDate).toDateString() === new Date().toDateString()).map(c => (
+                        {todayEvents.length > 0 ? (
+                            todayEvents.map(c => (
                                 <div key={c.id} style={{ background: 'white', padding: '20px', borderRadius: '20px', borderRight: '5px solid #e74c3c', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{c.name}</h4>
@@ -394,8 +465,8 @@ export default function AdminPage() {
                         </h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                        {customers.filter(c => c.meetingDate && new Date(c.meetingDate).toDateString() === new Date().toDateString()).length > 0 ? (
-                            customers.filter(c => c.meetingDate && new Date(c.meetingDate).toDateString() === new Date().toDateString()).map(c => (
+                        {todayMeetings.length > 0 ? (
+                            todayMeetings.map(c => (
                                 <div key={c.id} style={{ background: 'white', padding: '20px', borderRadius: '20px', borderRight: '5px solid #3498db', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{c.name}</h4>
@@ -416,92 +487,168 @@ export default function AdminPage() {
                         )}
                     </div>
                 </div>
+                </>
+                )}
 
                 <AnimatePresence mode="wait">
                     {activeTab === 'vendors' && (
                         <motion.div key="vendors_crm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                             <div className="crm-card">
                                 <h3>{editingVendor ? 'עריכת ספק' : 'הוספת ספק חדש'}</h3>
-                                <form onSubmit={handleVendorSubmit} className="crm-form">
-                                    <div className="crm-form-grid">
-                                        <div className="crm-form-left">
+                                <form onSubmit={handleVendorSubmit} className="vendor-form-simple">
+
+                                    <div className="vendor-form-section">
+                                        <h4>פרטים בסיסיים</h4>
+                                        <div className="vendor-form-grid-simple">
                                             <div className="crm-input-group">
-                                                <label>שם הספק</label>
-                                                <input value={vendorForm.name} onChange={e => setVendorForm({ ...vendorForm, name: e.target.value })} required />
+                                                <label>שם הספק *</label>
+                                                <input value={vendorForm.name} onChange={e => setVendorForm({ ...vendorForm, name: e.target.value })} required placeholder="לדוגמה: DJ רועי כהן" />
                                             </div>
                                             <div className="crm-input-group">
-                                                <label>קטגוריה</label>
+                                                <label>קטגוריה *</label>
                                                 <select value={vendorForm.type} onChange={e => setVendorForm({ ...vendorForm, type: e.target.value })}>
-                                                    {categories.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
+                                                    {VENDOR_CATEGORIES.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
                                                 </select>
                                             </div>
                                             <div className="crm-input-group">
-                                                <label>{vendorForm.type === 'venue' ? 'טלפון מנהל האולם (חובה)' : 'טלפון ליצירת קשר (סודי)'}</label>
-                                                <input 
-                                                    value={vendorForm.contact} 
-                                                    onChange={e => setVendorForm({ ...vendorForm, contact: e.target.value })} 
-                                                    placeholder="לדוגמה: 050-1234567" 
+                                                <label>אזור</label>
+                                                <input value={vendorForm.region} onChange={e => setVendorForm({ ...vendorForm, region: e.target.value })} placeholder="מרכז, צפון..." />
+                                            </div>
+                                            <div className="crm-input-group">
+                                                <label>{vendorForm.type === 'venue' ? 'טלפון מנהל האולם *' : 'טלפון (סודי)'}</label>
+                                                <input
+                                                    value={vendorForm.contact}
+                                                    onChange={e => setVendorForm({ ...vendorForm, contact: e.target.value })}
+                                                    placeholder="050-1234567"
                                                     required={vendorForm.type === 'venue'}
                                                 />
                                             </div>
-                                            <div className="crm-input-group">
-                                                <label>קישור לביקורות בגוגל (חובה)</label>
-                                                <input 
-                                                    value={vendorForm.googleReviewsLink} 
-                                                    onChange={e => setVendorForm({ ...vendorForm, googleReviewsLink: e.target.value })} 
-                                                    placeholder="הדביקו כאן את הלינק לביקורות בגוגל" 
-                                                    required 
+                                            <div className="crm-input-group span-2">
+                                                <label>קישור לביקורות בגוגל *</label>
+                                                <input
+                                                    value={vendorForm.googleReviewsLink}
+                                                    onChange={e => setVendorForm({ ...vendorForm, googleReviewsLink: e.target.value })}
+                                                    placeholder="https://g.page/..."
+                                                    required
                                                 />
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="vendor-form-section">
+                                        <h4>מחירים</h4>
+                                        <div className="vendor-form-grid-simple">
+                                            <div className="crm-input-group">
+                                                <label>מחיר מקורי (₪)</label>
+                                                <input type="number" value={vendorForm.originalPrice} onChange={e => updatePricingField('originalPrice', e.target.value)} placeholder="לפני הנחה" />
+                                            </div>
+                                            <div className="crm-input-group">
+                                                <label>הנחת פייסטה</label>
+                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                    <input type="number" value={vendorForm.discount} onChange={e => updatePricingField('discount', e.target.value)} style={{ flex: 2 }} placeholder="10" />
+                                                    <select value={vendorForm.discountType} onChange={e => updatePricingField('discountType', e.target.value)} style={{ flex: 1 }}>
+                                                        <option value="percent">%</option>
+                                                        <option value="amount">₪</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="crm-input-group">
+                                                <label>מחיר ללקוח (₪) *</label>
+                                                <input type="number" value={vendorForm.price} onChange={e => setVendorForm({ ...vendorForm, price: e.target.value })} required placeholder="מחושב אוטומטית" />
+                                            </div>
+                                            <div className="crm-input-group">
+                                                <label>רווח מסגירה (₪)</label>
+                                                <input type="number" value={vendorForm.commissionAmount} onChange={e => setVendorForm({ ...vendorForm, commissionAmount: e.target.value })} placeholder="עמלה" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="vendor-form-section">
+                                        <h4>קבצים</h4>
+                                        <div className="vendor-files-row">
+                                            <FileUploadField
+                                                label="תמונת הספק"
+                                                hint="JPG, PNG — אופציונלי"
+                                                accept="image/*"
+                                                uploading={imageUploading}
+                                                fileName={vendorForm.image && !imagePreview ? 'תמונה הועלתה' : ''}
+                                                previewUrl={imagePreview || vendorForm.image}
+                                                onFileSelect={handleImageUpload}
+                                                icon="fa-image"
+                                            />
+                                            <div>
+                                                <FileUploadField
+                                                    label="הסכם / מסמך"
+                                                    hint="PDF, Word, תמונה — כל סוג קובץ"
+                                                    accept={DOCUMENT_ACCEPT}
+                                                    uploading={agreementUploading}
+                                                    fileName={agreementFileName}
+                                                    previewUrl={vendorForm.agreementImage}
+                                                    onFileSelect={handleAgreementUpload}
+                                                    icon="fa-file-contract"
+                                                />
+                                                <label className="agreement-signed-row">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={vendorForm.agreementSigned}
+                                                        onChange={e => setVendorForm({ ...vendorForm, agreementSigned: e.target.checked })}
+                                                    />
+                                                    הסכם חתום
+                                                </label>
+                                                {vendorForm.agreementImage && (
+                                                    <a href={vendorForm.agreementImage} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: '#4a90e2', marginTop: '6px', display: 'inline-block' }}>
+                                                        <i className="fas fa-external-link-alt"></i> צפייה בקובץ
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="crm-input-group">
+                                        <label>תיאור קצר (אופציונלי)</label>
+                                        <textarea value={vendorForm.description} onChange={e => setVendorForm({ ...vendorForm, description: e.target.value })} rows={2} placeholder="משפט או שניים על הספק..." />
+                                    </div>
+
+                                    <button type="button" className="vendor-advanced-toggle" onClick={() => setShowVendorAdvanced(v => !v)}>
+                                        <i className={`fas fa-chevron-${showVendorAdvanced ? 'up' : 'down'}`} style={{ marginLeft: '6px' }}></i>
+                                        {showVendorAdvanced ? 'הסתר פרטים נוספים' : 'הצג פרטים נוספים (דירוג, אינסטגרם, סרטונים...)'}
+                                    </button>
+
+                                    {showVendorAdvanced && (
+                                        <div className="vendor-advanced-panel">
                                             <div className="crm-input-group">
                                                 <label>דירוג גוגל (0-5)</label>
-                                                <input 
-                                                    type="number" step="0.1" max="5" min="0"
-                                                    value={vendorForm.googleRating} 
-                                                    onChange={e => setVendorForm({ ...vendorForm, googleRating: e.target.value })} 
-                                                />
+                                                <input type="number" step="0.1" max="5" min="0" value={vendorForm.googleRating} onChange={e => setVendorForm({ ...vendorForm, googleRating: e.target.value })} />
                                             </div>
                                             <div className="crm-input-group">
                                                 <label>כמות ביקורות</label>
-                                                <input 
-                                                    type="number"
-                                                    value={vendorForm.googleReviewsCount} 
-                                                    onChange={e => setVendorForm({ ...vendorForm, googleReviewsCount: e.target.value })} 
-                                                />
+                                                <input type="number" value={vendorForm.googleReviewsCount} onChange={e => setVendorForm({ ...vendorForm, googleReviewsCount: e.target.value })} />
                                             </div>
                                             <div className="crm-input-group">
                                                 <label>לינק לאינסטגרם</label>
-                                                <input 
-                                                    value={vendorForm.instagramLink} 
-                                                    onChange={e => setVendorForm({ ...vendorForm, instagramLink: e.target.value })} 
-                                                    placeholder="https://instagram.com/..." 
-                                                />
+                                                <input value={vendorForm.instagramLink} onChange={e => setVendorForm({ ...vendorForm, instagramLink: e.target.value })} placeholder="https://instagram.com/..." />
                                             </div>
-                                            <div className="crm-input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={vendorForm.priceIncludesVat} 
-                                                    onChange={e => setVendorForm({ ...vendorForm, priceIncludesVat: e.target.checked })} 
-                                                    style={{ width: 'auto' }}
-                                                />
+                                            <div className="crm-input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexDirection: 'row' }}>
+                                                <input type="checkbox" checked={vendorForm.priceIncludesVat} onChange={e => setVendorForm({ ...vendorForm, priceIncludesVat: e.target.checked })} style={{ width: 'auto' }} />
                                                 <label style={{ marginBottom: 0 }}>המחיר כולל מע"מ</label>
                                             </div>
-                                            <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
-                                                <label style={{ fontWeight: 700, marginBottom: '10px', display: 'block' }}>סוגי אירועים מתאימים</label>
-                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                                            <div className="crm-input-group span-3" style={{ gridColumn: 'span 3' }}>
+                                                <label>סוגי אירועים</label>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                                                     {EVENT_TYPES.map(et => (
-                                                        <label key={et} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                                        <label key={et} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
                                                             <input
                                                                 type="checkbox"
                                                                 style={{ width: 'auto' }}
                                                                 checked={vendorForm.eventTypes?.includes(et)}
                                                                 onChange={(e) => {
                                                                     const current = vendorForm.eventTypes || [];
-                                                                    if (e.target.checked) {
-                                                                        setVendorForm({ ...vendorForm, eventTypes: [...current, et] });
-                                                                    } else {
-                                                                        setVendorForm({ ...vendorForm, eventTypes: current.filter(x => x !== et) });
-                                                                    }
+                                                                    setVendorForm({
+                                                                        ...vendorForm,
+                                                                        eventTypes: e.target.checked
+                                                                            ? [...current, et]
+                                                                            : current.filter(x => x !== et)
+                                                                    });
                                                                 }}
                                                             />
                                                             {et}
@@ -509,138 +656,38 @@ export default function AdminPage() {
                                                     ))}
                                                 </div>
                                             </div>
-                                            <div className="crm-input-group" style={{ gridColumn: 'span 3' }}>
-                                                <label>תיאור הספק</label>
-                                                <textarea value={vendorForm.description} onChange={e => setVendorForm({ ...vendorForm, description: e.target.value })} rows={3} />
-                                            </div>
-                                            <div className="crm-input-group">
-                                                <label>אזור</label>
-                                                <input value={vendorForm.region} onChange={e => setVendorForm({ ...vendorForm, region: e.target.value })} />
-                                            </div>
-                                            <div className="crm-input-group">
-                                                <label>מחיר מקורי (₪)</label>
-                                                <input type="number" value={vendorForm.originalPrice} onChange={e => setVendorForm({ ...vendorForm, originalPrice: e.target.value })} placeholder="לפני הנחה" />
-                                            </div>
-                                            <div className="crm-input-group">
-                                                <label>הנחת פייסטה</label>
-                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                    <input type="number" value={vendorForm.discount} onChange={e => setVendorForm({ ...vendorForm, discount: e.target.value })} style={{ flex: 2 }} />
-                                                    <select value={vendorForm.discountType} onChange={e => setVendorForm({ ...vendorForm, discountType: e.target.value })} style={{ flex: 1 }}>
-                                                        <option value="percent">%</option>
-                                                        <option value="amount">₪</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div className="crm-input-group">
-                                                <label>מחיר סופי ללקוח (₪)</label>
-                                                <input type="number" value={vendorForm.price} onChange={e => setVendorForm({ ...vendorForm, price: e.target.value })} required />
-                                            </div>
-                             <div className="crm-input-group" style={{ background: '#f0f7ff', padding: '10px', borderRadius: '12px', border: '1.5px solid #4a90e2' }}>
-                                <label style={{ color: '#4a90e2', fontWeight: 700 }}>
-                                    <i className="fas fa-coins" style={{ marginLeft: '8px' }}></i>
-                                    רווח מסגירה (₪)
-                                </label>
-                                <input type="number" value={vendorForm.commissionAmount} onChange={e => setVendorForm({ ...vendorForm, commissionAmount: e.target.value })} placeholder="כמה אנחנו מרוויחים?" />
-                                <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#4a90e2', fontWeight: 600 }}>
-                                    {vendorForm.originalPrice && vendorForm.discount && (
-                                        <span>מחיר סופי ללקוח: ₪{calculateClientPrice()}</span>
-                                    )}
-                                </div>
-                            </div>
-                                    <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
-                                        <label style={{ fontWeight: 700, marginBottom: '10px', display: 'block' }}>סרטוני וידאו (קישורי YouTube/Vimeo)</label>
-                                        <div style={{ display: 'grid', gap: '10px' }}>
-                                            {(vendorForm.videos || []).map((video, idx) => (
-                                                <div key={idx} style={{ display: 'flex', gap: '10px' }}>
-                                                    <input 
-                                                        value={video} 
-                                                        onChange={e => {
-                                                            const newVideos = [...vendorForm.videos];
-                                                            newVideos[idx] = e.target.value;
-                                                            setVendorForm({ ...vendorForm, videos: newVideos });
-                                                        }} 
-                                                        placeholder="הדביקו לינק לסרטון כאן..." 
-                                                    />
-                                                    <button type="button" onClick={() => {
-                                                        const newVideos = vendorForm.videos.filter((_, i) => i !== idx);
-                                                        setVendorForm({ ...vendorForm, videos: newVideos });
-                                                    }} className="btn-icon" style={{ color: '#e74c3c' }}>
-                                                        <i className="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button type="button" onClick={() => setVendorForm({ ...vendorForm, videos: [...(vendorForm.videos || []), ''] })} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '5px 15px' }}>
-                                                + הוסף סרטון
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
-                                        <label style={{ fontWeight: 700, marginBottom: '10px', display: 'block' }}>סוגי אירועים מתאימים</label>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                                            {EVENT_TYPES.map(et => (
-                                                <label key={et} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        style={{ width: 'auto' }}
-                                                        checked={vendorForm.eventTypes?.includes(et)}
-                                                        onChange={(e) => {
-                                                            const current = vendorForm.eventTypes || [];
-                                                            if (e.target.checked) {
-                                                                setVendorForm({ ...vendorForm, eventTypes: [...current, et] });
-                                                            } else {
-                                                                setVendorForm({ ...vendorForm, eventTypes: current.filter(x => x !== et) });
-                                                            }
-                                                        }}
-                                                    />
-                                                    {et}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                             <div className="crm-input-group" style={{ gridColumn: 'span 3', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
-                                <label style={{ fontWeight: 700, marginBottom: '10px', display: 'block' }}>הערות מנהל (סודי)</label>
-                                <textarea 
-                                    value={vendorForm.adminNotes} 
-                                    onChange={e => setVendorForm({ ...vendorForm, adminNotes: e.target.value })} 
-                                    placeholder="הערות פנימיות לגבי הספק, סיכומים וכו'..."
-                                    rows={3} 
-                                />
-                            </div>
-
-                            <div className="crm-input-group" style={{ gridColumn: 'span 3', display: 'flex', gap: '20px', alignItems: 'center', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 700, marginBottom: 0 }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={vendorForm.agreementSigned} 
-                                        onChange={e => setVendorForm({ ...vendorForm, agreementSigned: e.target.checked })}
-                                        style={{ width: '20px', height: '20px' }}
-                                    />
-                                    הסכם עבודה חתום
-                                </label>
-                                <div style={{ flex: 1 }}>
-                                    <input type="file" onChange={handleAgreementUpload} style={{ fontSize: '0.8rem' }} />
-                                    {vendorForm.agreementImage && <span style={{ fontSize: '0.8rem', color: '#2ecc71' }}><i className="fas fa-check"></i> קובץ הועלה</span>}
-                                </div>
-                            </div>
-
-                                        </div>
-                                        <div className="crm-form-right">
-                                            <div className="image-upload-box" style={{ backgroundImage: imagePreview ? `url(${imagePreview})` : 'none' }}>
-                                                {!imagePreview && (
-                                                    <div className="upload-placeholder">
-                                                        <i className="fas fa-cloud-upload-alt"></i>
-                                                        <span>העלה תמונה ראשית</span>
+                                            <div className="crm-input-group span-3" style={{ gridColumn: 'span 3' }}>
+                                                <label>סרטונים (YouTube/Vimeo)</label>
+                                                {(vendorForm.videos || []).map((video, idx) => (
+                                                    <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                                                        <input
+                                                            value={video}
+                                                            onChange={e => {
+                                                                const newVideos = [...vendorForm.videos];
+                                                                newVideos[idx] = e.target.value;
+                                                                setVendorForm({ ...vendorForm, videos: newVideos });
+                                                            }}
+                                                            placeholder="קישור לסרטון"
+                                                        />
+                                                        <button type="button" onClick={() => setVendorForm({ ...vendorForm, videos: vendorForm.videos.filter((_, i) => i !== idx) })} className="btn-icon" style={{ color: '#e74c3c' }}>
+                                                            <i className="fas fa-trash"></i>
+                                                        </button>
                                                     </div>
-                                                )}
-                                                <input type="file" onChange={handleImageUpload} />
-                                                {imageUploading && <div className="upload-overlay">מעלה...</div>}
+                                                ))}
+                                                <button type="button" onClick={() => setVendorForm({ ...vendorForm, videos: [...(vendorForm.videos || []), ''] })} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '5px 12px' }}>
+                                                    + הוסף סרטון
+                                                </button>
+                                            </div>
+                                            <div className="crm-input-group span-3" style={{ gridColumn: 'span 3' }}>
+                                                <label>הערות מנהל (סודי)</label>
+                                                <textarea value={vendorForm.adminNotes} onChange={e => setVendorForm({ ...vendorForm, adminNotes: e.target.value })} rows={2} placeholder="הערות פנימיות..." />
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="crm-form-actions">
+                                    )}
+
+                                    <div className="crm-form-actions" style={{ gridColumn: 'unset', borderTop: '1px solid #f0f0f0', paddingTop: '16px', marginTop: 0 }}>
                                         <button type="submit" className="btn-primary">{editingVendor ? 'עדכן ספק' : 'שמור ספק חדש'}</button>
-                                        {editingVendor && <button type="button" onClick={() => { setEditingVendor(null); setVendorForm({ name: '', type: 'design', contact: '', description: '', image: '', region: 'מרכז', eventTypes: ['חתונה'], originalPrice: '', price: '', discount: '', discountType: 'percent', commissionAmount: '', agreementSigned: false, agreementImage: '', adminNotes: '', googleReviewsLink: '', googleRating: 5, googleReviewsCount: 0, instagramLink: '', priceIncludesVat: true, videos: [], products: [], mainProductId: '' }); setImagePreview(''); }} className="btn-secondary">ביטול עריכה</button>}
+                                        {editingVendor && <button type="button" onClick={resetVendorForm} className="btn-secondary">ביטול עריכה</button>}
                                     </div>
                                 </form>
                             </div>
@@ -666,7 +713,7 @@ export default function AdminPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {vendors.filter(v => v.name.includes(vendorSearch)).map(v => (
+                                {filteredVendors.map(v => (
                                     <tr key={v.id}>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -681,7 +728,7 @@ export default function AdminPage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><span className="crm-badge crm-badge-info">{categories.find(c => c.value === v.type)?.label}</span></td>
+                                        <td><span className="crm-badge crm-badge-info">{VENDOR_CATEGORIES.find(c => c.value === v.type)?.label}</span></td>
                                         <td style={{ fontWeight: 600, color: '#4a90e2' }}>
                                             {v.contact || 'לא הוזן'}
                                         </td>
@@ -708,10 +755,10 @@ export default function AdminPage() {
                                                         <button onClick={() => sendVendorDealSummary(v)} title="שלח סיכום סגירה" style={{ background: '#f39c12', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-file-invoice-dollar"></i>
                                                         </button>
-                                                        <button onClick={() => { setEditingVendor(v); setVendorForm(v); setImagePreview(v.image || ''); window.scrollTo(0, 0); }} style={{ background: '#2ecc71', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                        <button onClick={() => startEditVendor(v)} style={{ background: '#2ecc71', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-edit"></i>
                                                         </button>
-                                                        <button onClick={() => deleteVendor(v.id)} style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                        <button onClick={() => handleDeleteVendor(v.id, v.name)} style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-trash"></i>
                                                         </button>
                                                     </div>
@@ -856,12 +903,17 @@ export default function AdminPage() {
                                                 ) : '-'}
                                             </td>
                                             <td>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                    {c.eventId && (
+                                                        <Link href={`/admin/rsvp?event=${c.eventId}`} className="btn-icon" style={{ color: '#9b59b6' }} title="ניהול RSVP">
+                                                            <i className="fas fa-envelope-open-text"></i>
+                                                        </Link>
+                                                    )}
                                                     <a href={getWhatsAppMsg(c)} target="_blank" rel="noopener noreferrer" className="btn-icon" style={{ color: '#2ecc71' }} title="שלח ווטסאפ">
                                                         <i className="fab fa-whatsapp"></i>
                                                     </a>
                                                     <button title="עריכה" onClick={() => { setEditingCustomer(c); setCustomerForm(c); }} className="btn-icon"><i className="fas fa-edit"></i></button>
-                                                    <button title="מחיקה" onClick={() => deleteCustomer(c.id)} className="btn-icon" style={{ color: '#e74c3c' }}><i className="fas fa-trash"></i></button>
+                                                    <button title="מחיקה" onClick={() => handleDeleteCustomer(c.id, c.name)} className="btn-icon" style={{ color: '#e74c3c' }}><i className="fas fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -953,7 +1005,7 @@ export default function AdminPage() {
 
                                 <div style={{ marginTop: '10px' }}>
                                     <h4 style={{ marginBottom: '10px', fontSize: '1rem' }}>פילוח לפי קטגוריות</h4>
-                                    {categories.map(cat => {
+                                    {VENDOR_CATEGORIES.map(cat => {
                                         const catVendors = vendors.filter(v => v.type === cat.value);
                                         const catRevenue = customers.filter(c => c.status?.startsWith('סגר')).reduce((acc, curr) => {
                                             const v = catVendors.find(vend => String(vend.id) === String(curr.closedWithId));
@@ -1020,9 +1072,13 @@ export default function AdminPage() {
                                 </div>
 
                                 <div className="crm-card" style={{ padding: '15px', background: 'linear-gradient(135deg, #1a1a1a 0%, #333 100%)', color: 'white', border: 'none' }}>
-                                    <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>ציון ביצועים כללי</div>
-                                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#D4AF37' }}>EXCELLENT</div>
-                                    <p style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '5px' }}>האתר עומד ביעדי המכירות והתנועה של הרבעון</p>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>יחס המרה ליד/סגירה</div>
+                                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#D4AF37' }}>
+                                        {Math.round((customers.filter(c => c.status?.startsWith('סגר')).length / (customers.length || 1)) * 100)}%
+                                    </div>
+                                    <p style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '5px' }}>
+                                        {customers.filter(c => c.status?.startsWith('סגר')).length} סגירות מתוך {customers.length} לידים
+                                    </p>
                                 </div>
 
                                 <div style={{ marginTop: '10px' }}>

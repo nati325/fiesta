@@ -6,6 +6,7 @@ import { useVendors } from '@/context/VendorContext';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { resolveVendorImage } from '@/lib/vendorImage';
 
 export default function CategoryPage() {
     const params = useParams();
@@ -174,7 +175,7 @@ export default function CategoryPage() {
                                 const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
                                 
                                 // Dynamic unique image logic
-                                let displayImage = mainProduct?.image || v.image;
+                                let displayImage = resolveVendorImage(mainProduct?.image || v.image, '');
                                 if (!displayImage || displayImage.trim() === '' || displayImage === currentCategory.img) {
                                     // Generate a unique unsplash image based on index and category type
                                     const seeds = [
@@ -282,7 +283,7 @@ export default function CategoryPage() {
                                                 )}
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--primary-color)' }}>₪{displayPrice}</span>
-                                                    {displayOriginalPrice && (
+                                                    {displayOriginalPrice && Number(displayOriginalPrice) > 0 && Number(displayPrice) > 0 && Number(displayPrice) !== Number(displayOriginalPrice) && (
                                                         <span style={{ 
                                                             background: 'rgba(46, 125, 50, 0.9)', 
                                                             color: 'white', 

@@ -2,6 +2,7 @@ import dbConnect from '@/lib/mongodb';
 import Vendor from '@/lib/models/Vendor';
 
 export const dynamic = 'force-dynamic';
+import { guardDevRoute } from '@/lib/devRoutes';
 
 function generateDescription(type, name) {
     const templates = [
@@ -69,6 +70,9 @@ function shuffle(array) {
 }
 
 export async function GET(request) {
+    const blocked = guardDevRoute(request);
+    if (blocked) return blocked;
+
     try {
         await dbConnect();
         

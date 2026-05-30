@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginForm() {
     const { login } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirect = searchParams.get('redirect') || '/admin';
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
 
@@ -17,7 +19,7 @@ export default function LoginPage() {
         try {
             const data = await login(formData.email, formData.password);
             if (data.user?.isAdmin) {
-                router.push('/admin');
+                router.push(redirect.startsWith('/admin') ? redirect : '/admin');
             } else {
                 router.push('/');
             }
@@ -26,6 +28,25 @@ export default function LoginPage() {
         }
     };
 
+    return (
+        <>
+            {error && <div style={{ color: 'white', background: '#ff4d4f', padding: '10px', borderRadius: '5px', marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="form-group">
+                    <label>אימייל</label>
+                    <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                    <label>סיסמה</label>
+                    <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
+                </div>
+                <button type="submit" className="btn btn-primary full-width">התחבר</button>
+            </form>
+        </>
+    );
+}
+
+export default function LoginPage() {
     return (
         <div style={{ paddingTop: '120px', minHeight: '100vh', background: '#f9f9f9', display: 'flex', justifyContent: 'center' }}>
             <motion.div
@@ -39,20 +60,9 @@ export default function LoginPage() {
                     </Link>
                 </div>
                 <h2 style={{ textAlign: 'center', color: '#D4AF37', marginBottom: '30px' }}>התחברות</h2>
-
-                {error && <div style={{ color: 'white', background: '#ff4d4f', padding: '10px', borderRadius: '5px', marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
-
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className="form-group">
-                        <label>אימייל</label>
-                        <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-                    </div>
-                    <div className="form-group">
-                        <label>סיסמה</label>
-                        <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
-                    </div>
-                    <button type="submit" className="btn btn-primary full-width">התחבר</button>
-                </form>
+                <Suspense fallback={<p style={{ textAlign: 'center' }}>טוען...</p>}>
+                    <LoginForm />
+                </Suspense>
                 <p style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
                     אין לך חשבון? <Link href="/register" style={{ color: '#D4AF37', cursor: 'pointer', fontWeight: 'bold' }}>הרשם כאן</Link>
                 </p>

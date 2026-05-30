@@ -2,51 +2,60 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/lib/models/User';
 
 export const dynamic = 'force-dynamic';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { NextResponse } from 'next/server';
+import { setAuthCookie } from '@/lib/authSession';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'fiesta-secret-admin-key-2025';
+
+function getMasterAdminConfig() {
+    const email = process.env.MASTER_ADMIN_EMAIL?.toLowerCase().trim();
+    const password = process.env.MASTER_ADMIN_PASSWORD;
+    if (!email || !password) return null;
+    return { email, password };
+}
 
 export async function POST(request) {
     try {
         const { email, password } = await request.json();
-        console.log(`Login attempt: email=${email}`);
 
-        // Master Admin Check (hardcoded, doesn't need DB)
-        const MASTER_ADMIN_EMAILS = ['fiestaafakot@gmail.com'];
-        const MASTER_ADMIN_PASSWORD = 'fiestamadar';
+        if (!email || !password) {
+            return NextResponse.json({ message: 'Email and password required' }, { status: 400 });
+        }
 
-        if (MASTER_ADMIN_EMAILS.includes(email.toLowerCase().trim()) && password === MASTER_ADMIN_PASSWORD) {
-            console.log('Master Admin login successful');
+        const normalizedEmail = email.toLowerCase().trim();
+        const masterAdmin = getMasterAdminConfig();
+
+        if (masterAdmin && normalizedEmail === masterAdmin.email && password === masterAdmin.password) {
             const token = jwt.sign(
-                { id: 'master-admin-' + email, email: email, isAdmin: true },
+                { id: 'master-admin-' + normalizedEmail, email: normalizedEmail, isAdmin: true },
                 SECRET_KEY,
                 { expiresIn: '24h' }
             );
-            return Response.json({
+
+            const response = NextResponse.json({
                 success: true,
-                message: 'Login successful as Master Admin',
+                message: 'Login successful',
                 token,
-                user: { id: 'master-admin-' + email.split('@')[0], email, name: 'מנהל מערכת', isAdmin: true }
+                user: { id: 'master-admin', email: normalizedEmail, name: 'מנהל מערכת', isAdmin: true }
             });
+
+            setAuthCookie(response, token);
+            return response;
         }
 
         await dbConnect();
-        // Use .select('+password') to explicitly get password since toJSON strips it
-        const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password');
+        const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
         if (!user) {
-            console.log('Login failed: User not found');
-            return Response.json({ message: 'Invalid credentials' }, { status: 401 });
+            return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
         }
 
+        const bcrypt = (await import('bcryptjs')).default;
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.log('Login failed: Password mismatch');
-            return Response.json({ message: 'Invalid credentials' }, { status: 401 });
+            return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
         }
-
-        console.log('Login successful');
 
         const token = jwt.sign(
             { id: user._id, email: user.email, isAdmin: user.isAdmin },
@@ -54,14 +63,17 @@ export async function POST(request) {
             { expiresIn: '24h' }
         );
 
-        return Response.json({
+        const response = NextResponse.json({
             success: true,
             message: 'Login successful',
             token,
             user: { id: user._id, email: user.email, name: user.name, isAdmin: user.isAdmin }
         });
 
+        setAuthCookie(response, token);
+        return response;
+
     } catch (error) {
-        return Response.json({ message: 'Error logging in', error: error.message }, { status: 500 });
+        return NextResponse.json({ message: 'Error logging in', error: error.message }, { status: 500 });
     }
 }

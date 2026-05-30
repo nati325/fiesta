@@ -9,13 +9,13 @@ import Link from 'next/link';
 export default function RegisterPage() {
     const { register } = useAuth();
     const router = useRouter();
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', isAdmin: false });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await register(formData.name, formData.email, formData.password, formData.isAdmin);
+            await register(formData.name, formData.email, formData.password);
             alert('ההרשמה בוצעה בהצלחה! כעת ניתן להתחבר');
             router.push('/login');
         } catch (err) {
@@ -52,11 +52,6 @@ export default function RegisterPage() {
                     <div className="form-group">
                         <label>סיסמה</label>
                         <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <input type="checkbox" checked={formData.isAdmin} onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })} id="adminCheck" style={{ width: 'auto' }} />
-                        <label htmlFor="adminCheck" style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>הירשם כמנהל מערכת</label>
                     </div>
 
                     <button type="submit" className="btn btn-primary full-width">הירשם</button>

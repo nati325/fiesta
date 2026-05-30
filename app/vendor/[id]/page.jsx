@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useVendors } from '@/context/VendorContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { resolveVendorImage, resolvePortfolioImage } from '@/lib/vendorImage';
 
 export default function VendorDetailPage() {
     const params = useParams();
@@ -73,7 +74,10 @@ export default function VendorDetailPage() {
                         background: '#eee'
                     }}>
                         <img 
-                            src={vendor.products?.find(p => p.id === vendor.mainProductId)?.image || (vendor.image && vendor.image.trim() !== '' ? vendor.image : currentCategory.img)} 
+                            src={resolveVendorImage(
+                                vendor.products?.find(p => p.id === vendor.mainProductId)?.image || vendor.image,
+                                currentCategory.img
+                            )} 
                             alt={vendor.products?.find(p => p.id === vendor.mainProductId)?.name ? `${vendor.name} - ${vendor.products.find(p => p.id === vendor.mainProductId).name}` : vendor.name} 
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             onError={(e) => { e.target.src = currentCategory.img; }}
@@ -101,7 +105,10 @@ export default function VendorDetailPage() {
                         <div style={{ width: '1px', height: '15px', background: '#eee' }}></div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700' }}>
                             <i className="fas fa-star"></i>
-                            <span style={{ color: '#1a1a1a' }}>{vendor.googleRating || '5.0'} ({vendor.googleReviewsCount || '0'} חוות דעת)</span>
+                            <span style={{ color: '#1a1a1a' }}>
+                                {vendor.googleRating ? Number(vendor.googleRating).toFixed(1) : '5.0'}
+                                {vendor.googleReviewsCount > 0 && ` (${vendor.googleReviewsCount} ביקורות)`}
+                            </span>
                         </div>
                     </div>
 
@@ -144,32 +151,34 @@ export default function VendorDetailPage() {
                         </p>
                     </div>
 
-                    {/* Google Reviews */}
-                    {vendor.googleReviewsLink && (
-                        <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
-                            <a 
-                                href={vendor.googleReviewsLink} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '10px',
-                                    background: 'white', padding: '15px 30px', borderRadius: '50px',
-                                    boxShadow: '0 5px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0',
-                                    textDecoration: 'none', color: '#1a1a1a', fontWeight: 700, transition: 'all 0.2s'
-                                }}
-                                className="google-review-btn"
-                            >
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '24px' }} />
-                                <span>קראו {vendor.googleReviewsCount || ''} ביקורות אמיתיות בגוגל</span>
-                                <div style={{ color: '#FFD700', display: 'flex', gap: '2px', fontSize: '0.9rem' }}>
-                                    {[...Array(Math.floor(vendor.googleRating || 5))].map((_, i) => (
-                                        <i key={i} className="fas fa-star"></i>
-                                    ))}
-                                    {(vendor.googleRating % 1 !== 0) && <i className="fas fa-star-half-alt"></i>}
-                                </div>
-                            </a>
-                        </div>
-                    )}
+                    {/* Google Reviews - always shown */}
+                    <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
+                        <a 
+                            href={vendor.googleReviewsLink || `https://www.google.com/maps/search/${encodeURIComponent(vendor.name)}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '12px',
+                                background: 'white', padding: '15px 30px', borderRadius: '50px',
+                                boxShadow: '0 5px 20px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0',
+                                textDecoration: 'none', color: '#1a1a1a', fontWeight: 700, transition: 'all 0.2s'
+                            }}
+                            className="google-review-btn"
+                        >
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '22px' }} />
+                            <span>
+                                {vendor.googleReviewsCount > 0
+                                    ? `קראו ${vendor.googleReviewsCount} ביקורות אמיתיות בגוגל`
+                                    : 'ביקורות גוגל'}
+                            </span>
+                            <div style={{ color: '#FFD700', display: 'flex', gap: '2px', fontSize: '0.9rem' }}>
+                                {[...Array(Math.floor(vendor.googleRating || 5))].map((_, i) => (
+                                    <i key={i} className="fas fa-star"></i>
+                                ))}
+                                {((vendor.googleRating || 5) % 1 !== 0) && <i className="fas fa-star-half-alt"></i>}
+                            </div>
+                        </a>
+                    </div>
 
                     {/* Videos Section */}
                     {vendor.videos && vendor.videos.length > 0 && (
@@ -273,7 +282,7 @@ export default function VendorDetailPage() {
                                     >
                                         <div style={{ width: '80px', height: '80px', borderRadius: '15px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
                                             <img 
-                                                src={item.image || currentCategory.img} 
+                                                src={typeof item === 'number' ? currentCategory.img : resolvePortfolioImage(item, currentCategory.img)} 
                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                                                 alt={item.title || item.name} 
                                                 onError={(e) => { e.target.src = currentCategory.img; }}
@@ -322,7 +331,7 @@ export default function VendorDetailPage() {
                                 style={{ height: '250px', borderRadius: '20px', overflow: 'hidden', background: '#eee', cursor: 'zoom-in', position: 'relative' }}
                             >
                                 <img 
-                                    src={item.image || currentCategory.img} 
+                                    src={typeof item === 'number' ? currentCategory.img : resolvePortfolioImage(item, currentCategory.img)} 
                                     style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} 
                                     alt="portfolio image" 
                                     className="gallery-img"

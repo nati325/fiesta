@@ -3,21 +3,17 @@ import Customer from '@/lib/models/Customer';
 
 export const dynamic = 'force-dynamic';
 import AdminLog from '@/lib/models/AdminLog';
-
-function isAdmin(request) {
-    return true; // Bypass for now
-}
+import { isAdminRequest, adminDeniedResponse } from '@/lib/adminAuth';
 
 export async function PUT(request, { params }) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
+    if (!isAdminRequest(request)) {
+        return adminDeniedResponse();
     }
     try {
         await dbConnect();
         const { id } = params;
         const body = await request.json();
         
-        // Handle closedDate logic
         const existing = await Customer.findById(id);
         if (existing) {
             if (body.status?.startsWith('סגר') && !existing.status?.startsWith('סגר')) {
@@ -40,8 +36,8 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
+    if (!isAdminRequest(request)) {
+        return adminDeniedResponse();
     }
     try {
         await dbConnect();

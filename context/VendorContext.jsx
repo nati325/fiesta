@@ -1,13 +1,17 @@
 'use client';
 
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { getAdminHeaders } from '@/lib/getAdminHeaders';
 
 const VendorContext = createContext();
 
 export const useVendors = () => useContext(VendorContext);
 
 export const VendorProvider = ({ children }) => {
+    const { token, user } = useAuth();
     const [vendors, setVendors] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
 
     useEffect(() => {
@@ -19,8 +23,11 @@ export const VendorProvider = ({ children }) => {
         localStorage.setItem('fiesta_favorites', JSON.stringify(favorites));
     }, [favorites]);
 
-    useEffect(() => {
-        fetch('/api/vendors')
+    const fetchVendors = useCallback(() => {
+        setLoading(true);
+        const headers = user?.isAdmin && token ? getAdminHeaders(false) : {};
+
+        fetch('/api/vendors', { headers })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
@@ -28,13 +35,18 @@ export const VendorProvider = ({ children }) => {
             .then(data => setVendors(data))
             .catch(err => {
                 console.error('Error fetching vendors:', err);
-            });
-    }, []);
+            })
+            .finally(() => setLoading(false));
+    }, [token, user?.isAdmin]);
+
+    useEffect(() => {
+        fetchVendors();
+    }, [fetchVendors]);
 
     const addVendor = (vendor) => {
-        fetch('/api/vendors', {
+        return fetch('/api/vendors', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-admin-token': 'fiesta-secret-admin-key-2025' },
+            headers: getAdminHeaders(),
             body: JSON.stringify(vendor)
         })
             .then(res => {
@@ -49,11 +61,9 @@ export const VendorProvider = ({ children }) => {
     };
 
     const deleteVendor = (id) => {
-        fetch(`/api/vendors/${id}`, {
+        return fetch(`/api/vendors/${id}`, {
             method: 'DELETE',
-            headers: {
-                'x-admin-token': 'fiesta-secret-admin-key-2025'
-            }
+            headers: getAdminHeaders(false)
         })
             .then(res => {
                 if (!res.ok) throw new Error('Auth failed');
@@ -69,9 +79,9 @@ export const VendorProvider = ({ children }) => {
     };
 
     const updateVendor = (id, updatedVendor) => {
-        fetch(`/api/vendors/${id}`, {
+        return fetch(`/api/vendors/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'x-admin-token': 'fiesta-secret-admin-key-2025' },
+            headers: getAdminHeaders(),
             body: JSON.stringify(updatedVendor)
         })
             .then(res => {
@@ -82,14 +92,12 @@ export const VendorProvider = ({ children }) => {
             .catch(err => alert('שגיאה בעדכון הספק'));
     };
 
-    const getVendorsByType = (type) => {
-        return vendors.filter(v => v.type === type);
-    };
+    const getVendorsByType = (type) => vendors.filter(v => v.type === type);
 
     const toggleFavorite = (id) => {
-        setFavorites(prev => 
-            prev.includes(id) 
-                ? prev.filter(f => f !== id) 
+        setFavorites(prev =>
+            prev.includes(id)
+                ? prev.filter(f => f !== id)
                 : [...prev, id]
         );
     };
@@ -97,7 +105,10 @@ export const VendorProvider = ({ children }) => {
     const isFavorite = (id) => favorites.includes(id);
 
     return (
-        <VendorContext.Provider value={{ vendors, addVendor, deleteVendor, updateVendor, getVendorsByType, favorites, toggleFavorite, isFavorite }}>
+        <VendorContext.Provider value={{
+            vendors, loading, addVendor, deleteVendor, updateVendor,
+            getVendorsByType, favorites, toggleFavorite, isFavorite, refreshVendors: fetchVendors
+        }}>
             {children}
         </VendorContext.Provider>
     );

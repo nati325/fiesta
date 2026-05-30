@@ -3,6 +3,7 @@
 import { useVendors } from '@/context/VendorContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { resolveVendorImage } from '@/lib/vendorImage';
 
 export default function FavoritesPage() {
     const { vendors, favorites, toggleFavorite, isFavorite } = useVendors();
@@ -60,7 +61,7 @@ export default function FavoritesPage() {
                                 >
                                     <div style={{ height: '200px', position: 'relative' }}>
                                         <img 
-                                            src={v.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'} 
+                                            src={resolveVendorImage(v.image)} 
                                             alt={v.name} 
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                                         />

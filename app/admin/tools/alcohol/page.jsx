@@ -1,40 +1,37 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function AlcoholCalculatorPage() {
     const [guestCount, setGuestCount] = useState(300);
-    const [crowdType, setCrowdType] = useState('standard'); // 'standard', 'heavy', 'light'
-    const [results, setResults] = useState({});
+    const [crowdType, setCrowdType] = useState('standard');
 
-    useEffect(() => {
-        calculateAlcohol();
-    }, [guestCount, crowdType]);
-
-    const calculateAlcohol = () => {
+    const results = useMemo(() => {
         const multipliers = {
             standard: { whiskey: 40, vodka: 30, wine: 10, arak: 50, cava: 15, beer: 2 },
             heavy: { whiskey: 25, vodka: 15, wine: 8, arak: 30, cava: 10, beer: 3.5 },
             light: { whiskey: 60, vodka: 50, wine: 15, arak: 80, cava: 20, beer: 1 }
         };
-
         const m = multipliers[crowdType];
-        
-        setResults({
+        return {
             whiskey: Math.ceil(guestCount / m.whiskey),
             vodka: Math.ceil(guestCount / m.vodka),
             wine: Math.ceil(guestCount / m.wine),
             arak: Math.ceil(guestCount / m.arak),
             cava: Math.ceil(guestCount / m.cava),
             beer: Math.ceil(guestCount * m.beer)
-        });
-    };
+        };
+    }, [guestCount, crowdType]);
 
     return (
         <div className="alcohol-root" dir="rtl">
             <header className="tool-header">
                 <div className="container">
+                    <Link href="/admin" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem', display: 'inline-block', marginBottom: '12px' }}>
+                        <i className="fas fa-arrow-right" style={{ marginLeft: '6px' }}></i> חזרה ל-CRM
+                    </Link>
                     <h1>🥂 מחשבון אלכוהול חכם</h1>
                     <p>כמה בקבוקים באמת צריך לקנות? בואו נבדוק.</p>
                 </div>

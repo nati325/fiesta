@@ -1,6 +1,8 @@
 'use client';
 
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { getAdminHeaders } from '@/lib/getAdminHeaders';
 
 const CustomerContext = createContext();
 
@@ -20,45 +22,76 @@ const STATUS_OPTIONS = [
 ];
 
 export const CustomerProvider = ({ children }) => {
+  const { token, user } = useAuth();
   const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchCustomers = useCallback(() => {
+    if (!token || !user?.isAdmin) {
+      setCustomers([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    fetch('/api/customers', { headers: getAdminHeaders(false) })
+      .then(res => {
+        if (!res.ok) throw new Error('Access Denied');
+        return res.json();
+      })
+      .then(data => setCustomers(data))
+      .catch(err => {
+        setError(err.message);
+        setCustomers([]);
+      })
+      .finally(() => setLoading(false));
+  }, [token, user?.isAdmin]);
 
   useEffect(() => {
-    fetch('/api/customers')
-      .then(res => res.json())
-      .then(data => setCustomers(data))
-      .catch(() => setCustomers([]));
-  }, []);
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   const addCustomer = (customer) => {
-    fetch('/api/customers', {
+    return fetch('/api/customers', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-token': 'fiesta-secret-admin-key-2025' },
+      headers: getAdminHeaders(),
       body: JSON.stringify(customer)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('שגיאה בהוספת לקוח');
+        return res.json();
+      })
       .then(newCustomer => setCustomers(prev => [...prev, newCustomer]));
   };
 
   const updateCustomer = (id, updatedCustomer) => {
-    fetch(`/api/customers/${id}`, {
+    return fetch(`/api/customers/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'x-admin-token': 'fiesta-secret-admin-key-2025' },
+      headers: getAdminHeaders(),
       body: JSON.stringify(updatedCustomer)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('שגיאה בעדכון');
+        return res.json();
+      })
       .then(data => setCustomers(prev => prev.map(c => c.id === id ? data : c)));
   };
 
   const deleteCustomer = (id) => {
-    fetch(`/api/customers/${id}`, {
+    return fetch(`/api/customers/${id}`, {
       method: 'DELETE',
-      headers: { 'x-admin-token': 'fiesta-secret-admin-key-2025' }
+      headers: getAdminHeaders(false)
     })
-      .then(() => setCustomers(prev => prev.filter(c => c.id !== id)));
+      .then(res => {
+        if (!res.ok) throw new Error('שגיאה במחיקה');
+        setCustomers(prev => prev.filter(c => c.id !== id));
+      });
   };
 
   return (
-    <CustomerContext.Provider value={{ customers, addCustomer, updateCustomer, deleteCustomer, STATUS_OPTIONS }}>
+    <CustomerContext.Provider value={{ customers, addCustomer, updateCustomer, deleteCustomer, STATUS_OPTIONS, loading, error, refreshCustomers: fetchCustomers }}>
       {children}
     </CustomerContext.Provider>
   );

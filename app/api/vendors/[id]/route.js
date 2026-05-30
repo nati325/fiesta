@@ -3,14 +3,11 @@ import Vendor from '@/lib/models/Vendor';
 
 export const dynamic = 'force-dynamic';
 import AdminLog from '@/lib/models/AdminLog';
-
-function isAdmin(request) {
-    return true; // Bypass for now
-}
+import { isAdminRequest, adminDeniedResponse } from '@/lib/adminAuth';
 
 export async function PUT(request, { params }) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
+    if (!isAdminRequest(request)) {
+        return adminDeniedResponse();
     }
     try {
         await dbConnect();
@@ -29,8 +26,8 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-    if (!isAdmin(request)) {
-        return Response.json({ message: 'Access Denied' }, { status: 403 });
+    if (!isAdminRequest(request)) {
+        return adminDeniedResponse();
     }
     try {
         await dbConnect();

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { resolveVendorImage } from '@/lib/vendorImage';
 
 function SearchResultsContent() {
     const searchParams = useSearchParams();
@@ -12,14 +13,53 @@ function SearchResultsContent() {
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Map Hebrew search terms to vendor types
+    const hebrewTypeMap = {
+        'דיג\'יי': 'dj', 'דג\'יי': 'dj', 'תקליטן': 'dj',
+        'צלם': 'photographer', 'צילום': 'photographer', 'צלמים': 'photographer',
+        'קייטרינג': 'catering', 'אוכל': 'catering', 'מזון': 'catering',
+        'אולם': 'venue', 'גן': 'venue', 'מקום': 'venue',
+        'שמלה': 'dresses', 'שמלות': 'dresses', 'כלה': 'dresses',
+        'חליפה': 'suits', 'חליפות': 'suits', 'חתן': 'suits',
+        'איפור': 'makeup', 'מאפרת': 'makeup',
+        'שיער': 'hair', 'מספרה': 'hair', 'תסרוקת': 'hair',
+        'טבעת': 'rings', 'טבעות': 'rings', 'תכשיטים': 'rings',
+        'אלכוהול': 'alcohol', 'בר': 'alcohol', 'משקאות': 'alcohol',
+        'אטרקציות': 'attractions', 'אפקטים': 'attractions', 'זיקוקים': 'attractions',
+        'עיצוב': 'design', 'פרחים': 'design',
+        'רב': 'rabbi', 'חופה': 'rabbi',
+        'זמר': 'singers', 'להקה': 'singers', 'מוזיקה': 'singers',
+        'הזמנות': 'invitations', 'כרטיסים': 'invitations',
+        'מזכרות': 'souvenirs', 'מתנות': 'souvenirs',
+        'מלון': 'hotels', 'בית מלון': 'hotels',
+        'רכב': 'cars', 'לימוזין': 'cars', 'הסעות': 'cars',
+        'הפקה': 'event-production', 'מפיק': 'event-production',
+        'פייטן': 'cantors', 'חזן': 'cantors',
+        'נעליים': 'bride-shoes', 'נעלי כלה': 'bride-shoes',
+        'דיאטה': 'dietitians', 'תזונה': 'dietitians',
+        'כושר': 'personal-training', 'אימון': 'personal-training',
+        'רווקים': 'bachelor', 'רווקות': 'bachelor',
+    };
+
     useEffect(() => {
         fetch('/api/vendors')
             .then(res => res.json())
             .then(data => {
+                const q = query.toLowerCase().trim();
+                // Find matching type from Hebrew map
+                const mappedType = Object.entries(hebrewTypeMap).find(([heb]) =>
+                    q.includes(heb)
+                )?.[1];
+
                 const filtered = data.filter(v => {
-                    const matchesQuery = v.name.toLowerCase().includes(query.toLowerCase()) || 
-                                       v.type.toLowerCase().includes(query.toLowerCase());
-                    const matchesArea = area === 'כל הארץ' || v.region === area;
+                    if (!q) return true;
+                    const matchesName = v.name?.toLowerCase().includes(q);
+                    const matchesType = v.type?.toLowerCase().includes(q);
+                    const matchesMappedType = mappedType && v.type === mappedType;
+                    const matchesDescription = v.description?.toLowerCase().includes(q);
+                    const matchesQuery = matchesName || matchesType || matchesMappedType || matchesDescription;
+
+                    const matchesArea = area === 'כל הארץ' || !v.region || v.region === area || v.region === 'כל הארץ';
                     return matchesQuery && matchesArea;
                 });
                 setVendors(filtered);
@@ -52,7 +92,7 @@ function SearchResultsContent() {
                             >
                                 <Link href={`/vendor/${v.id}`}>
                                     <div className="card-image">
-                                        <img src={v.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80'} alt={v.name} />
+                                        <img src={resolveVendorImage(v.image)} alt={v.name} />
                                         <div className="category-tag">{v.type}</div>
                                     </div>
                                     <div className="card-info">

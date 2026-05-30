@@ -2,8 +2,12 @@ import dbConnect from '@/lib/mongodb';
 import Vendor from '@/lib/models/Vendor';
 import fs from 'fs';
 import path from 'path';
+import { guardDevRoute } from '@/lib/devRoutes';
 
 export async function GET(request) {
+    const blocked = guardDevRoute(request);
+    if (blocked) return blocked;
+
     try {
         await dbConnect();
         

@@ -1,10 +1,14 @@
+import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { NextResponse } from 'next/server';
+import { guardDevRoute } from '@/lib/devRoutes';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request) {
+    const blocked = guardDevRoute(request);
+    if (blocked) return blocked;
+
     try {
         const destDir = path.join(process.cwd(), 'public', 'invitation-templates');
         if (!fs.existsSync(destDir)) {

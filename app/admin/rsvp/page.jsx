@@ -1,10 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getAdminHeaders } from '@/lib/getAdminHeaders';
+import EventSelector from '@/components/EventSelector';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 
-export default function RSVPAdminPage() {
+function RSVPAdminContent() {
+    const router = useRouter();
+    const { eventId, rsvpPublicUrl } = useActiveEvent();
     const [rsvps, setRsvps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -46,7 +52,7 @@ export default function RSVPAdminPage() {
         
         fetchRSVPs();
         checkEligibility();
-    }, []);
+    }, [eventId]);
 
     const checkEligibility = () => {
         const status = localStorage.getItem('fiesta_customer_status');
@@ -59,8 +65,14 @@ export default function RSVPAdminPage() {
     };
 
     const fetchRSVPs = async () => {
+        if (!eventId) {
+            setRsvps([]);
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
         try {
-            const res = await fetch('/api/rsvp?eventId=test-event-123');
+            const res = await fetch(`/api/rsvp?eventId=${encodeURIComponent(eventId)}`, { headers: getAdminHeaders(false) });
             const data = await res.json();
             if (Array.isArray(data)) {
                 setRsvps(data);
@@ -121,10 +133,10 @@ export default function RSVPAdminPage() {
         try {
             const res = await fetch('/api/rsvp', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAdminHeaders(),
                 body: JSON.stringify({
                     bulk: true,
-                    eventId: 'test-event-123',
+                    eventId,
                     guests: importData
                 })
             });
@@ -141,7 +153,7 @@ export default function RSVPAdminPage() {
 
     const sendWhatsApp = async (rsvp) => {
         let template = msgTemplates[msgType];
-        const rsvpUrl = `http://localhost:3000/rsvp`;
+        const rsvpUrl = rsvpPublicUrl || `${typeof window !== 'undefined' ? window.location.origin : ''}/rsvp${eventId ? `?event=${eventId}` : ''}`;
         const wazeUrl = `https://waze.com/ul?q=test-location`;
 
         // Replace placeholders
@@ -162,7 +174,7 @@ export default function RSVPAdminPage() {
         try {
             await fetch('/api/rsvp', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAdminHeaders(),
                 body: JSON.stringify({
                     updateId: rsvp._id,
                     updateData: { 
@@ -250,6 +262,10 @@ export default function RSVPAdminPage() {
             </div>
 
             <div className="container">
+                <Suspense fallback={null}>
+                    <EventSelector />
+                </Suspense>
+
                 {!isEligible && (
                     <motion.div 
                         initial={{ opacity: 0, y: -20 }}
@@ -744,5 +760,13 @@ export default function RSVPAdminPage() {
                 }
             `}</style>
         </div>
+    );
+}
+
+export default function RSVPAdminPage() {
+    return (
+        <Suspense fallback={<div style={{ padding: '120px', textAlign: 'center' }}>טוען...</div>}>
+            <RSVPAdminContent />
+        </Suspense>
     );
 }

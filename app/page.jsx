@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import PackagesCarousel from '@/components/PackagesCarousel';
 import { useAuth } from '@/context/AuthContext';
+import { resolveVendorImage } from '@/lib/vendorImage';
 
 const SUPPLIER_GROUPS = [
     {
@@ -273,7 +274,7 @@ export default function HomePage() {
                             <div className="p-items">
                                 {vendors.filter(v => v.eventTypes?.includes(eventPreference)).slice(0, 4).map(v => (
                                     <Link href={`/vendor/${v.id}`} key={v.id} className="p-item">
-                                        <img src={v.image} alt={v.name} />
+                                        <img src={resolveVendorImage(v.image)} alt={v.name} />
                                         <div className="p-info">
                                             <strong>{v.name}</strong>
                                             <span>₪{v.price}</span>

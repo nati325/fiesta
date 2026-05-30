@@ -9,7 +9,7 @@ const SECRET_KEY = process.env.JWT_SECRET || 'fiesta-secret-admin-key-2025';
 
 export async function POST(request) {
     try {
-        const { name, email, password, isAdmin } = await request.json();
+        const { name, email, password } = await request.json();
 
         if (!name || !email || !password) {
             return Response.json({ message: 'All fields are required' }, { status: 400 });
@@ -28,7 +28,7 @@ export async function POST(request) {
             name,
             email: email.trim().toLowerCase(),
             password: hashedPassword,
-            isAdmin: isAdmin || false
+            isAdmin: false
         });
 
         const token = jwt.sign(

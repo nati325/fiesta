@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 const AuthContext = createContext();
 
@@ -12,57 +12,66 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [eventPreference, setEventPreference] = useState(null);
 
-    useEffect(() => {
-        const savedToken = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('user');
-        const savedEvent = localStorage.getItem('eventPreference');
-        if (savedEvent) setEventPreference(savedEvent);
-        setToken(savedToken);
-        if (savedUser) {
-            setUser(JSON.parse(savedUser));
+    const validateSession = useCallback(async () => {
+        try {
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.authenticated) {
+                    setUser(data.user);
+                    const savedToken = localStorage.getItem('token');
+                    setToken(savedToken);
+                    return;
+                }
+            }
+        } catch {
+            // Session invalid
         }
-        setLoading(false);
+
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
     }, []);
 
+    useEffect(() => {
+        const savedEvent = localStorage.getItem('eventPreference');
+        if (savedEvent) setEventPreference(savedEvent);
+
+        validateSession().finally(() => setLoading(false));
+    }, [validateSession]);
+
     const login = async (email, password) => {
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
 
-            if (!data.success) throw new Error(data.message);
+        if (!data.success) throw new Error(data.message);
 
-            setToken(data.token);
-            setUser(data.user);
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            return data;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        return data;
     };
 
-    const register = async (name, email, password, isAdmin = false) => {
-        try {
-            const res = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, isAdmin })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.message);
-            return data;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
+    const register = async (name, email, password) => {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        return data;
     };
 
-    const logout = () => {
+    const logout = async () => {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');
@@ -75,11 +84,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ 
-            user, token, loading, login, register, logout, 
+        <AuthContext.Provider value={{
+            user, token, loading, login, register, logout,
             isAdmin: user?.isAdmin,
             eventPreference,
-            setEventPreference: updateEventPreference
+            setEventPreference: updateEventPreference,
+            refreshSession: validateSession
         }}>
             {children}
         </AuthContext.Provider>

@@ -19,6 +19,10 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    if (pathname?.startsWith('/admin')) {
+        return null;
+    }
+
     const isActive = (path) => pathname === path ? 'active' : '';
 
     return (
