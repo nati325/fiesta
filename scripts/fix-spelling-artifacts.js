@@ -1,15 +1,13 @@
 /**
- * Fix nbsp / mojibake in already-cleaned supplier descriptions.
- * Usage: node scripts/fix-encoding-issues.js [--dry-run] [--ids 233,234]
+ * Fix known missing-letter artifacts from mojibake decode (נ lost).
+ * Usage: node scripts/fix-spelling-artifacts.js [--dry-run]
  */
 const fs = require('fs');
-const path = require('path');
 const { MongoClient } = require('mongodb');
-
 const { findSuppliersJson, findScrapingEnv } = require('./crm-data-paths');
 
 function loadEnvFile(filePath) {
-  if (!fs.existsSync(filePath)) return {};
+  if (!filePath || !fs.existsSync(filePath)) return {};
   const out = {};
   for (const line of fs.readFileSync(filePath, 'utf8').split('\n')) {
     const t = line.trim();
@@ -23,62 +21,34 @@ function loadEnvFile(filePath) {
   return out;
 }
 
-function fixMojibake(text) {
-  if (!text || !/×/.test(text)) return text;
-  try {
-    const t = text.replace(/×\s+([\u0080-\u00FF])/g, '×$1');
-    const fixed = Buffer.from(t, 'latin1').toString('utf8').replace(/\uFFFD/g, '');
-    const heBefore = (text.match(/[א-ת]/g) || []).length;
-    const heAfter = (fixed.match(/[א-ת]/g) || []).length;
-    if (heAfter > heBefore && heAfter >= 8) return fixed.replace(/\s{2,}/g, ' ').trim();
-  } catch {
-    // ignore
+const REPLACEMENTS = [
+  [/רקע ופים/g, 'רקע נופים'],
+  [/אחו רוק/g, 'אנחנו רוק'],
+  [/מרהיב וחדשי ב/g, 'מרהיב וחדשני ב'],
+  [/תאורה חדשית/g, 'תאורה חדשנית'],
+  [/סטילס ומגטים/g, 'סטילס ומגנטים'],
+  [/([\s,—–-])יסיון מוכח/g, '$1ניסיון מוכח'],
+  [/בר מצווה, חתוה, חיה/g, 'בר מצווה, חתונה, חינה'],
+];
+
+function fixDescription(text) {
+  let out = text || '';
+  for (const [pattern, replacement] of REPLACEMENTS) {
+    out = out.replace(pattern, replacement);
   }
-  return text;
-}
-
-function decodeHtmlEntities(text) {
-  if (!text) return '';
-  return text
-    .replace(/&nbsp;|&#160;|&#xA0;/gi, ' ')
-    .replace(/\bnbsp;/gi, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-}
-
-function cleanText(text) {
-  return decodeHtmlEntities(fixMojibake(text || ''))
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-}
-
-function hasIssue(text) {
-  return /\bnbsp;/i.test(text || '') || /×/.test(text || '') || /\uFFFD/.test(text || '');
+  return out.trim();
 }
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run');
-  const idsArg = process.argv.indexOf('--ids');
-  const filterIds =
-    idsArg !== -1
-      ? process.argv[idsArg + 1].split(',').map((x) => parseInt(x.trim(), 10)).filter(Boolean)
-      : null;
-
   const jsonPath = findSuppliersJson();
-  if (!jsonPath) throw new Error('suppliers_complete.json not found');
-
   const all = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-  let fixed = 0;
   const fixedIds = [];
 
   for (const s of all) {
-    if (filterIds && !filterIds.includes(s.id)) continue;
-    if (!hasIssue(s.description)) continue;
-
-    const before = s.description;
-    const after = cleanText(before);
-    if (after === before || after.length < 12) continue;
+    const before = s.description || '';
+    const after = fixDescription(before);
+    if (after === before) continue;
 
     console.log(`[${s.id}] ${(s.clean_name || s.name || '').split('|')[0].trim()}`);
     console.log(`  BEFORE: ${before.slice(0, 90)}`);
@@ -89,12 +59,11 @@ async function main() {
       s.contentCleanVersion = 5;
       fixedIds.push(s.id);
     }
-    fixed += 1;
   }
 
-  if (!dryRun && fixed) {
+  if (!dryRun && fixedIds.length) {
     fs.writeFileSync(jsonPath, JSON.stringify(all, null, 2), 'utf8');
-    console.log(`\nעודכן ${fixed} תיאורים ב-${jsonPath}`);
+    console.log(`\nעודכן ${fixedIds.length} תיאורים ב-${jsonPath}`);
 
     const env = loadEnvFile(findScrapingEnv());
     if (env.MONGODB_URI) {
@@ -116,7 +85,7 @@ async function main() {
       console.log(`MongoDB: ${mongo} עודכנו`);
     }
   } else {
-    console.log(`\n${dryRun ? 'dry-run: ' : ''}נמצאו ${fixed} תיאורים לתיקון`);
+    console.log(`\n${dryRun ? 'dry-run: ' : ''}${fixedIds.length || 0} תיאורים לתיקון`);
   }
 }
 

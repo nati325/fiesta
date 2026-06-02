@@ -320,9 +320,12 @@ function decodeHtmlEntities(text) {
 function hasGluedHebrew(text) {
   const t = (text || '').trim();
   if (t.length < 50) return false;
-  const he = (t.match(/[א-ת]/g) || []).length;
+  const heChars = t.match(/[א-ת]/g) || [];
+  const he = heChars.length;
   const spaces = (t.match(/\s/g) || []).length;
-  return he >= 40 && spaces < Math.max(4, he / 12);
+  if (he < 40 || spaces >= Math.max(4, he / 12)) return false;
+  if (new Set(heChars).size < 8) return false;
+  return true;
 }
 
 function hasBrokenEncoding(text) {

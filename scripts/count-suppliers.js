@@ -21,23 +21,17 @@ function loadEnv(filePath) {
   }
 }
 
+const { findSuppliersJson, findScrapingEnv } = require('./crm-data-paths');
+
 loadEnv(path.join(__dirname, '..', '.env'));
-const scrapingEnv = path.join(__dirname, '..', '..', '..', '‏‏scarping_for_fiesta - עותק', '.env.local');
-loadEnv(scrapingEnv);
+const scrapingEnv = findScrapingEnv();
+if (scrapingEnv) loadEnv(scrapingEnv);
 
 async function main() {
-  const scrapingJson = path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    '‏‏scarping_for_fiesta - עותק',
-    'data',
-    'suppliers_complete.json'
-  );
+  const scrapingJson = findSuppliersJson();
   if (fs.existsSync(scrapingJson)) {
     const arr = JSON.parse(fs.readFileSync(scrapingJson, 'utf8'));
-    console.log('suppliers_complete.json:', arr.length);
+    console.log('suppliers_complete.json:', arr.length, '→', scrapingJson);
   }
 
   const fiestaUri = process.env.MONGODB_URI || process.env.FIESTA_MONGODB_URI;

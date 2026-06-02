@@ -88,7 +88,7 @@ function needsReviewWork(v) {
   return reviews.some((r) => reviewNeedsWork(r));
 }
 
-const jsonPath = path.join(__dirname, '..', '..', '..', '‏‏scarping_for_fiesta - עותק', 'data', 'suppliers_complete.json');
+const jsonPath = require('./crm-data-paths').findSuppliersJson();
 const arr = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
 let descIssues = 0;
