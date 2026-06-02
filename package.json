@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean-vendors": "node scripts/clean-vendor-content.js",
+    "clean-vendors:dry": "node scripts/clean-vendor-content.js --dry-run --limit 5",
+    "test-gemini": "node scripts/test-gemini-key.js",
+    "test-gemini:models": "node scripts/test-gemini-key.js --list-models",
+    "clean-vendors:scan": "node scripts/clean-vendor-content.js --scan --force --limit 100"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

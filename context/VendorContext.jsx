@@ -53,10 +53,14 @@ export const VendorProvider = ({ children }) => {
                 if (!res.ok) throw new Error('Auth failed');
                 return res.json();
             })
-            .then(newVendor => setVendors(prev => [...prev, newVendor]))
+            .then(newVendor => {
+                setVendors(prev => [...prev, newVendor]);
+                return newVendor;
+            })
             .catch(err => {
                 console.error('Add vendor error:', err);
                 alert(`שגיאה בהוספת ספק: ${err.message}`);
+                throw err;
             });
     };
 
@@ -88,8 +92,14 @@ export const VendorProvider = ({ children }) => {
                 if (!res.ok) throw new Error('Update failed');
                 return res.json();
             })
-            .then(data => setVendors(prev => prev.map(v => v.id === id ? data : v)))
-            .catch(err => alert('שגיאה בעדכון הספק'));
+            .then(data => {
+                setVendors(prev => prev.map(v => v.id === id ? data : v));
+                return data;
+            })
+            .catch(err => {
+                alert('שגיאה בעדכון הספק');
+                throw err;
+            });
     };
 
     const getVendorsByType = (type) => vendors.filter(v => v.type === type);

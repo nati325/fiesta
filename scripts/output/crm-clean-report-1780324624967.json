@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "name": "סיה",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 4
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "וואלי",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 5
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "מתחם החמאם",
+    "updates": [
+      {
+        "field": "description",
+        "mode": "preserve",
+        "before": "חתונה חינה מתחם החמאם since 1724 המתחם היוקרתי והאלגנטי הוא גם מבנה שמור ארכיאולוגית עם אלמנטים שנשמ",
+        "after": "מתחם החמאם, מאז 1724, הוא מבנה ארכיאולוגי יוקרתי ואלגנטי עם אלמנטים עות'מאניים, תקרות גבוהות וקשתות "
+      },
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 5
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "אוריאנה",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 5
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "גני כנען",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 4
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "מפלים",
+    "updates": [
+      {
+        "field": "description",
+        "mode": "preserve",
+        "before": "035224422 Rain מתחם האירועים בראשון לציון השאירו פרטים והכירו את הצוות שקם כל בוקר עם מטרה אחת ברורה",
+        "after": "מתחם האירועים Rain בראשון לציון מציע חווית אירוע אורבנית וחדשה במרכז. הצוות מחויב לאירועים בראש שקט,"
+      },
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 4
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "שלוש הבית לאירועים",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 5
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "אלגריה",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 5
+      }
+    ]
+  }
+]

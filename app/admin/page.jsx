@@ -2,13 +2,22 @@
 
 import Link from 'next/link';
 import { useCustomers } from '@/context/CustomerContext';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useVendors } from '@/context/VendorContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getAdminHeaders } from '@/lib/getAdminHeaders';
+import { VENDOR_CATEGORIES, getCategoryLabel } from '@/lib/vendorCategories';
+import AdminNav from '@/components/admin/AdminNav';
+import FileUploadField from '@/components/admin/FileUploadField';
+import {
+    DOCUMENT_ACCEPT,
+    uploadVendorFile,
+    calculateClientPrice,
+    buildVendorPayload,
+} from '@/lib/vendorFormUtils';
 
 const EMPTY_VENDOR_FORM = {
     name: '',
@@ -36,60 +45,9 @@ const EMPTY_VENDOR_FORM = {
     mainProductId: ''
 };
 
-const VENDOR_CATEGORIES = [
-    { value: 'venue', label: 'אולם / גן אירועים' },
-    { value: 'design', label: 'עיצוב אירועים' },
-    { value: 'catering', label: 'קייטרינג' },
-    { value: 'bar', label: 'שירותי בר' },
-    { value: 'photography', label: 'צילום' },
-    { value: 'music', label: 'מוזיקה / DJ' },
-    { value: 'suits', label: 'חליפות חתן' },
-    { value: 'dresses', label: 'שמלות כלה' },
-    { value: 'makeup', label: 'איפור' },
-    { value: 'alcohol', label: 'בר אלכוהול' },
-    { value: 'family-vip', label: 'קרוב ללב - VIP למשפחה' }
-];
-
 const EVENT_TYPES = [
     'חתונה', 'בר מצווה', 'בת מצווה', 'ברית', 'בריתה', 'אירוע עסקי', 'יום הולדת'
 ];
-
-const DOCUMENT_ACCEPT = '.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.heic,.gif,.txt,.xls,.xlsx';
-
-function FileUploadField({ label, hint, accept, uploading, fileName, previewUrl, onFileSelect, icon = 'fa-cloud-upload-alt' }) {
-    const inputRef = useRef(null);
-    const isImagePreview = previewUrl && /\.(jpg|jpeg|png|webp|gif)$/i.test(previewUrl);
-
-    return (
-        <div className="file-upload-field">
-            <label>{label}</label>
-            {hint && <span className="file-upload-hint">{hint}</span>}
-            <div className="file-upload-card" onClick={() => !uploading && inputRef.current?.click()}>
-                {isImagePreview ? (
-                    <img src={previewUrl} alt="" className="file-upload-preview" />
-                ) : fileName ? (
-                    <div className="file-upload-file-info">
-                        <i className={`fas ${/\.pdf$/i.test(fileName) ? 'fa-file-pdf' : 'fa-file-alt'}`}></i>
-                        <span>{fileName}</span>
-                    </div>
-                ) : (
-                    <div className="file-upload-empty">
-                        <i className={`fas ${icon}`}></i>
-                        <span>לחצו לבחירת קובץ מהמחשב</span>
-                    </div>
-                )}
-                {uploading && <div className="upload-overlay">מעלה...</div>}
-                <input
-                    ref={inputRef}
-                    type="file"
-                    accept={accept}
-                    onChange={onFileSelect}
-                    style={{ display: 'none' }}
-                />
-            </div>
-        </div>
-    );
-}
 
 const StatCard = ({ count, label, icon, color, bg }) => (
     <div className="crm-stat-card">
@@ -118,6 +76,8 @@ export default function AdminPage() {
     const [agreementUploading, setAgreementUploading] = useState(false);
     const [agreementFileName, setAgreementFileName] = useState('');
     const [showVendorAdvanced, setShowVendorAdvanced] = useState(false);
+    const [legacyTypeCount, setLegacyTypeCount] = useState(null);
+    const [patchingTypes, setPatchingTypes] = useState(false);
     const [vendorForm, setVendorForm] = useState({ ...EMPTY_VENDOR_FORM });
     const [customerForm, setCustomerForm] = useState({ 
         name: '', 
@@ -143,6 +103,33 @@ export default function AdminPage() {
     useEffect(() => {
         fetchStats();
     }, []);
+
+    useEffect(() => {
+        if (activeTab !== 'vendors') return;
+        fetch('/api/patch-vendor-types', { headers: getAdminHeaders(false) })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => setLegacyTypeCount(data?.total ?? 0))
+            .catch(() => setLegacyTypeCount(0));
+    }, [activeTab]);
+
+    const patchLegacyVendorTypes = async () => {
+        if (!confirm('לתקן ספקים עם קטגוריות ישנות (photography → photographer, music → dj)?')) return;
+        setPatchingTypes(true);
+        try {
+            const res = await fetch('/api/patch-vendor-types', {
+                method: 'POST',
+                headers: getAdminHeaders(),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'שגיאה');
+            alert(data.message);
+            setLegacyTypeCount(0);
+        } catch (err) {
+            alert(err.message || 'שגיאה בתיקון קטגוריות');
+        } finally {
+            setPatchingTypes(false);
+        }
+    };
 
     const todayKey = useMemo(() => new Date().toDateString(), []);
 
@@ -192,30 +179,17 @@ export default function AdminPage() {
         setShowVendorAdvanced(false);
     };
 
-    const calculateClientPrice = (form = vendorForm) => {
-        const orig = Number(form.originalPrice) || 0;
-        const disc = Number(form.discount) || 0;
-        if (form.discountType === 'percent') {
-            return orig - (orig * (disc / 100));
-        }
-        return orig - disc;
-    };
-
-    const uploadVendorFile = async (file, uploadType) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', uploadType);
-
-        const res = await fetch('/api/upload', {
-            method: 'POST',
-            headers: getAdminHeaders(false),
-            body: formData
+    const updatePricingField = (field, value) => {
+        setVendorForm(prev => {
+            const next = { ...prev, [field]: value };
+            if (field === 'originalPrice' || field === 'discount' || field === 'discountType') {
+                const calculated = calculateClientPrice(next);
+                if (calculated > 0) {
+                    next.price = String(Math.round(calculated));
+                }
+            }
+            return next;
         });
-        const data = await res.json();
-        if (!res.ok || !data.url) {
-            throw new Error(data.error || 'שגיאה בהעלאה');
-        }
-        return data;
     };
 
     const handleVendorSubmit = (e) => {
@@ -226,22 +200,23 @@ export default function AdminPage() {
             return;
         }
 
-        if (!vendorForm.googleReviewsLink) {
-            alert('חובה להזין קישור לביקורות בגוגל עבור הספק');
-            return;
+        if (!vendorForm.googleReviewsLink?.trim()) {
+            const skip = confirm('לא הוזן קישור לביקורות בגוגל.\nלהמשיך בכל זאת?');
+            if (!skip) return;
         }
 
-        const payload = { ...vendorForm };
-        if (!payload.price && payload.originalPrice) {
-            payload.price = String(Math.round(calculateClientPrice(payload)));
-        }
+        const payload = buildVendorPayload(vendorForm);
 
-        if (editingVendor) {
-            updateVendor(editingVendor.id, payload);
-        } else {
-            addVendor(payload);
-        }
-        resetVendorForm();
+        const submit = editingVendor
+            ? updateVendor(editingVendor.id, payload)
+            : addVendor(payload);
+
+        submit
+            .then(() => {
+                resetVendorForm();
+                alert(editingVendor ? '✅ הספק עודכן בהצלחה' : '✅ הספק נוסף בהצלחה לאתר');
+            })
+            .catch(() => {});
     };
 
     const sendVendorAvailabilityCheck = (vendor) => {
@@ -394,25 +369,15 @@ export default function AdminPage() {
 
     return (
         <div className="admin-root" dir="rtl">
-            <nav className="crm-nav">
-                <div className="crm-nav-container">
-                    <div className="crm-logo">
-                        <span className="fiesta-brand">FIESTA</span>
-                        <span className="admin-tag">ADMIN CRM</span>
-                    </div>
-                    <div className="crm-nav-links">
-                        <button className={activeTab === 'vendors' ? 'active' : ''} onClick={() => setActiveTab('vendors')}>ניהול ספקים</button>
-                        <button className={activeTab === 'customers' ? 'active' : ''} onClick={() => setActiveTab('customers')}>ניהול לקוחות</button>
-                        <button className={activeTab === 'stats' ? 'active' : ''} onClick={() => setActiveTab('stats')}>ביצועים וסטטיסטיקה</button>
-                        <Link href="/admin/rsvp" className="nav-btn-special">אישורי הגעה ✨</Link>
-                        <Link href="/admin/tools/alcohol" className="nav-btn-special">מחשבון אלכוהול 🥂</Link>
-                    </div>
-                    <div className="crm-user">
-                        <span>שלום, {user?.email}</span>
-                        <button onClick={handleLogout} className="btn-logout">התנתק</button>
-                    </div>
-                </div>
-            </nav>
+            <AdminNav
+                user={user}
+                onLogout={handleLogout}
+                tabs={[
+                    { id: 'vendors', label: 'ניהול ספקים', onClick: () => setActiveTab('vendors'), active: activeTab === 'vendors' },
+                    { id: 'customers', label: 'ניהול לקוחות', onClick: () => setActiveTab('customers'), active: activeTab === 'customers' },
+                    { id: 'stats', label: 'ביצועים וסטטיסטיקה', onClick: () => setActiveTab('stats'), active: activeTab === 'stats' },
+                ]}
+            />
 
             <main className="crm-main">
                 <div className="crm-stats-row">
@@ -425,7 +390,7 @@ export default function AdminPage() {
                 {(activeTab === 'vendors' || activeTab === 'customers') && (
                 <>
                 {/* Daily Admin Alerts Section */}
-                <div style={{ marginBottom: '30px' }}>
+                <div className="admin-daily-alerts" style={{ marginBottom: '30px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
                         <h3 style={{ margin: 0, fontSize: '1.4rem', color: '#1e293b' }}>
                             <i className="fas fa-calendar-day" style={{ color: '#e74c3c', marginLeft: '10px' }}></i>
@@ -457,7 +422,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Daily Meetings Alerts Section */}
-                <div style={{ marginBottom: '30px' }}>
+                <div className="admin-daily-alerts" style={{ marginBottom: '30px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
                         <h3 style={{ margin: 0, fontSize: '1.4rem', color: '#1e293b' }}>
                             <i className="fas fa-comments" style={{ color: '#3498db', marginLeft: '10px' }}></i>
@@ -493,6 +458,21 @@ export default function AdminPage() {
                 <AnimatePresence mode="wait">
                     {activeTab === 'vendors' && (
                         <motion.div key="vendors_crm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                            <div className="admin-vendor-toolbar">
+                                <Link href="/admin/add-vendor" className="btn-primary admin-quick-add-link">
+                                    📱 הוספה מהירה מהטלפון
+                                </Link>
+                                {legacyTypeCount > 0 && (
+                                    <button
+                                        type="button"
+                                        className="btn-secondary"
+                                        onClick={patchLegacyVendorTypes}
+                                        disabled={patchingTypes}
+                                    >
+                                        {patchingTypes ? 'מתקן...' : `🔧 תקן ${legacyTypeCount} קטגוריות ישנות`}
+                                    </button>
+                                )}
+                            </div>
                             <div className="crm-card">
                                 <h3>{editingVendor ? 'עריכת ספק' : 'הוספת ספק חדש'}</h3>
                                 <form onSubmit={handleVendorSubmit} className="vendor-form-simple">
@@ -517,6 +497,9 @@ export default function AdminPage() {
                                             <div className="crm-input-group">
                                                 <label>{vendorForm.type === 'venue' ? 'טלפון מנהל האולם *' : 'טלפון (סודי)'}</label>
                                                 <input
+                                                    type="tel"
+                                                    inputMode="tel"
+                                                    autoComplete="tel"
                                                     value={vendorForm.contact}
                                                     onChange={e => setVendorForm({ ...vendorForm, contact: e.target.value })}
                                                     placeholder="050-1234567"
@@ -524,12 +507,13 @@ export default function AdminPage() {
                                                 />
                                             </div>
                                             <div className="crm-input-group span-2">
-                                                <label>קישור לביקורות בגוגל *</label>
+                                                <label>קישור לביקורות בגוגל (מומלץ)</label>
                                                 <input
+                                                    type="url"
+                                                    inputMode="url"
                                                     value={vendorForm.googleReviewsLink}
                                                     onChange={e => setVendorForm({ ...vendorForm, googleReviewsLink: e.target.value })}
                                                     placeholder="https://g.page/..."
-                                                    required
                                                 />
                                             </div>
                                         </div>
@@ -568,8 +552,9 @@ export default function AdminPage() {
                                         <div className="vendor-files-row">
                                             <FileUploadField
                                                 label="תמונת הספק"
-                                                hint="JPG, PNG — אופציונלי"
+                                                hint="צלמו מהטלפון או העלו מהגלריה"
                                                 accept="image/*"
+                                                showCamera
                                                 uploading={imageUploading}
                                                 fileName={vendorForm.image && !imagePreview ? 'תמונה הועלתה' : ''}
                                                 previewUrl={imagePreview || vendorForm.image}
@@ -579,8 +564,9 @@ export default function AdminPage() {
                                             <div>
                                                 <FileUploadField
                                                     label="הסכם / מסמך"
-                                                    hint="PDF, Word, תמונה — כל סוג קובץ"
+                                                    hint="צלמו את החוזה, או העלו PDF / Word"
                                                     accept={DOCUMENT_ACCEPT}
+                                                    showCamera
                                                     uploading={agreementUploading}
                                                     fileName={agreementFileName}
                                                     previewUrl={vendorForm.agreementImage}
@@ -685,8 +671,8 @@ export default function AdminPage() {
                                         </div>
                                     )}
 
-                                    <div className="crm-form-actions" style={{ gridColumn: 'unset', borderTop: '1px solid #f0f0f0', paddingTop: '16px', marginTop: 0 }}>
-                                        <button type="submit" className="btn-primary">{editingVendor ? 'עדכן ספק' : 'שמור ספק חדש'}</button>
+                                    <div className="crm-form-actions vendor-form-sticky-actions" style={{ gridColumn: 'unset', borderTop: '1px solid #f0f0f0', paddingTop: '16px', marginTop: 0 }}>
+                                        <button type="submit" className="btn-primary btn-mobile-full">{editingVendor ? 'עדכן ספק' : 'שמור ספק חדש'}</button>
                                         {editingVendor && <button type="button" onClick={resetVendorForm} className="btn-secondary">ביטול עריכה</button>}
                                     </div>
                                 </form>
@@ -728,7 +714,7 @@ export default function AdminPage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><span className="crm-badge crm-badge-info">{VENDOR_CATEGORIES.find(c => c.value === v.type)?.label}</span></td>
+                                        <td><span className="crm-badge crm-badge-info">{getCategoryLabel(v.type)}</span></td>
                                         <td style={{ fontWeight: 600, color: '#4a90e2' }}>
                                             {v.contact || 'לא הוזן'}
                                         </td>

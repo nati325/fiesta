@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "name": "סיה",
+    "updates": [
+      {
+        "field": "reviews",
+        "beforeCount": 5,
+        "afterCount": 2
+      }
+    ]
+  }
+]

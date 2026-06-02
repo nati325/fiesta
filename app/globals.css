@@ -2420,3 +2420,219 @@ body.admin-mode .whatsapp-float-compact {
         font-size: 0.9rem !important;
     }
 }
+
+/* ============================================================
+   FIESTA ADMIN — Mobile vendor management
+   ============================================================ */
+
+.file-upload-mobile-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.file-upload-mobile-btn {
+    flex: 1;
+    min-width: 130px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+    color: #1a1a1a;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: var(--font-main);
+}
+
+.file-upload-mobile-btn.secondary {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+.file-upload-mobile-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    body.admin-mode .crm-nav {
+        padding: 12px 0;
+    }
+
+    body.admin-mode .crm-nav-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 0 14px;
+    }
+
+    body.admin-mode .crm-nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    body.admin-mode .crm-nav-links button,
+    body.admin-mode .crm-nav-links .nav-btn-special {
+        padding: 8px 12px;
+        font-size: 0.78rem;
+    }
+
+    body.admin-mode .crm-user {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.8rem;
+    }
+
+    body.admin-mode .crm-main {
+        padding: 16px 12px 110px;
+    }
+
+    body.admin-mode .crm-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    body.admin-mode .crm-stat-card {
+        padding: 14px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+
+    body.admin-mode .crm-stat-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+
+    body.admin-mode .crm-stat-info h4 {
+        font-size: 0.72rem;
+    }
+
+    body.admin-mode .crm-stat-info .count {
+        font-size: 1.25rem;
+    }
+
+    body.admin-mode .admin-daily-alerts {
+        display: none;
+    }
+
+    body.admin-mode .crm-card {
+        padding: 18px 14px;
+        border-radius: 16px;
+    }
+
+    body.admin-mode .crm-input-group input,
+    body.admin-mode .crm-input-group select,
+    body.admin-mode .crm-input-group textarea {
+        font-size: 16px;
+        min-height: 44px;
+    }
+
+    body.admin-mode .file-upload-card {
+        min-height: 110px;
+    }
+
+    body.admin-mode .vendor-form-sticky-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 100;
+        background: #fff;
+        margin-left: -14px;
+        margin-right: -14px;
+        padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+        border-top: 1px solid #e2e8f0;
+    }
+
+    body.admin-mode .btn-mobile-full {
+        width: 100%;
+        min-height: 48px;
+        font-size: 1rem;
+    }
+
+    body.admin-mode .vendor-advanced-panel label[style*="grid-template-columns"] {
+        display: block !important;
+    }
+
+    body.admin-mode .vendor-advanced-panel div[style*="repeat(3, 1fr)"] {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* Quick add vendor page */
+.quick-add-vendor .crm-main {
+    max-width: 640px;
+}
+
+.quick-add-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.quick-add-header h1 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin: 0 0 6px;
+    color: #1e293b;
+}
+
+.quick-add-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.quick-add-back-link {
+    white-space: nowrap;
+    padding: 10px 16px;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.quick-add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-vendor-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.admin-quick-add-link {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+body.admin-mode .crm-nav-links a.nav-btn-special.active {
+    background: var(--primary-color);
+    color: #111;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+}
