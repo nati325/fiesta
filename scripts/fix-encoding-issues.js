@@ -41,7 +41,7 @@ function loadEnvFile(filePath) {
 function fixMojibake(text) {
   if (!text || !/×/.test(text)) return text;
   try {
-    let t = text.replace(/×\s+/g, '×').replace(/\s+(?=×)/g, '');
+    const t = text.replace(/×\s+([\u0080-\u00FF])/g, '×$1');
     const fixed = Buffer.from(t, 'latin1').toString('utf8').replace(/\uFFFD/g, '');
     const heBefore = (text.match(/[א-ת]/g) || []).length;
     const heAfter = (fixed.match(/[א-ת]/g) || []).length;

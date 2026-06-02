@@ -286,7 +286,8 @@ function preCleanText(text) {
 function fixMojibake(text) {
   if (!text || !/×/.test(text)) return text;
   try {
-    const t = text.replace(/×\s+/g, '×').replace(/\s+(?=×)/g, '');
+    // Only collapse spaces *inside* a mojibake byte (× + continuation), not word spaces before ×
+    const t = text.replace(/×\s+([\u0080-\u00FF])/g, '×$1');
     const fixed = Buffer.from(t, 'latin1').toString('utf8').replace(/\uFFFD/g, '');
     const heBefore = (text.match(/[א-ת]/g) || []).length;
     const heAfter = (fixed.match(/[א-ת]/g) || []).length;
@@ -316,11 +317,20 @@ function decodeHtmlEntities(text) {
     });
 }
 
+function hasGluedHebrew(text) {
+  const t = (text || '').trim();
+  if (t.length < 50) return false;
+  const he = (t.match(/[א-ת]/g) || []).length;
+  const spaces = (t.match(/\s/g) || []).length;
+  return he >= 40 && spaces < Math.max(4, he / 12);
+}
+
 function hasBrokenEncoding(text) {
   const t = text || '';
   if (/\uFFFD/.test(t)) return true;
   if (/\bnbsp;/i.test(t)) return true;
   if (/×[\u0080-\u00FF]/.test(t)) return true;
+  if (hasGluedHebrew(t)) return true;
   return false;
 }
 
@@ -334,14 +344,24 @@ function loadPreCleanBackupMap() {
   const files = fs
     .readdirSync(outDir)
     .filter((f) => f.startsWith('crm-pre-clean-backup-') && f.endsWith('.json'))
-    .map((f) => ({ f, m: fs.statSync(path.join(outDir, f)).mtimeMs }))
-    .sort((a, b) => b.m - a.m);
+    .map((f) => path.join(outDir, f));
   const map = new Map();
-  for (const { f } of files) {
+
+  function score(desc) {
+    if (!desc) return -1;
+    if (/×[\u0080-\u00FF]/.test(desc)) return 100;
+    if (/\uFFFD/.test(desc)) return 0;
+    if (hasGluedHebrew(desc)) return 10;
+    return 50;
+  }
+
+  for (const filePath of files) {
     try {
-      const batch = JSON.parse(fs.readFileSync(path.join(outDir, f), 'utf8'));
+      const batch = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       for (const s of batch) {
-        if (s.id != null && s.description && !map.has(s.id)) map.set(s.id, s.description);
+        if (s.id == null || !s.description) continue;
+        const prev = map.get(s.id);
+        if (!prev || score(s.description) > score(prev)) map.set(s.id, s.description);
       }
     } catch {
       // skip bad backup
@@ -352,9 +372,10 @@ function loadPreCleanBackupMap() {
 
 function resolveDescriptionSource(s, backupMap) {
   const current = s.description || '';
-  if (!/\uFFFD/.test(current)) return current;
   const fromBackup = backupMap.get(s.id);
-  if (fromBackup && /×/.test(fromBackup)) return fromBackup;
+  if (!fromBackup) return current;
+  if (/\uFFFD/.test(current)) return fromBackup;
+  if (/×/.test(fromBackup) && hasGluedHebrew(current)) return fromBackup;
   return current;
 }
 
@@ -593,7 +614,7 @@ function needsReviewWork(s) {
 function describeDescriptionIssue(desc) {
   const text = (desc || '').trim();
   if (!text) return 'אין תיאור';
-  if (hasBrokenEncoding(text)) return 'encoding שבור (×/nbsp/�)';
+  if (hasBrokenEncoding(text)) return 'encoding שבור (×/nbsp/�/רווחים)';
   if (isGenericDescription(text)) return 'תיאור גנרי/AI';
   if (hasScrapingJunk(text)) return 'לכלוך שליפה';
   if (hasCTA(text)) return 'קריאה לפעולה (CTA)';
