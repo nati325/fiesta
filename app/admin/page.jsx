@@ -210,11 +210,6 @@ function AdminPageInner() {
             return;
         }
 
-        if (!vendorForm.googleReviewsLink?.trim()) {
-            const skip = confirm('לא הוזן קישור לביקורות בגוגל.\nלהמשיך בכל זאת?');
-            if (!skip) return;
-        }
-
         const payload = buildVendorPayload(vendorForm);
 
         const submit = editingVendor
@@ -509,16 +504,6 @@ function AdminPageInner() {
                                                     onChange={e => setVendorForm({ ...vendorForm, contact: e.target.value })}
                                                     placeholder="050-1234567"
                                                     required={vendorForm.type === 'venue'}
-                                                />
-                                            </div>
-                                            <div className="crm-input-group span-2">
-                                                <label>קישור לביקורות בגוגל (מומלץ)</label>
-                                                <input
-                                                    type="url"
-                                                    inputMode="url"
-                                                    value={vendorForm.googleReviewsLink}
-                                                    onChange={e => setVendorForm({ ...vendorForm, googleReviewsLink: e.target.value })}
-                                                    placeholder="https://g.page/..."
                                                 />
                                             </div>
                                         </div>

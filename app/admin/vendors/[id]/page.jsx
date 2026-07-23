@@ -298,15 +298,6 @@ export default function EditVendorPage() {
             </div>
           </div>
 
-          <div className="crm-input-group">
-            <label>קישור Google Reviews</label>
-            <input
-              type="url"
-              value={form.googleReviewsLink}
-              onChange={(e) => setForm({ ...form, googleReviewsLink: e.target.value })}
-            />
-          </div>
-
           <div className="vendor-files-row">
             <FileUploadField
               label="תמונת הספק"

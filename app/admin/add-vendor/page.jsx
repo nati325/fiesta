@@ -100,11 +100,6 @@ export default function QuickAddVendorPage() {
       return;
     }
 
-    if (!form.googleReviewsLink?.trim()) {
-      const skip = confirm('לא הוזן קישור לביקורות בגוגל.\nלהמשיך בכל זאת?');
-      if (!skip) return;
-    }
-
     if (!form.agreementImage) {
       const skip = confirm('לא הועלה חוזה / צילום שיחה.\nלהמשיך בכל זאת בלי חוזה?');
       if (!skip) return;
@@ -217,17 +212,6 @@ export default function QuickAddVendorPage() {
                 placeholder="עמלה"
               />
             </div>
-          </div>
-
-          <div className="crm-input-group">
-            <label>קישור Google (מומלץ)</label>
-            <input
-              type="url"
-              inputMode="url"
-              value={form.googleReviewsLink}
-              onChange={(e) => setForm({ ...form, googleReviewsLink: e.target.value })}
-              placeholder="https://g.page/..."
-            />
           </div>
 
           <div className="vendor-files-row">
