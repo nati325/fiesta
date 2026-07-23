@@ -22,33 +22,20 @@ const Navbar = () => {
     if (pathname?.startsWith('/admin')) {
         return null;
     }
+    if (pathname === '/design-invitation' || pathname?.startsWith('/design-invitation/')) {
+        return null;
+    }
 
     const isActive = (path) => pathname === path ? 'active' : '';
 
     return (
         <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
             <div className="header-container">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="header-brand-row">
                     <Link href="/" className="logo" style={{ textDecoration: 'none' }}>
                         <h1>Fiesta</h1>
-                        <span className="tagline">הפקת אירועים בסטייל</span>
+                        <span className="tagline">הפקת אירועים</span>
                     </Link>
-                    <div style={{
-                        background: 'rgba(212, 175, 55, 0.1)',
-                        color: '#D4AF37',
-                        padding: '4px 10px',
-                        borderRadius: '6px',
-                        fontSize: '0.7rem',
-                        fontWeight: '800',
-                        border: '1px solid rgba(212, 175, 55, 0.3)',
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                    }}>
-                        <i className="fas fa-gift"></i>
-                        שירות חינם
-                    </div>
                 </div>
 
                 <div className="nav-search-trigger" onClick={() => setSearchModalOpen(true)}>
@@ -59,31 +46,39 @@ const Navbar = () => {
                 <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
                 <style jsx>{`
-                    .nav-search-trigger {
+                    .header-brand-row {
                         display: flex;
                         align-items: center;
                         gap: 12px;
-                        background: rgba(212, 175, 55, 0.08);
-                        border: 1px solid rgba(212, 175, 55, 0.2);
-                        padding: 10px 25px;
-                        border-radius: 50px;
+                        min-width: 0;
+                    }
+                    .nav-search-trigger {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        background: var(--off-white);
+                        border: 1px solid var(--border-color);
+                        padding: 10px 18px;
+                        border-radius: 8px;
                         cursor: pointer;
-                        transition: all 0.2s;
-                        color: #666;
-                        font-weight: 600;
+                        transition: border-color 0.2s;
+                        color: var(--text-light);
+                        font-weight: 500;
                         margin: 0 20px;
+                        font-size: 0.9rem;
                     }
                     .nav-search-trigger:hover {
-                        background: rgba(212, 175, 55, 0.15);
                         border-color: var(--primary-color);
-                        transform: translateY(-1px);
+                        color: var(--text-dark);
                     }
                     .nav-search-trigger i {
-                        color: var(--primary-color);
-                        font-size: 1.1rem;
+                        color: var(--text-dark);
+                        font-size: 0.95rem;
+                        opacity: 0.7;
                     }
                     @media (max-width: 900px) {
                         .nav-search-trigger { display: none; }
+                        .tagline { display: none; }
                     }
                 `}</style>
 
@@ -91,18 +86,12 @@ const Navbar = () => {
                     <ul>
                         <li><Link href="/" className={isActive('/')}>ראשי</Link></li>
                         <li>
-                            <Link href="/design-invitation" className={isActive('/design-invitation')} style={{
-                                display: 'flex', alignItems: 'center', gap: '6px',
-                            }}>
-                                <i className="fas fa-envelope-open-text" style={{ color: '#D4AF37', fontSize: '0.85rem' }}></i>
+                            <Link href="/design-invitation" className={isActive('/design-invitation')}>
                                 עיצוב הזמנות
                             </Link>
                         </li>
                         <li>
-                            <Link href="/budget-planner" className={isActive('/budget-planner')} style={{
-                                display: 'flex', alignItems: 'center', gap: '6px',
-                            }}>
-                                <i className="fas fa-calculator" style={{ color: '#D4AF37', fontSize: '0.85rem' }}></i>
+                            <Link href="/budget-planner" className={isActive('/budget-planner')}>
                                 מחשבון תקציב
                             </Link>
                         </li>
@@ -184,16 +173,14 @@ const Navbar = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '6px',
-                                            background: 'linear-gradient(135deg, #D4AF37, #b8952a)',
+                                            background: 'var(--charcoal)',
                                             color: 'white',
-                                            padding: '7px 16px',
-                                            borderRadius: '20px',
+                                            padding: '7px 14px',
+                                            borderRadius: '6px',
                                             textDecoration: 'none',
-                                            fontWeight: '700',
+                                            fontWeight: '600',
                                             fontSize: '0.85rem',
-                                            boxShadow: '0 2px 8px rgba(212,175,55,0.4)'
                                         }}>
-                                            <i className="fas fa-shield-halved"></i>
                                             ניהול
                                         </Link>
                                     )}
@@ -202,10 +189,10 @@ const Navbar = () => {
                                         display: 'flex', 
                                         alignItems: 'center', 
                                         gap: '8px',
-                                        color: '#e74c3c' 
+                                        color: 'var(--text-light)',
+                                        fontSize: '0.9rem',
                                     }}>
-                                        <span>התנתק ({user.name})</span>
-                                        <i className="fas fa-sign-out-alt"></i>
+                                        <span>התנתק</span>
                                     </div>
                                 </div>
                             )}
@@ -244,10 +231,10 @@ const Navbar = () => {
                         <span>חיפוש ספקים ואנשי מקצוע לאירוע</span>
                     </div>
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-home"></i> דף הבית</Link>
-                    <Link href="/design-invitation" onClick={() => setMobileMenuOpen(false)} style={{ color: '#D4AF37', fontWeight: 'bold' }}>
+                    <Link href="/design-invitation" onClick={() => setMobileMenuOpen(false)}>
                         <i className="fas fa-envelope-open-text"></i> עיצוב הזמנות
                     </Link>
-                    <Link href="/budget-planner" onClick={() => setMobileMenuOpen(false)} style={{ color: '#D4AF37', fontWeight: 'bold' }}>
+                    <Link href="/budget-planner" onClick={() => setMobileMenuOpen(false)}>
                         <i className="fas fa-calculator"></i> מחשבון תקציב
                     </Link>
                     {user?.isAdmin && (

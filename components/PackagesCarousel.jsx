@@ -12,45 +12,41 @@ export default function PackagesCarousel() {
     const DEFAULT_PACKAGES = [
         {
             id: 'default-1',
-            title: 'חבילת כלה פרימיום',
-            tagline: 'Special Offer',
-            description: 'צלם, מאפרת, ספק שמלות כלה, ועוד — הכל בחבילה אחת משתלמת שתחסוך לכם אלפי שקלים.',
+            title: 'חבילת כלה',
+            tagline: 'הנמכרת ביותר',
+            description: 'צלם, מאפרת וספק שמלות — בחבילה אחת שחוסכת אלפי שקלים.',
             saving: 'חיסכון עד 30%',
-            badge: '🔥 הנמכר ביותר',
-            badgeColor: '#D4AF37',
+            badge: 'הנמכר ביותר',
             image: '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.35.jpeg',
             active: true
         },
         {
             id: 'default-2',
             title: 'חבילת אירוע הכל כלול',
-            tagline: 'Best Value',
-            description: 'DJ מקצועי, קייטרינג מובחר, עיצוב אולם ותאורה — חווית אירוע מושלמת מהרגע הראשון ועד האחרון.',
+            tagline: 'המשתלמת',
+            description: 'DJ, קייטרינג, עיצוב אולם ותאורה — חוויה מלאה מהרגע הראשון.',
             saving: 'חיסכון עד 25%',
-            badge: '✨ בלעדי',
-            badgeColor: '#4CAF50',
+            badge: 'בלעדי לפייסטה',
             image: '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.27.jpeg',
             active: true
         },
         {
             id: 'default-3',
-            title: 'חבילת צילום יוקרתית',
-            tagline: 'Premium Package',
-            description: 'צלם וידאו + צלם סטילס, אלבום מפואר, וסרטון וידאו מקצועי לזיכרון שיישמר לנצח.',
+            title: 'חבילת צילום',
+            tagline: 'זיכרון לנצח',
+            description: 'צלם וידאו וסטילס, אלבום וסרטון מקצועי.',
             saving: 'חיסכון עד 20%',
-            badge: '📷 פופולרי',
-            badgeColor: '#9C27B0',
+            badge: 'פופולרי',
             image: '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
             active: true
         },
         {
             id: 'default-bonus',
-            title: 'מתנה בלעדית לסוגרים דרך פייסטה',
-            tagline: 'Exclusive Bonus',
-            description: 'סוגרים 2 ספקים ומעלה דרך האתר ומקבלים אישורי הגעה וסידור שולחנות בחינם לגמרי!',
+            title: 'מתנה לסוגרים דרך פייסטה',
+            tagline: 'בונוס',
+            description: 'סוגרים 2 ספקים ומעלה ומקבלים אישורי הגעה וסידור שולחנות בחינם.',
             saving: 'בשווי ₪1,500',
-            badge: '🎁 מתנה',
-            badgeColor: '#2E7D32',
+            badge: 'מתנה',
             image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80',
             active: true
         }
@@ -70,64 +66,51 @@ export default function PackagesCarousel() {
             .catch(() => setPackages(DEFAULT_PACKAGES));
     }, []);
 
-    // Auto-advance logic
+    // Auto-advance — slower, calmer pace
     useEffect(() => {
         if (packages.length <= 1 || isPaused) return;
         
         const interval = setInterval(() => {
-            // Auto-play should naturally slide to the next item visually on the left
             setDirection(-1);
             setCurrentIndex((prev) => (prev + 1) % packages.length);
-        }, 3500); // Faster auto-play
+        }, 6000);
 
         return () => clearInterval(interval);
     }, [packages.length, isPaused]);
 
     if (!packages.length) return null;
 
-    // In RTL, items are visually mapped [2] [1] [0] from left to right.
-    // dir = 1 means sliding from RIGHT to LEFT.
-    // dir = -1 means sliding from LEFT to RIGHT.
     const slideFromRight = () => {
         setDirection(1);
-        // Going to an index that is visually to the right means decreasing the index
         setCurrentIndex((prev) => (prev - 1 + packages.length) % packages.length);
     };
 
     const slideFromLeft = () => {
         setDirection(-1);
-        // Going to an index that is visually to the left means increasing the index
         setCurrentIndex((prev) => (prev + 1) % packages.length);
     };
 
     const currentPackage = packages[currentIndex];
 
-    // Premium Variants for a more fluid feel
+    // Soft crossfade + gentle drift (no harsh spring / scale)
+    const easeSoft = [0.22, 1, 0.36, 1];
     const slideVariants = {
         enter: (dir) => ({
-            x: dir > 0 ? '100%' : '-100%',
+            x: dir > 0 ? 48 : -48,
             opacity: 0,
-            scale: 1.1
         }),
         center: {
             x: 0,
             opacity: 1,
-            scale: 1,
-            transition: { 
-                x: { type: "spring", stiffness: 220, damping: 24 },
-                opacity: { duration: 0.4 },
-                scale: { duration: 0.5, ease: "easeOut" }
-            }
         },
         exit: (dir) => ({
-            x: dir > 0 ? '-100%' : '100%',
+            x: dir > 0 ? -48 : 48,
             opacity: 0,
-            scale: 0.9,
-            transition: { 
-                x: { type: "spring", stiffness: 220, damping: 24 },
-                opacity: { duration: 0.3 }
-            }
-        })
+        }),
+    };
+    const slideTransition = {
+        x: { duration: 0.85, ease: easeSoft },
+        opacity: { duration: 0.75, ease: 'easeInOut' },
     };
 
     return (
@@ -137,18 +120,18 @@ export default function PackagesCarousel() {
             position: 'relative'
         }}>
             <div className="container" style={{ maxWidth: '1200px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '36px' }}>
                     <h2 style={{ 
-                        fontSize: 'clamp(2rem, 5vw, 3rem)', 
+                        fontSize: 'clamp(1.6rem, 3.5vw, 2.2rem)', 
                         fontFamily: 'var(--font-display)', 
-                        fontWeight: 800, 
-                        color: '#1a1a1a', 
-                        margin: '0 0 10px 0'
+                        fontWeight: 500, 
+                        color: 'var(--text-dark)', 
+                        margin: '0 0 8px 0'
                     }}>
-                        חבילות <span style={{ color: 'var(--primary-color)' }}>פרימיום</span>
+                        חבילות מומלצות
                     </h2>
-                    <p style={{ color: '#666', fontSize: '1.1rem', margin: 0 }}>
-                        הורדנו את המחירים עבורכם - חבילות משתלמות במיוחד בבלעדיות ל-Fiesta
+                    <p style={{ color: 'var(--text-light)', fontSize: '1rem', margin: 0 }}>
+                        מחירים בלעדיים ללקוחות Fiesta
                     </p>
                 </div>
             </div>
@@ -164,7 +147,7 @@ export default function PackagesCarousel() {
                     height: '500px' // Increased height for better prominence
                 }}
             >
-                    <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                    <AnimatePresence initial={false} custom={direction}>
                         <motion.div
                             key={currentIndex}
                             custom={direction}
@@ -172,7 +155,7 @@ export default function PackagesCarousel() {
                             initial="enter"
                             animate="center"
                             exit="exit"
-                            transition={{ x: { type: "spring", stiffness: 220, damping: 24 }, opacity: { duration: 0.3 } }}
+                            transition={slideTransition}
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -203,27 +186,19 @@ export default function PackagesCarousel() {
                                 background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%), linear-gradient(to left, rgba(0,0,0,0.7) 0%, transparent 100%)'
                             }}></div>
                             
-                            {/* Glass Content Card Overlay (Subtle) */}
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 70%)',
-                                pointerEvents: 'none'
-                            }}></div>
-                            
-                            {/* Premium Gold Badge */}
+                            {/* Badge */}
                             {currentPackage.badge && (
                                 <motion.div 
-                                    initial={{ opacity: 0, y: -20 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
                                     style={{
-                                        position: 'absolute', top: '30px', left: '5vw',
-                                        background: currentPackage.badgeColor ? `linear-gradient(135deg, ${currentPackage.badgeColor} 0%, rgba(0,0,0,0.8) 100%)` : 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
+                                        position: 'absolute', top: '28px', left: '5vw',
+                                        background: 'rgba(0,0,0,0.55)',
                                         color: '#fff',
-                                        padding: '8px 25px', borderRadius: '50px', fontSize: '0.85rem', 
-                                        fontWeight: 800, letterSpacing: '1px',
-                                        boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
-                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        padding: '8px 16px', borderRadius: '6px', fontSize: '0.8rem', 
+                                        fontWeight: 600,
+                                        border: '1px solid rgba(255,255,255,0.15)',
                                         zIndex: 3
                                     }}>
                                     {currentPackage.badge}
@@ -234,7 +209,7 @@ export default function PackagesCarousel() {
                             <div className="featured-content" style={{ 
                                 position: 'absolute',
                                 bottom: 0, right: 0, left: 0,
-                                padding: '30px 5vw', // Responsive padding for edge-to-edge
+                                padding: '28px 5vw',
                                 display: 'flex', 
                                 flexDirection: 'column', 
                                 justifyContent: 'flex-end',
@@ -243,36 +218,32 @@ export default function PackagesCarousel() {
                             }}>
                                 <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
                                     <span style={{ 
-                                        color: 'var(--primary-color)', 
+                                        color: 'rgba(255,255,255,0.7)', 
                                         fontSize: '0.8rem', 
-                                        fontWeight: 700, 
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '3px',
-                                        marginBottom: '5px',
+                                        fontWeight: 500, 
+                                        marginBottom: '6px',
                                         display: 'block'
                                     }}>
-                                    {currentPackage.tagline || 'Special Offer'}
+                                    {currentPackage.tagline || 'חבילה'}
                                 </span>
                                 
                                 <h3 style={{ 
-                                    fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', 
+                                    fontSize: 'clamp(1.6rem, 3.2vw, 2.4rem)', 
                                     color: '#ffffff', 
                                     margin: '0 0 10px 0',
                                     fontFamily: 'var(--font-display)',
-                                    fontWeight: 800,
-                                    lineHeight: 1.1,
-                                    textShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                    fontWeight: 500,
+                                    lineHeight: 1.2,
                                 }}>
                                     {currentPackage.title}
                                 </h3>
                                 
                                 <p style={{ 
-                                    color: 'rgba(255,255,255,0.85)', 
-                                    fontSize: 'clamp(0.95rem, 1.2vw, 1.1rem)', 
+                                    color: 'rgba(255,255,255,0.8)', 
+                                    fontSize: 'clamp(0.92rem, 1.2vw, 1.05rem)', 
                                     lineHeight: 1.5,
-                                    marginBottom: '25px',
-                                    maxWidth: '700px',
-                                    textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                                    marginBottom: '22px',
+                                    maxWidth: '640px',
                                 }}>
                                     {currentPackage.description}
                                 </p>
@@ -280,33 +251,30 @@ export default function PackagesCarousel() {
                                 <div className="action-row" style={{ 
                                     display: 'flex', 
                                     alignItems: 'center',
-                                    gap: '40px'
+                                    gap: '28px'
                                 }}>
-                                    <motion.a
-                                        whileHover={{ scale: 1.05, boxShadow: '0 15px 35px rgba(212, 175, 55, 0.5)' }}
-                                        whileTap={{ scale: 0.95 }}
+                                    <a
                                         href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי! ראיתי את ${currentPackage.title} באתר Fiesta ורוצה לשמוע פרטים`)}`}
                                         target="_blank" rel="noopener noreferrer"
-                                        className="btn btn-primary luxury-btn"
+                                        className="btn luxury-btn"
                                         style={{ 
-                                            padding: '16px 45px', 
-                                            fontSize: '1.1rem',
-                                            background: 'linear-gradient(135deg, var(--primary-color) 0%, #B8860B 100%)',
+                                            padding: '14px 28px', 
+                                            fontSize: '0.95rem',
+                                            background: '#fff',
                                             color: '#111',
                                             border: 'none',
-                                            borderRadius: '100px',
-                                            fontWeight: 900,
-                                            boxShadow: '0 10px 30px rgba(212, 175, 55, 0.3)',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '1px'
+                                            borderRadius: '6px',
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                            display: 'inline-block',
                                         }}
                                     >
                                         לכל הפרטים
-                                    </motion.a>
+                                    </a>
                                     
-                                    <div style={{ display: 'flex', flexDirection: 'column', borderRight: '2px solid var(--primary-color)', paddingRight: '20px' }}>
-                                        <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>חיסכון צפוי</span>
-                                        <span style={{ fontWeight: 900, color: '#ffffff', fontSize: '1.6rem', textShadow: '0 2px 15px rgba(0,0,0,0.5)', fontFamily: 'var(--font-display)' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.25)', paddingRight: '18px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>חיסכון</span>
+                                        <span style={{ fontWeight: 600, color: '#ffffff', fontSize: '1.25rem', fontFamily: 'var(--font-display)' }}>
                                             {currentPackage.saving || 'מחיר בלעדי'}
                                         </span>
                                     </div>
@@ -357,16 +325,16 @@ export default function PackagesCarousel() {
                                         setCurrentIndex(idx);
                                     }}
                                     style={{
-                                        width: idx === currentIndex ? '40px' : '12px',
-                                        height: '6px',
-                                        borderRadius: '10px',
+                                        width: idx === currentIndex ? '28px' : '8px',
+                                        height: '4px',
+                                        borderRadius: '2px',
                                         background: idx === currentIndex 
-                                            ? 'linear-gradient(to right, #ffffff, var(--primary-color))' 
-                                            : 'rgba(255,255,255,0.3)',
+                                            ? '#ffffff' 
+                                            : 'rgba(255,255,255,0.35)',
                                         border: 'none',
-                                        boxShadow: idx === currentIndex ? '0 0 15px rgba(212, 175, 55, 0.6)' : 'none',
                                         cursor: 'pointer',
-                                        transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                                        transition: 'width 0.3s ease, background 0.3s ease',
+                                        padding: 0,
                                     }}
                                     aria-label={`Go to slide ${idx + 1}`}
                                 />
@@ -380,35 +348,30 @@ export default function PackagesCarousel() {
                     position: absolute;
                     top: 50%;
                     transform: translateY(-50%);
-                    width: 60px;
-                    height: 60px;
+                    width: 48px;
+                    height: 48px;
                     border-radius: 50%;
-                    background: rgba(0, 0, 0, 0.2);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(0, 0, 0, 0.35);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    transition: background 0.2s;
                     color: white;
-                    font-size: 1.4rem;
+                    font-size: 1.1rem;
                     z-index: 10;
-                    backdrop-filter: blur(12px);
                 }
                 .left-arrow { left: 3vw; }
                 .right-arrow { right: 3vw; }
                 
                 .nav-arrow-side:hover {
-                    background: var(--primary-color);
-                    border-color: var(--primary-color);
-                    transform: translateY(-50%) scale(1.1);
-                    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+                    background: rgba(0, 0, 0, 0.6);
                 }
                 
                 .luxury-btn:hover {
-                    transform: scale(1.05);
-                    background: white !important;
-                    color: var(--primary-color) !important;
+                    background: var(--primary-color) !important;
+                    color: #fff !important;
                 }
                 
                 @media (max-width: 900px) {

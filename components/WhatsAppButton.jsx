@@ -1,8 +1,18 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
+
+const HIDDEN_PATHS = ['/design-invitation', '/rsvp', '/login', '/register'];
+
 const WhatsAppButton = () => {
-    const phoneNumber = "972535378985";
-    const message = encodeURIComponent("היי, הגעתי מהאתר Fiesta ואשמח לקבל פרטים נוספים");
+    const pathname = usePathname();
+
+    if (pathname?.startsWith('/admin')) return null;
+    if (pathname?.startsWith('/vendor/')) return null;
+    if (HIDDEN_PATHS.some((p) => pathname === p || pathname?.startsWith(`${p}/`))) return null;
+
+    const phoneNumber = '972535378985';
+    const message = encodeURIComponent('היי, הגעתי מהאתר Fiesta ואשמח לקבל פרטים נוספים');
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
     return (

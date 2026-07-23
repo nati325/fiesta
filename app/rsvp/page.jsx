@@ -419,9 +419,11 @@ function RSVPContent() {
                 .rsvp-footer .logo { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--primary); }
 
                 @media (max-width: 480px) {
-                    .glass-card { padding: 30px 20px; border-radius: 30px; }
-                    .couple-names { font-size: 2.5rem; }
+                    .rsvp-root { padding: 16px !important; }
+                    .glass-card { padding: 28px 16px; border-radius: 24px; }
+                    .couple-names { font-size: 2rem !important; }
                     .success-actions { grid-template-columns: 1fr; }
+                    .success-card p { font-size: 1.05rem; }
                 }
             `}</style>
         </div>

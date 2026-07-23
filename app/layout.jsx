@@ -1,21 +1,25 @@
-import { Assistant, Playfair_Display } from 'next/font/google';
+import { Heebo, Frank_Ruhl_Libre } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
 import Navbar from '@/components/Navbar';
 import MobileNav from '@/components/MobileNav';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import TrafficTracker from '@/components/TrafficTracker';
+import SiteEditBar from '@/components/SiteEditBar';
+import Link from 'next/link';
 
-const assistant = Assistant({
-    subsets: ['latin'],
+const heebo = Heebo({
+    subsets: ['hebrew', 'latin'],
     weight: ['400', '500', '600', '700'],
-    variable: '--font-assistant',
+    variable: '--font-heebo',
+    display: 'swap',
 });
 
-const playfair = Playfair_Display({
-    subsets: ['latin'],
-    weight: ['400', '700'],
-    variable: '--font-playfair',
+const frank = Frank_Ruhl_Libre({
+    subsets: ['hebrew', 'latin'],
+    weight: ['400', '500', '700'],
+    variable: '--font-frank',
+    display: 'swap',
 });
 
 export const metadata = {
@@ -32,14 +36,11 @@ export default function RootLayout({ children }) {
                     rel="stylesheet"
                     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                 />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap"
-                    rel="stylesheet"
-                />
             </head>
-            <body className={`${assistant.variable} ${playfair.variable}`} suppressHydrationWarning>
+            <body className={`${heebo.variable} ${frank.variable} ${heebo.className}`} suppressHydrationWarning>
                 <Providers>
                     <TrafficTracker />
+                    <SiteEditBar />
                     <div className="app">
                         <Navbar />
                         <main>
@@ -48,8 +49,13 @@ export default function RootLayout({ children }) {
                         <footer className="footer">
                             <div className="container">
                                 <div className="footer-bottom">
-                                    <p style={{ marginBottom: '10px', fontSize: '1.1rem', fontWeight: 'bold', color: '#D4AF37' }}>השירות ב-Fiesta ניתן בחינם לגמרי לטובת הקהילה! ❤️</p>
-                                    <p>&copy; 2025 Fiesta Events. כל הזכויות שמורות.</p>
+                                    <p className="footer-free-msg">השירות ב-Fiesta ניתן בחינם לטובת הקהילה</p>
+                                    <p>&copy; {new Date().getFullYear()} Fiesta Events. כל הזכויות שמורות.</p>
+                                    <p className="footer-admin-link">
+                                        <Link href="/login" title="כניסת ניהול">
+                                            ניהול
+                                        </Link>
+                                    </p>
                                 </div>
                             </div>
                         </footer>

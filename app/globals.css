@@ -1,30 +1,36 @@
 :root {
-    /* Color Palette - Boutique Gold & Charcoal */
-    --primary-color: #D4AF37; /* Classic Gold */
-    --primary-hover: #B8860B; /* Darker Gold */
-    --secondary-color: #fce4ec;
-    --secondary-dark: #f8bbd0;
-    --accent-gold: #FFD700;
-    --charcoal: #1a1a1a;
-    --dark-bg: #0f0f0f;
-    --text-dark: #2c3e50;
-    --text-light: #7f8c8d;
+    /* Fiesta — ink, paper, matte brass (no metallic glow) */
+    --primary-color: #8F7344;
+    --primary-hover: #6F5834;
+    --secondary-color: #EEEBE6;
+    --secondary-dark: #D8D2C8;
+    --accent-gold: #8F7344;
+    --charcoal: #111111;
+    --dark-bg: #0c0c0c;
+    --text-dark: #141414;
+    --text-light: #6b6b6b;
     --white: #ffffff;
-    --off-white: #fafafa;
+    --off-white: #f7f6f4;
     --border-color: rgba(0, 0, 0, 0.08);
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    
-    /* Fonts */
-    --font-main: 'Assistant', sans-serif;
-    --font-display: 'Playfair Display', serif;
+    --glass-bg: rgba(255, 255, 255, 0.92);
+
+    /* Fonts — Heebo UI, Frank Ruhl Libre display (Hebrew) */
+    --font-main: var(--font-heebo), 'Heebo', sans-serif;
+    --font-display: var(--font-frank), 'Frank Ruhl Libre', serif;
+    --font-assistant: var(--font-heebo), 'Heebo', sans-serif;
 
     /* Spacing & Borders */
-    --section-padding: 100px 0;
+    --section-padding: 88px 0;
     --container-width: 1200px;
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.05);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-premium: 0 12px 28px rgba(0, 0, 0, 0.06);
+
+    /* Mobile shell — bottom nav clearance (0 on desktop) */
+    --mobile-nav-height: 0px;
+    --mobile-bottom-gap: 0px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
@@ -49,8 +55,9 @@ h4,
 h5,
 h6 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 500;
     color: var(--text-dark);
+    letter-spacing: -0.01em;
 }
 
 a {
@@ -74,30 +81,35 @@ img {
     padding: 0 20px;
 }
 
+/* Public pages: leave room for fixed bottom nav on mobile */
+.app > main {
+    padding-bottom: var(--mobile-bottom-gap);
+    min-height: 50vh;
+}
+
 /* Buttons */
 .btn {
     display: inline-block;
-    padding: 12px 30px;
-    font-size: 1.1rem;
+    padding: 12px 28px;
+    font-size: 1rem;
     font-weight: 600;
-    border-radius: 50px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     text-align: center;
     border: none;
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
+    background-color: var(--charcoal);
     color: var(--white);
-    border: 2px solid var(--primary-color);
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    border: 1px solid var(--charcoal);
 }
 
 .btn-primary:hover {
-    background-color: transparent;
-    color: var(--primary-color);
-    transform: translateY(-2px);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
 }
 
 .btn-outline {
@@ -145,20 +157,16 @@ img {
 }
 
 .logo h1 {
-    font-size: 1.5rem;
-    color: var(--primary-color);
+    font-size: 1.65rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--charcoal);
     line-height: 1;
     margin-bottom: 2px;
+    letter-spacing: 0.02em;
 }
 
-/* --- Anti-Scraping & Protection --- */
-body:not(.admin-area) {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
+/* Soften text selection — allow reading/copy on public site */
 body:not(.admin-area) img {
   pointer-events: none;
   -webkit-user-drag: none;
@@ -269,14 +277,14 @@ body:not(.admin-area) img {
 }
 
 .mega-col h4 {
-    font-size: 1rem;
-    color: var(--primary-color);
+    font-size: 0.9rem;
+    color: var(--text-dark);
     margin-bottom: 15px;
     padding-bottom: 8px;
-    border-bottom: 2px solid var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
     font-family: var(--font-main);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-weight: 600;
+    letter-spacing: 0;
 }
 
 .mega-col a {
@@ -1007,6 +1015,46 @@ body:not(.admin-area) img {
     font-size: 0.9rem;
 }
 
+.footer-free-msg {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #a8a29a;
+}
+
+.footer-admin-link {
+    margin-top: 10px;
+}
+
+.footer-admin-link a {
+    color: #64748b;
+    font-size: 0.7rem;
+    text-decoration: none;
+    opacity: 0.55;
+}
+
+.footer-admin-link a:hover {
+    opacity: 0.9;
+    color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 28px 0 calc(20px + var(--safe-bottom));
+    }
+
+    .footer-free-msg {
+        font-size: 0.9rem;
+        padding: 0 12px;
+        line-height: 1.4;
+    }
+
+    .footer-admin-link a {
+        font-size: 0.65rem;
+        opacity: 0.35;
+    }
+}
+
 /* Articles Section */
 .articles-section {
     padding: var(--section-padding);
@@ -1465,9 +1513,10 @@ body:not(.admin-area) img {
 
 @media (max-width: 768px) {
     .whatsapp-float-compact {
-        bottom: 80px; /* Positioned above the mobile bottom nav */
+        bottom: calc(var(--mobile-nav-height) + var(--safe-bottom) + 12px);
         right: 10px;
         padding: 6px 12px;
+        z-index: 990;
     }
 }
 
@@ -1510,21 +1559,17 @@ body:not(.admin-area) img {
 }
 
 .whatsapp-float-compact {
-    animation: pulse-whatsapp-lite 4s infinite ease-in-out;
+    animation: none;
 }
 
 /* Delicate Free Branding */
 .free-tagline {
-    font-size: 0.85rem;
-    color: var(--primary-color);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 500;
+    letter-spacing: 0.02em;
     margin-bottom: 12px;
     display: inline-block;
-    padding: 4px 12px;
-    background: rgba(212, 175, 55, 0.1);
-    border-radius: 20px;
 }
 
 
@@ -1613,6 +1658,18 @@ body.admin-mode .footer,
 body.admin-mode .mobile-nav-wrapper,
 body.admin-mode .whatsapp-float-compact {
     display: none !important;
+}
+
+body.studio-mode .footer,
+body.studio-mode .mobile-nav-wrapper,
+body.studio-mode .whatsapp-float-compact,
+body.studio-mode .header {
+    display: none !important;
+}
+
+body.studio-mode .app > main {
+    padding-bottom: 0;
+    min-height: 100vh;
 }
 
 /* CRM / Dashboard Professional Admin UI - REDESIGNED FOR FIESTA */
@@ -2299,6 +2356,8 @@ body.admin-mode .whatsapp-float-compact {
 @media (max-width: 768px) {
     :root {
         --section-padding: 60px 0;
+        --mobile-nav-height: 64px;
+        --mobile-bottom-gap: calc(var(--mobile-nav-height) + var(--safe-bottom) + 8px);
     }
 
     /* Typography */
@@ -2442,9 +2501,9 @@ body.admin-mode .whatsapp-float-compact {
     padding: 10px 12px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-    color: #1a1a1a;
-    font-weight: 700;
+    background: var(--charcoal);
+    color: #fff;
+    font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
     font-family: var(--font-main);

@@ -24,19 +24,19 @@ export default function RegisterPage() {
     };
 
     return (
-        <div style={{ paddingTop: '120px', minHeight: '100vh', background: '#f9f9f9', display: 'flex', justifyContent: 'center' }}>
+        <div className="auth-page">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px', height: 'fit-content' }}
+                className="auth-card"
             >
                 <div style={{ marginBottom: '20px' }}>
                     <Link href="/" className="btn-text" style={{ color: '#999', padding: 0 }}>
                         <i className="fas fa-arrow-right" style={{ marginLeft: '8px' }}></i> חזרה
                     </Link>
                 </div>
-                <h2 style={{ textAlign: 'center', color: '#D4AF37', marginBottom: '10px' }}>הרשמה</h2>
-                <p style={{ textAlign: 'center', color: '#2E7D32', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '30px' }}>השימוש ב-Fiesta חינם לגמרי - תמיד!</p>
+                <h2 style={{ textAlign: 'center', color: 'var(--text-dark)', marginBottom: '10px', fontFamily: 'var(--font-display)', fontWeight: 500 }}>הרשמה</h2>
+                <p style={{ textAlign: 'center', color: 'var(--text-light)', fontSize: '0.9rem', fontWeight: 500, marginBottom: '30px' }}>השימוש ב-Fiesta חינם — תמיד</p>
 
                 {error && <div style={{ color: 'white', background: '#ff4d4f', padding: '10px', borderRadius: '5px', marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
 
@@ -56,10 +56,32 @@ export default function RegisterPage() {
 
                     <button type="submit" className="btn btn-primary full-width">הירשם</button>
                 </form>
-                <p style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
-                    כבר יש לך חשבון? <Link href="/login" style={{ color: '#D4AF37', cursor: 'pointer', fontWeight: 'bold' }}>התחבר כאן</Link>
+                <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-light)' }}>
+                    כבר יש לך חשבון? <Link href="/login" style={{ color: 'var(--text-dark)', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline' }}>התחבר כאן</Link>
                 </p>
             </motion.div>
+            <style jsx>{`
+                .auth-page {
+                    padding: 100px 16px 40px;
+                    min-height: 100vh;
+                    background: var(--off-white);
+                    display: flex;
+                    justify-content: center;
+                }
+                .auth-card {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 12px;
+                    border: 1px solid var(--border-color);
+                    width: 100%;
+                    max-width: 400px;
+                    height: fit-content;
+                }
+                @media (max-width: 480px) {
+                    .auth-page { padding: 88px 12px 32px; }
+                    .auth-card { padding: 24px 16px; }
+                }
+            `}</style>
         </div>
     );
 }

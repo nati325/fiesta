@@ -2,15 +2,18 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useVendors } from '@/context/VendorContext';
+import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { resolveVendorImage, resolvePortfolioImage } from '@/lib/vendorImage';
+import { EditChip } from '@/components/SiteEditBar';
 
 export default function VendorDetailPage() {
     const params = useParams();
     const id = params.id;
     const router = useRouter();
     const { vendors } = useVendors();
+    const { isAdmin } = useAuth();
 
     const vendor = vendors.find(v => v.id.toString() === id);
 
@@ -24,88 +27,135 @@ export default function VendorDetailPage() {
     }
 
     const categoryData = {
-        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd41?auto=format&fit=crop&w=1200&q=80' },
-        'photographer': { label: 'צלמים', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80' },
-        'alcohol': { label: 'אלכוהול ובר', img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80' },
-        'catering': { label: 'קייטרינג', img: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80' },
-        'venue': { label: 'אולמות וגנים', img: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80' }
+        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80' },
+        'photographer': { label: 'צילום אירועים', img: '/images/event_photographer.png' },
+        'alcohol': { label: 'אלכוהול ובר', img: '/images/bar_hero.png' },
+        'catering': { label: 'קייטרינג', img: '/images/catering.jpeg' },
+        'venue': { label: 'אולמות וגנים', img: '/images/venue_hero.png' },
+        'design': { label: 'עיצוב אירועים', img: '/images/wedding_floral_arch_1765744424651.png' },
+        'dresses': { label: 'שמלות כלה', img: '/images/wedding_dress.jpeg' },
+        'suits': { label: 'חליפות חתן', img: '/images/groom_suits.jpeg' },
+        'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1200&q=80' },
+        'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80' },
+        'hair': { label: 'עיצוב שיער', img: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=1200&q=80' },
+        'makeup': { label: 'איפור', img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1200&q=80' },
+        'rings': { label: 'טבעות נישואין', img: '/images/jewelry_hero.png' },
+        'event-production': { label: 'הפקת אירועים', img: '/images/event_production.jpeg' },
+        'rsvp': { label: 'אישורי הגעה', img: 'https://images.unsplash.com/photo-1512418490979-92798ccc13fb?auto=format&fit=crop&w=1200&q=80' },
+        'invitations': { label: 'הזמנות', img: '/images/invitations_hero.png' },
+        'transportation': { label: 'הסעות', img: '/images/car_hero.png' },
+        'cars': { label: 'רכבי יוקרה', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80' },
+        'equipment-rental': { label: 'השכרת ציוד', img: '/images/wedding_table_detail_1765744408525.png' },
+        'rabbi': { label: 'רב לחופה', img: '/images/rabbi.jpeg' },
+        'cantors': { label: 'חזנים ופייטנים', img: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&w=1200&q=80' },
+        'singers': { label: 'זמרים ולהקות', img: '/images/entertainment_hero.png' },
+        'religious-bands': { label: 'להקות דתיות', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80' },
+        'challa': { label: 'הפרשת חלה', img: 'https://images.unsplash.com/photo-1610452399201-9a7076594d2f?auto=format&fit=crop&w=1200&q=80' },
+        'attractions': { label: 'אטרקציות', img: '/images/attractions_hero.png' },
+        'souvenirs': { label: 'מזכרות', img: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=1200&q=80' },
+        'hotels': { label: 'מלונות', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' },
+        'bachelor': { label: 'מסיבות רווקים', img: 'https://images.unsplash.com/photo-1514525253344-f81bcd3ce942?auto=format&fit=crop&w=1200&q=80' },
+        'getting-ready': { label: 'התארגנות כלה', img: '/images/wedding_lounge_1765744440712.png' },
+        'dietitians': { label: 'תזונה ודיאטה', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80' },
+        'personal-training': { label: 'כושר ואימון', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80' },
     };
 
-    const currentCategory = categoryData[vendor.type] || { label: 'ספק מובחר', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80' };
+    const currentCategory = categoryData[vendor.type] || {
+        label: 'ספק מובחר',
+        img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+    };
+
+    // Collect unique vendor images in display order:
+    // main product → vendor.image → other products → portfolio
+    const collectVendorImages = () => {
+        const urls = [];
+        const push = (raw) => {
+            const resolved = resolveVendorImage(raw, '');
+            if (!resolved || !resolved.trim()) return;
+            if (urls.includes(resolved)) return;
+            urls.push(resolved);
+        };
+
+        const mainProduct = vendor.products?.find((p) => p.id === vendor.mainProductId);
+        if (mainProduct?.image) push(mainProduct.image);
+        if (vendor.image) push(vendor.image);
+        (vendor.products || []).forEach((p) => push(p?.image));
+        (vendor.portfolio || []).forEach((item) => {
+            if (typeof item === 'string') push(item);
+            else push(item?.image);
+        });
+
+        return urls;
+    };
+
+    const vendorImages = collectVendorImages();
+    // Circle avatar = first image; hero = second if exists, else category topic image
+    const avatarImage = vendorImages[0] || currentCategory.img;
+    const heroBackground = vendorImages.length >= 2 ? vendorImages[1] : currentCategory.img;
 
     return (
-        <div style={{ minHeight: '100vh', background: '#fdfcf9', paddingBottom: '80px' }}>
+        <div className="vendor-page">
             {/* Elegant Hero Header */}
-            <div style={{ height: '45vh', minHeight: '400px', position: 'relative', overflow: 'hidden' }}>
-                <img src={currentCategory.img} alt={vendor.name} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.6)' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.8))' }} />
+            <div className="vendor-hero">
+                <img
+                    src={heroBackground}
+                    alt=""
+                    className="vendor-hero-img"
+                    onError={(e) => { e.target.src = currentCategory.img; }}
+                />
+                <div className="vendor-hero-overlay" />
                 
-                {/* Back Button */}
                 <button
                     onClick={() => router.back()}
-                    style={{
-                        position: 'absolute', top: '30px', right: '30px', zIndex: 10,
-                        color: 'white', background: 'rgba(0,0,0,0.3)', width: '45px', height: '45px',
-                        borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', backdropFilter: 'blur(10px)'
-                    }}
+                    className="vendor-back-btn"
+                    aria-label="חזרה"
                 >
                     <i className="fas fa-arrow-right"></i>
                 </button>
             </div>
 
             {/* Profile Content */}
-            <div className="container" style={{ maxWidth: '1000px', marginTop: '-120px', position: 'relative', zIndex: 10 }}>
+            <div className="container vendor-profile-wrap">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    style={{
-                        background: 'white',
-                        borderRadius: '40px',
-                        padding: '60px 40px',
-                        boxShadow: '0 30px 80px rgba(0,0,0,0.1)',
-                        textAlign: 'center',
-                        border: '1px solid #f0f0f0'
-                    }}
+                    className="vendor-profile-card"
                 >
                     {/* Avatar */}
-                    <div style={{ 
-                        width: '200px', height: '200px', borderRadius: '50%', border: '10px solid white', 
-                        overflow: 'hidden', margin: '-160px auto 30px', boxShadow: '0 15px 40px rgba(0,0,0,0.2)',
-                        background: '#eee'
-                    }}>
+                    <div className="vendor-avatar">
                         <img 
-                            src={resolveVendorImage(
-                                vendor.products?.find(p => p.id === vendor.mainProductId)?.image || vendor.image,
-                                currentCategory.img
-                            )} 
-                            alt={vendor.products?.find(p => p.id === vendor.mainProductId)?.name ? `${vendor.name} - ${vendor.products.find(p => p.id === vendor.mainProductId).name}` : vendor.name} 
+                            src={avatarImage}
+                            alt={vendor.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             onError={(e) => { e.target.src = currentCategory.img; }}
                         />
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px' }}>
-                        <div style={{ background: 'rgba(212,175,55,0.1)', color: 'var(--primary-color)', padding: '6px 20px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 800 }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        <div style={{ background: 'var(--off-white)', color: 'var(--text-dark)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid var(--border-color)' }}>
                             {currentCategory.label}
                         </div>
                         {vendor.discount && (
-                            <div style={{ background: '#e74c3c', color: 'white', padding: '6px 20px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 800, boxShadow: '0 5px 15px rgba(231, 76, 60, 0.2)' }}>
+                            <div style={{ background: 'var(--charcoal)', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600 }}>
                                 {vendor.discountType === 'amount' ? '₪' : ''}{vendor.discount}{vendor.discountType === 'amount' ? '' : '%'} הנחה לחברים
                             </div>
                         )}
                     </div>
                     
-                    <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>{vendor.name}</h1>
+                    <h1 className="vendor-name">{vendor.name}</h1>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                        <EditChip href={`/admin/vendors/${vendor.id}`} label="ערוך ספק" />
+                    </div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: '#888', marginBottom: '20px', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: 'var(--text-light)', marginBottom: '20px', fontWeight: 500, fontSize: '0.95rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className="fas fa-map-marker-alt" style={{ color: 'var(--primary-color)' }}></i>
+                            <i className="fas fa-map-marker-alt"></i>
                             <span>{vendor.region || vendor.location || 'כל הארץ'}</span>
                         </div>
-                        <div style={{ width: '1px', height: '15px', background: '#eee' }}></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700' }}>
+                        <div style={{ width: '1px', height: '14px', background: '#e5e2dc' }}></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-color)' }}>
                             <i className="fas fa-star"></i>
-                            <span style={{ color: '#1a1a1a' }}>
+                            <span style={{ color: 'var(--text-dark)' }}>
                                 {vendor.googleRating ? Number(vendor.googleRating).toFixed(1) : '5.0'}
                                 {vendor.googleReviewsCount > 0 && ` (${vendor.googleReviewsCount} ביקורות)`}
                             </span>
@@ -113,65 +163,64 @@ export default function VendorDetailPage() {
                     </div>
 
                     {vendor.price && (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
                                 {vendor.originalPrice && (
-                                    <span style={{ fontSize: '1.4rem', color: '#999', textDecoration: 'line-through' }}>₪{vendor.originalPrice}</span>
+                                    <span style={{ fontSize: '1.15rem', color: '#999', textDecoration: 'line-through' }}>₪{vendor.originalPrice}</span>
                                 )}
-                                <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary-color)' }}>₪{vendor.price}</span>
+                                <span style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-dark)', fontFamily: 'var(--font-display)' }}>₪{vendor.price}</span>
                             </div>
                             {vendor.originalPrice && (
                                 <div style={{ 
                                     marginTop: '10px',
-                                    background: '#E8F5E9', 
-                                    color: '#2E7D32', 
-                                    padding: '8px 25px', 
-                                    borderRadius: '50px', 
-                                    fontSize: '1rem', 
-                                    fontWeight: 800,
-                                    border: '1px solid rgba(46, 125, 50, 0.2)'
+                                    background: 'var(--off-white)', 
+                                    color: 'var(--text-dark)', 
+                                    padding: '8px 16px', 
+                                    borderRadius: '6px', 
+                                    fontSize: '0.9rem', 
+                                    fontWeight: 500,
+                                    border: '1px solid var(--border-color)'
                                 }}>
-                                    <i className="fas fa-tag" style={{ marginLeft: '8px' }}></i>
-                                    מחיר פייסטה: חסכון של ₪{vendor.originalPrice - vendor.price}
+                                    מחיר פייסטה: חיסכון של ₪{vendor.originalPrice - vendor.price}
                                 </div>
                             )}
                         </div>
                     )}
 
-                    <div style={{ maxWidth: '750px', margin: '0 auto 50px' }}>
-                        <p style={{ fontSize: '1.25rem', color: '#555', lineHeight: '1.8' }}>
+                    <div style={{ maxWidth: '680px', margin: '0 auto 40px' }}>
+                        <p style={{ fontSize: '1.05rem', color: 'var(--text-light)', lineHeight: '1.75', textAlign: 'right' }}>
                             {vendor.description ? (
                                 <>
-                                    <span style={{ display: 'block', marginBottom: '15px', fontWeight: 'bold' }}>קצת עלינו:</span>
+                                    <span style={{ display: 'block', marginBottom: '10px', fontWeight: 600, color: 'var(--text-dark)' }}>קצת עלינו</span>
                                     {vendor.description}
                                 </>
                             ) : (
-                                `אנחנו ב-${vendor.name} מאמינים שכל אירוע הוא סיפור ייחודי. עם ניסיון של מעל עשור בתחום ה-${currentCategory.label}, אנחנו מביאים איתנו שילוב מנצח של יצירתיות, מקצועיות ללא פשרות ויחס אישי לכל זוג. המטרה שלנו היא אחת: להפוך את החלום שלכם למציאות נוצצת.`
+                                `אנחנו ב-${vendor.name} מאמינים שכל אירוע הוא סיפור ייחודי. עם ניסיון בתחום ה-${currentCategory.label}, אנחנו מביאים יצירתיות, מקצועיות ויחס אישי.`
                             )}
                         </p>
                     </div>
 
-                    {/* Google Reviews - always shown */}
-                    <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
+                    {/* Google Reviews */}
+                    <div style={{ marginBottom: '36px', display: 'flex', justifyContent: 'center' }}>
                         <a 
                             href={vendor.googleReviewsLink || `https://www.google.com/maps/search/${encodeURIComponent(vendor.name)}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '12px',
-                                background: 'white', padding: '15px 30px', borderRadius: '50px',
-                                boxShadow: '0 5px 20px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0',
-                                textDecoration: 'none', color: '#1a1a1a', fontWeight: 700, transition: 'all 0.2s'
+                                background: 'white', padding: '12px 22px', borderRadius: '8px',
+                                border: '1px solid var(--border-color)',
+                                textDecoration: 'none', color: 'var(--text-dark)', fontWeight: 500, transition: 'border-color 0.2s'
                             }}
                             className="google-review-btn"
                         >
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '22px' }} />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '20px' }} />
                             <span>
                                 {vendor.googleReviewsCount > 0
-                                    ? `קראו ${vendor.googleReviewsCount} ביקורות אמיתיות בגוגל`
+                                    ? `${vendor.googleReviewsCount} ביקורות בגוגל`
                                     : 'ביקורות גוגל'}
                             </span>
-                            <div style={{ color: '#FFD700', display: 'flex', gap: '2px', fontSize: '0.9rem' }}>
+                            <div style={{ color: 'var(--primary-color)', display: 'flex', gap: '2px', fontSize: '0.8rem' }}>
                                 {[...Array(Math.floor(vendor.googleRating || 5))].map((_, i) => (
                                     <i key={i} className="fas fa-star"></i>
                                 ))}
@@ -182,15 +231,13 @@ export default function VendorDetailPage() {
 
                     {/* Videos Section */}
                     {vendor.videos && vendor.videos.length > 0 && (
-                        <div style={{ marginTop: '60px', marginBottom: '40px' }}>
-                            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                                <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#1a1a1a', marginBottom: '10px' }}>🎥 וידאו וסרטונים</h2>
-                                <div style={{ width: '60px', height: '4px', background: 'var(--primary-color)', margin: '0 auto' }}></div>
+                        <div style={{ marginTop: '48px', marginBottom: '36px' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                                <h2 style={{ fontSize: '1.6rem', fontWeight: 500, color: 'var(--text-dark)', marginBottom: '0', fontFamily: 'var(--font-display)' }}>וידאו וסרטונים</h2>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                                 {vendor.videos.map((video, idx) => {
                                     if (!video) return null;
-                                    // Simple regex to convert youtube/vimeo links to embed links
                                     let embedUrl = video;
                                     if (video.includes('youtube.com/watch?v=')) {
                                         embedUrl = video.replace('watch?v=', 'embed/');
@@ -201,7 +248,7 @@ export default function VendorDetailPage() {
                                     }
 
                                     return (
-                                        <div key={idx} style={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 15px 35px rgba(0,0,0,0.1)', aspectRatio: '16/9' }}>
+                                        <div key={idx} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', aspectRatio: '16/9' }}>
                                             <iframe 
                                                 width="100%" 
                                                 height="100%" 
@@ -219,68 +266,59 @@ export default function VendorDetailPage() {
                     )}
 
                     {/* Action Bar */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
+                    <div className="vendor-actions">
                         <a
                             href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי, אני רוצה לקבוע פגישה עם ${vendor.name}`)}`}
                             target="_blank" rel="noopener noreferrer"
-                            className="btn btn-primary"
-                            style={{ 
-                                padding: '20px 50px', background: '#25D366', borderColor: '#25D366', 
-                                borderRadius: '20px', fontWeight: 900, fontSize: '1.2rem',
-                                display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '0 15px 30px rgba(37, 211, 102, 0.3)'
-                            }}
+                            className="btn btn-primary vendor-wa-btn"
                         >
-                            <i className="fab fa-whatsapp" style={{ fontSize: '1.8rem' }}></i> פנו אלינו בוואטסאפ
+                            <i className="fab fa-whatsapp"></i> פנו אלינו בוואטסאפ
                         </a>
                         
-                        <button className="btn btn-outline" style={{ 
-                            padding: '20px 50px', borderRadius: '20px', fontWeight: 800, fontSize: '1.1rem', 
-                            border: '2px solid #f0f0f0', color: '#1a1a1a' 
-                        }}>
-                            <i className="far fa-heart" style={{ marginLeft: '10px' }}></i> שמירה במועדפים
+                        <button className="btn btn-outline vendor-fav-btn">
+                            <i className="far fa-heart"></i> שמירה במועדפים
                         </button>
                     </div>
                 </motion.div>
 
                 {/* Info Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginTop: '40px' }}>
-                    <div style={{ background: 'white', padding: '35px', borderRadius: '30px', boxShadow: '0 10px 40px rgba(0,0,0,0.03)', textAlign: 'right' }}>
-                        <h4 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '20px', color: 'var(--primary-color)' }}>שירותים מובילים</h4>
-                        <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', color: '#666', fontWeight: 600 }}>
-                            <li><i className="fas fa-check" style={{ marginLeft: '10px', color: '#25D366' }}></i> ליווי אישי מיום הסגירה</li>
-                            <li><i className="fas fa-check" style={{ marginLeft: '10px', color: '#25D366' }}></i> ציוד טכנולוגי המתקדם בעולם</li>
-                            <li><i className="fas fa-check" style={{ marginLeft: '10px', color: '#25D366' }}></i> פגישת תיאום ציפיות מפורטת</li>
+                <div className="vendor-info-grid">
+                    <div className="vendor-info-card">
+                        <h4>שירותים מובילים</h4>
+                        <ul>
+                            <li><i className="fas fa-check"></i> ליווי אישי מיום הסגירה</li>
+                            <li><i className="fas fa-check"></i> ציוד טכנולוגי המתקדם בעולם</li>
+                            <li><i className="fas fa-check"></i> פגישת תיאום ציפיות מפורטת</li>
                         </ul>
                     </div>
                     
-                    <div style={{ background: 'white', padding: '35px', borderRadius: '30px', boxShadow: '0 10px 40px rgba(0,0,0,0.03)', textAlign: 'right' }}>
-                        <h4 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '20px', color: 'var(--primary-color)' }}>למה אנחנו?</h4>
-                        <p style={{ color: '#666', lineHeight: 1.6 }}>אנחנו לא רק מספקים שירות, אנחנו בונים חוויה. האיכות שלנו נמדדת בפרטים הקטנים ובחיוך שלכם בסוף הערב.</p>
+                    <div className="vendor-info-card">
+                        <h4>למה אנחנו?</h4>
+                        <p>אנחנו לא רק מספקים שירות, אנחנו בונים חוויה. האיכות שלנו נמדדת בפרטים הקטנים ובחיוך שלכם בסוף הערב.</p>
                     </div>
                 </div>
 
                 {/* Portfolio / Services section */}
-                <div style={{ marginTop: '80px' }}>
+                <div className="vendor-sections">
                     {/* Services & Prices (Conditional) */}
                     {((vendor.portfolio && vendor.portfolio.some(item => item.price)) || (vendor.products && vendor.products.length > 0)) && (
-                        <div style={{ marginBottom: '60px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                                <h2 style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>שירותים ומחירים</h2>
-                                <div style={{ width: '100px', height: '2px', background: '#eee' }}></div>
+                        <div className="vendor-services-block">
+                            <div className="vendor-section-head">
+                                <h2>שירותים ומחירים</h2>
+                                <div className="vendor-section-line"></div>
                             </div>
                             
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
                                 {(vendor.products && vendor.products.length > 0 ? vendor.products : (vendor.portfolio || []).filter(item => item.price)).map((item, i) => (
-                                    <motion.div 
+                                    <div 
                                         key={i} 
-                                        whileHover={{ y: -5 }}
                                         style={{ 
-                                            display: 'flex', alignItems: 'center', gap: '15px',
-                                            background: 'white', padding: '15px', borderRadius: '20px',
-                                            boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #f8f9fa'
+                                            display: 'flex', alignItems: 'center', gap: '14px',
+                                            background: 'white', padding: '12px', borderRadius: '12px',
+                                            border: '1px solid var(--border-color)'
                                         }}
                                     >
-                                        <div style={{ width: '80px', height: '80px', borderRadius: '15px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                                        <div style={{ width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
                                             <img 
                                                 src={typeof item === 'number' ? currentCategory.img : resolvePortfolioImage(item, currentCategory.img)} 
                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
@@ -288,47 +326,71 @@ export default function VendorDetailPage() {
                                                 onError={(e) => { e.target.src = currentCategory.img; }}
                                             />
                                             {vendor.mainProductId === item.id && (
-                                                <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--primary-color)', color: 'white', fontSize: '0.6rem', padding: '2px 5px', borderBottomLeftRadius: '8px' }}>
+                                                <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--charcoal)', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderBottomLeftRadius: '6px', fontWeight: 600 }}>
                                                     ראשי
                                                 </div>
                                             )}
                                         </div>
-                                        <div style={{ flex: 1 }}>
-                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1a1a1a', margin: '0 0 5px 0' }}>{item.title || item.name || 'שירות מותאם אישית'}</h3>
+                                        <div style={{ flex: 1, textAlign: 'right' }}>
+                                            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-dark)', margin: '0 0 4px 0', fontFamily: 'var(--font-main)' }}>{item.title || item.name || 'שירות מותאם אישית'}</h3>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                     {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
                                                         <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>₪{item.originalPrice}</span>
                                                     )}
-                                                    <span style={{ color: 'var(--primary-color)', fontWeight: 900, fontSize: '1.1rem' }}>
+                                                    <span style={{ color: 'var(--text-dark)', fontWeight: 700, fontSize: '1.05rem' }}>
                                                         ₪{item.price}
                                                     </span>
                                                 </div>
                                                 {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
-                                                    <span style={{ background: '#E8F5E9', color: '#2E7D32', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
-                                                        חסכון: ₪{item.originalPrice - item.price}
+                                                    <span style={{ background: 'var(--off-white)', color: 'var(--text-dark)', fontSize: '0.7rem', fontWeight: 600, padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+                                                        חיסכון ₪{item.originalPrice - item.price}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
                     {/* Pure Image Gallery */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>גלריית עבודות</h2>
-                        <div style={{ width: '100px', height: '2px', background: '#eee' }}></div>
+                    <div className="vendor-section-head gallery-head">
+                        <h2>גלריית עבודות</h2>
+                        <div className="vendor-section-actions">
+                            <EditChip href={`/admin/vendors/${vendor.id}`} label="ערוך גלריה / ספק" />
+                            <div className="vendor-section-line short"></div>
+                        </div>
                     </div>
+
+                    {isAdmin && (!vendor.portfolio || vendor.portfolio.length === 0) && (!vendor.products || vendor.products.length === 0) && (
+                        <div style={{
+                            marginBottom: '20px',
+                            padding: '18px',
+                            borderRadius: '16px',
+                            border: '1.5px dashed #fbbf24',
+                            background: '#fffbeb',
+                            color: '#92400e',
+                            fontWeight: 700,
+                            textAlign: 'right',
+                        }}>
+                            הגלריה ריקה כרגע. לחץ על &quot;ערוך גלריה / ספק&quot; בדף הניהול כדי להוסיף תמונות.
+                        </div>
+                    )}
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
-                        {((vendor.products && vendor.products.length > 0) ? vendor.products : (vendor.portfolio && vendor.portfolio.length > 0 ? vendor.portfolio : [1, 2, 3, 4, 5, 6])).map((item, i) => (
+                    <div className="vendor-gallery-grid">
+                        {(
+                            (vendor.products && vendor.products.length > 0)
+                                ? vendor.products
+                                : (vendor.portfolio && vendor.portfolio.length > 0)
+                                    ? vendor.portfolio
+                                    : (isAdmin ? [] : [1, 2, 3, 4, 5, 6])
+                        ).map((item, i) => (
                             <motion.div 
                                 key={i} 
                                 whileHover={{ scale: 1.02 }}
-                                style={{ height: '250px', borderRadius: '20px', overflow: 'hidden', background: '#eee', cursor: 'zoom-in', position: 'relative' }}
+                                className="vendor-gallery-item"
                             >
                                 <img 
                                     src={typeof item === 'number' ? currentCategory.img : resolvePortfolioImage(item, currentCategory.img)} 
@@ -359,17 +421,235 @@ export default function VendorDetailPage() {
             </div>
 
             <style jsx>{`
+                .vendor-page {
+                    min-height: 100vh;
+                    background: var(--white);
+                    padding-bottom: 24px;
+                }
+                .vendor-hero {
+                    height: 38vh;
+                    min-height: 280px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .vendor-hero-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    filter: brightness(0.7);
+                }
+                .vendor-hero-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(to bottom, transparent 40%, rgba(12,12,12,0.55));
+                }
+                .vendor-back-btn {
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10;
+                    color: white;
+                    background: rgba(0,0,0,0.35);
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    cursor: pointer;
+                }
+                .vendor-profile-wrap {
+                    max-width: 920px;
+                    margin-top: -100px;
+                    position: relative;
+                    z-index: 10;
+                }
+                .vendor-profile-card {
+                    background: white;
+                    border-radius: var(--radius-lg);
+                    padding: 48px 36px;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                }
+                .vendor-avatar {
+                    width: 140px;
+                    height: 140px;
+                    border-radius: 50%;
+                    border: 4px solid white;
+                    overflow: hidden;
+                    margin: -110px auto 24px;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+                    background: #eee;
+                }
+                .vendor-name {
+                    font-size: clamp(1.8rem, 4vw, 2.6rem);
+                    font-weight: 500;
+                    color: var(--text-dark);
+                    margin-bottom: 12px;
+                    font-family: var(--font-display);
+                }
+                .vendor-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 12px;
+                }
+                .vendor-wa-btn {
+                    padding: 14px 28px !important;
+                    background: #25D366 !important;
+                    border-color: #25D366 !important;
+                    border-radius: 8px !important;
+                    font-weight: 600 !important;
+                    font-size: 1rem !important;
+                    display: inline-flex !important;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .vendor-wa-btn i { font-size: 1.25rem; }
+                .vendor-fav-btn {
+                    padding: 14px 28px !important;
+                    border-radius: 8px !important;
+                    font-weight: 600 !important;
+                    font-size: 0.95rem !important;
+                    border: 1px solid var(--border-color) !important;
+                    color: var(--text-dark) !important;
+                    background: white !important;
+                }
+                .vendor-fav-btn i { margin-left: 8px; }
+                .vendor-info-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                    gap: 16px;
+                    margin-top: 28px;
+                }
+                .vendor-info-card {
+                    background: white;
+                    padding: 24px;
+                    border-radius: var(--radius-md);
+                    border: 1px solid var(--border-color);
+                    text-align: right;
+                }
+                .vendor-info-card h4 {
+                    font-size: 1.05rem;
+                    font-weight: 600;
+                    margin-bottom: 12px;
+                    color: var(--text-dark);
+                    font-family: var(--font-main);
+                }
+                .vendor-info-card ul {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    color: var(--text-light);
+                    font-weight: 500;
+                    font-size: 0.95rem;
+                }
+                .vendor-info-card li i {
+                    margin-left: 8px;
+                    color: var(--primary-color);
+                }
+                .vendor-info-card p {
+                    color: var(--text-light);
+                    line-height: 1.6;
+                    font-size: 0.95rem;
+                }
+                .vendor-sections { margin-top: 48px; }
+                .vendor-services-block { margin-bottom: 40px; }
+                .vendor-section-head {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                }
+                .vendor-section-head h2 {
+                    font-size: clamp(1.35rem, 3vw, 1.75rem);
+                    font-weight: 500;
+                    font-family: var(--font-display);
+                    margin: 0;
+                }
+                .vendor-section-line { display: none; }
+                .vendor-section-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .vendor-gallery-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                    gap: 12px;
+                }
+                .vendor-gallery-item {
+                    height: 220px;
+                    border-radius: var(--radius-md);
+                    overflow: hidden;
+                    background: #eee;
+                    cursor: zoom-in;
+                    position: relative;
+                }
+                .mobile-sticky-cta { display: none; }
+                .google-review-btn:hover { border-color: #cfc9be !important; }
+
                 @media (max-width: 768px) {
-                    h1 { font-size: 2.5rem !important; }
-                    .container { margin-top: -80px !important; }
+                    .vendor-page {
+                        padding-bottom: calc(var(--mobile-bottom-gap) + 72px);
+                    }
+                    .vendor-hero {
+                        height: 26vh;
+                        min-height: 180px;
+                        max-height: 240px;
+                    }
+                    .vendor-back-btn {
+                        top: 14px;
+                        right: 14px;
+                    }
+                    .vendor-profile-wrap {
+                        margin-top: -64px;
+                        padding: 0 12px;
+                    }
+                    .vendor-profile-card {
+                        border-radius: 14px;
+                        padding: 24px 16px 28px;
+                    }
+                    .vendor-avatar {
+                        width: 100px;
+                        height: 100px;
+                        border-width: 3px;
+                        margin: -72px auto 18px;
+                    }
+                    .vendor-name {
+                        font-size: 1.55rem;
+                        margin-bottom: 10px;
+                    }
+                    .vendor-actions { flex-direction: column; gap: 10px; }
+                    .vendor-wa-btn,
+                    .vendor-fav-btn {
+                        width: 100%;
+                        justify-content: center;
+                        padding: 14px 20px !important;
+                        min-height: 48px;
+                    }
+                    .vendor-info-grid {
+                        grid-template-columns: 1fr;
+                        gap: 12px;
+                        margin-top: 20px;
+                    }
+                    .vendor-sections { margin-top: 32px; }
+                    .vendor-gallery-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 8px;
+                    }
+                    .vendor-gallery-item {
+                        height: 140px;
+                        border-radius: 10px;
+                    }
                     .mobile-sticky-cta {
-                        display: block !important;
+                        display: block;
                         position: fixed;
-                        bottom: 70px; /* Above mobile nav */
+                        bottom: calc(var(--mobile-nav-height) + var(--safe-bottom));
                         left: 0;
                         right: 0;
-                        padding: 15px;
-                        background: linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0));
+                        padding: 10px 12px;
+                        background: linear-gradient(to top, rgba(255,255,255,1) 55%, rgba(255,255,255,0));
                         z-index: 999;
                         pointer-events: none;
                     }
@@ -381,24 +661,14 @@ export default function VendorDetailPage() {
                         background: #25D366;
                         color: white;
                         text-decoration: none;
-                        padding: 15px;
-                        borderRadius: 15px;
-                        fontWeight: 900;
-                        fontSize: 1.1rem;
-                        boxShadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+                        padding: 14px 16px;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        font-size: 0.95rem;
                         pointer-events: auto;
                         width: 100%;
+                        min-height: 48px;
                     }
-                }
-                .mobile-sticky-cta {
-                    display: none;
-                }
-                .google-review-btn:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
-                }
-                .portfolio-img:hover {
-                    transform: scale(1.1);
                 }
             `}</style>
         </div>

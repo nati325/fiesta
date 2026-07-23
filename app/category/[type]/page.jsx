@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { resolveVendorImage } from '@/lib/vendorImage';
+import { EditChip } from '@/components/SiteEditBar';
 
 export default function CategoryPage() {
     const params = useParams();
@@ -29,7 +30,6 @@ export default function CategoryPage() {
         const sorted = [...filtered].sort((a, b) => {
             if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
             if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
-            if (sortBy === 'rating') return 4.9 - 4.9; // Placeholder for real ratings
             return 0; // Default popularity
         });
 
@@ -48,7 +48,7 @@ export default function CategoryPage() {
         'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1200&q=80' },
         'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80' },
         'hair': { label: 'עיצוב שיער', img: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=1200&q=80' },
-        'makeup': { label: 'איפור', img: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1200&q=80' },
+        'makeup': { label: 'איפור', img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1200&q=80' },
         'rings': { label: 'טבעות נישואין', img: '/images/jewelry_hero.png' },
         'event-production': { label: 'הפקת אירועים', img: '/images/event_production.jpeg' },
         'rsvp': { label: 'אישורי הגעה', img: 'https://images.unsplash.com/photo-1512418490979-92798ccc13fb?auto=format&fit=crop&w=1200&q=80' },
@@ -73,85 +73,43 @@ export default function CategoryPage() {
     const currentCategory = categoryData[type] || { label: 'ספקים', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80' };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#fdfcf9', paddingBottom: '100px' }}>
-            {/* Header Hero Area - More Impactful */}
-            <div style={{
-                height: '35vh',
-                minHeight: '280px',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
-                <img src={currentCategory.img} alt={currentCategory.label} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.6)' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)' }} />
-                <div style={{ position: 'absolute', bottom: '40px', right: '40px', color: 'white', textAlign: 'right' }}>
-                    <h1 style={{ 
-                        fontSize: '3rem', 
-                        fontWeight: 900, 
-                        marginBottom: '8px',
-                        textShadow: '0 4px 15px rgba(0,0,0,0.9)',
-                        fontFamily: 'var(--font-display)',
-                        letterSpacing: '-0.02em'
-                    }}>{currentCategory.label}</h1>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
-                        <div style={{ height: '2px', width: '40px', background: 'var(--primary-color)' }}></div>
-                        <p style={{ 
-                            fontSize: '1.1rem', 
-                            opacity: 0.95, 
-                            fontWeight: 600,
-                            textShadow: '0 2px 8px rgba(0,0,0,0.8)'
-                        }}>{vendors.length} ספקים מובילים מחכים לכם</p>
+        <div className="category-page">
+            {/* Header Hero Area */}
+            <div className="category-hero">
+                <img src={currentCategory.img} alt={currentCategory.label} className="category-hero-img" />
+                <div className="category-hero-overlay" />
+                <div className="category-hero-text">
+                    <h1>{currentCategory.label}</h1>
+                    <div className="category-hero-meta">
+                        <div className="category-hero-line"></div>
+                        <p>{vendors.length} ספקים מובילים מחכים לכם</p>
                     </div>
                 </div>
                 <button
                     onClick={() => router.back()}
-                    style={{
-                        position: 'absolute', top: '15px', left: '20px', zIndex: 10,
-                        color: 'white', background: 'rgba(255,255,255,0.2)', width: '32px', height: '32px',
-                        borderRadius: '50%', border: 'none', cursor: 'pointer', backdropFilter: 'blur(10px)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}
+                    className="category-back-btn"
+                    aria-label="חזרה"
                 >
-                    <i className="fas fa-arrow-left" style={{ fontSize: '0.8rem' }}></i>
+                    <i className="fas fa-arrow-left"></i>
                 </button>
             </div>
 
-            <div className="container" style={{ maxWidth: '1200px', marginTop: '20px' }}>
+            <div className="container category-content">
                 {/* Sorting Bar */}
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    marginBottom: '20px', 
-                    padding: '0 10px',
-                    flexWrap: 'wrap',
-                    gap: '15px'
-                }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a' }}>
+                <div className="category-sort-bar">
+                    <div className="category-count">
                         {vendors.length} ספקים נמצאו
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '5px' }}>
+                    <div className="category-sort-chips">
                         {[
                             { id: 'popularity', label: 'פופולריות' },
                             { id: 'price-low', label: 'מהזול ליקר' },
                             { id: 'price-high', label: 'מהיקר לזול' },
-                            { id: 'rating', label: 'דירוג גוגל' }
                         ].map(btn => (
                             <button
                                 key={btn.id}
                                 onClick={() => setSortBy(btn.id)}
-                                style={{
-                                    padding: '6px 15px',
-                                    borderRadius: '50px',
-                                    border: '1px solid #eee',
-                                    background: sortBy === btn.id ? 'var(--primary-color)' : 'white',
-                                    color: sortBy === btn.id ? 'white' : '#666',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 700,
-                                    cursor: 'pointer',
-                                    whiteSpace: 'nowrap',
-                                    transition: 'all 0.2s',
-                                    boxShadow: sortBy === btn.id ? '0 5px 15px rgba(212,175,55,0.2)' : 'none'
-                                }}
+                                className={`category-sort-chip ${sortBy === btn.id ? 'active' : ''}`}
                             >
                                 {btn.label}
                             </button>
@@ -161,165 +119,443 @@ export default function CategoryPage() {
 
                 <AnimatePresence>
                     {vendors.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: '30px' }}>
-                            <h2 style={{ fontSize: '1.3rem', fontWeight: 800 }}>מיד נציג את הספקים...</h2>
+                        <div className="category-empty">
+                            <h2>מיד נציג את הספקים...</h2>
                         </div>
                     ) : (
-                        <div className="gallery-grid-full-image" style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: '15px',
-                            padding: '0 10px'
-                        }}>
+                        <div className="vendor-cards-grid">
                             {vendors.map((v, i) => {
                                 const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
-                                
-                                // Dynamic unique image logic
+
                                 let displayImage = resolveVendorImage(mainProduct?.image || v.image, '');
                                 if (!displayImage || displayImage.trim() === '' || displayImage === currentCategory.img) {
-                                    // Generate a unique unsplash image based on index and category type
                                     const seeds = [
-                                        '1516280440614-37939bbacd41', '1571266028243-3716f02d2d2e', '1470229722913-7c090be05e7f', 
+                                        '1516280440614-37939bbacd41', '1571266028243-3716f02d2d2e', '1470229722913-7c090be05e7f',
                                         '1598387181032-a3103a2db5b3', '1514525253161-7a46d19cd819', '1511285560929-80b456fea0bc',
-                                        '1520854221256-17451cc331bf', '1537151608828-ea2b11777ee8'
+                                        '1520854221256-17451cc331bf', '1487412947147-5cebf100ffc2'
                                     ];
-                                    const seed = seeds[i % seeds.length];
-                                    displayImage = `https://images.unsplash.com/photo-${seed}?auto=format&fit=crop&w=800&q=80`;
+                                    displayImage = `https://images.unsplash.com/photo-${seeds[i % seeds.length]}?auto=format&fit=crop&w=800&q=80`;
                                 }
 
                                 const displayPrice = mainProduct?.price || v.price;
                                 const displayOriginalPrice = mainProduct?.originalPrice || v.originalPrice;
                                 const displayName = mainProduct ? `${v.name} - ${mainProduct.name}` : v.name;
+                                const discountPct = displayOriginalPrice && Number(displayOriginalPrice) > 0 && Number(displayPrice) > 0 && Number(displayPrice) !== Number(displayOriginalPrice)
+                                    ? Math.round((1 - (displayPrice / displayOriginalPrice)) * 100)
+                                    : null;
 
                                 return (
-                                <motion.div
-                                    key={v.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.05 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    style={{
-                                        position: 'relative',
-                                        borderRadius: '20px',
-                                        overflow: 'hidden',
-                                        aspectRatio: '1 / 1',
-                                        boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                                        cursor: 'pointer'
-                                    }}
-                                    onClick={() => router.push(`/vendor/${v.id}`)}
-                                >
-                                    {/* Full Background Image */}
-                                    <img 
-                                        src={displayImage} 
-                                        alt={displayName} 
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                        onError={(e) => { e.target.src = currentCategory.img; }}
-                                    />
-                                    
-                                    {/* Overlay Gradient - Stronger for better contrast */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        inset: 0,
-                                        background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 35%, transparent 75%)'
-                                    }} />
+                                    <motion.article
+                                        key={v.id}
+                                        initial={{ opacity: 0, y: 12 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: Math.min(i * 0.04, 0.4) }}
+                                        className="vendor-card"
+                                        onClick={() => router.push(`/vendor/${v.id}`)}
+                                    >
+                                        <div className="vendor-card-media">
+                                            <img
+                                                src={displayImage}
+                                                alt={displayName}
+                                                onError={(e) => { e.target.src = currentCategory.img; }}
+                                            />
 
-                                    {/* Badges & Favorites */}
-                                    <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', zIndex: 10 }}>
-                                        {v.discount && (
-                                            <div style={{ background: 'var(--primary-color)', color: 'white', padding: '3px 8px', borderRadius: '50px', fontSize: '0.65rem', fontWeight: 'bold', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
-                                                {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'} הנחה
-                                            </div>
-                                        )}
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleFavorite(v.id);
-                                            }}
-                                            style={{
-                                                background: 'white',
-                                                border: 'none',
-                                                width: '28px',
-                                                height: '28px',
-                                                borderRadius: '50%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: isFavorite(v.id) ? '#e74c3c' : '#ccc',
-                                                cursor: 'pointer',
-                                                fontSize: '0.9rem',
-                                                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                                                transition: 'all 0.2s'
-                                            }}
-                                        >
-                                            <i className={isFavorite(v.id) ? "fas fa-heart" : "far fa-heart"}></i>
-                                        </button>
-                                    </div>
-
-                                    {/* Content Overlay */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '12px',
-                                        right: '12px',
-                                        left: '12px',
-                                        color: '#ffffff',
-                                        textAlign: 'right',
-                                        zIndex: 2
-                                    }}>
-                                        <h3 style={{ 
-                                            fontSize: '0.95rem', 
-                                            fontWeight: '800', 
-                                            lineHeight: '1.2',
-                                            marginBottom: '4px',
-                                            color: '#ffffff',
-                                            textShadow: '0 2px 8px rgba(0,0,0,0.8)'
-                                        }}>
-                                            {displayName}
-                                        </h3>
-                                        
-                                        {displayPrice && (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: '4px', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-                                                {displayOriginalPrice && (
-                                                    <span style={{ fontSize: '0.7rem', textDecoration: 'line-through', opacity: 0.6, color: '#fff' }}>₪{displayOriginalPrice}</span>
+                                            <div className="vendor-card-top">
+                                                {v.discount && (
+                                                    <span className="vendor-card-badge">
+                                                        {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'} הנחה
+                                                    </span>
                                                 )}
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--primary-color)' }}>₪{displayPrice}</span>
-                                                    {displayOriginalPrice && Number(displayOriginalPrice) > 0 && Number(displayPrice) > 0 && Number(displayPrice) !== Number(displayOriginalPrice) && (
-                                                        <span style={{ 
-                                                            background: 'rgba(46, 125, 50, 0.9)', 
-                                                            color: 'white', 
-                                                            fontSize: '0.6rem', 
-                                                            fontWeight: 800, 
-                                                            padding: '2px 6px', 
-                                                            borderRadius: '4px'
-                                                        }}>
-                                                            -{Math.round((1 - (displayPrice / displayOriginalPrice)) * 100)}%
-                                                        </span>
-                                                    )}
+                                                <div className="vendor-card-top-actions">
+                                                    <EditChip
+                                                        href={`/admin/vendors/${v.id}`}
+                                                        label="ערוך"
+                                                        style={{ padding: '4px 10px', fontSize: '0.7rem' }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            router.push(`/admin/vendors/${v.id}`);
+                                                        }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className={`vendor-card-fav ${isFavorite(v.id) ? 'active' : ''}`}
+                                                        aria-label="מועדפים"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleFavorite(v.id);
+                                                        }}
+                                                    >
+                                                        <i className={isFavorite(v.id) ? 'fas fa-heart' : 'far fa-heart'}></i>
+                                                    </button>
                                                 </div>
                                             </div>
-                                        )}
-
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffffff', fontSize: '0.7rem', fontWeight: 600 }}>
-                                            <i className="fas fa-map-marker-alt" style={{ color: 'var(--primary-color)', fontSize: '0.65rem', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}></i>
-                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{v.location || 'כל הארץ'}</span>
-                                            <span style={{ margin: '0 4px', opacity: 0.7 }}>|</span>
-                                            <span style={{ color: '#FFD700', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}><i className="fas fa-star" style={{ fontSize: '0.6rem' }}></i> 4.9</span>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            )})}
+
+                                        <div className="vendor-card-body">
+                                            <h3 className="vendor-card-title">{displayName}</h3>
+
+                                            <div className="vendor-card-meta">
+                                                <span className="vendor-card-loc">
+                                                    <i className="fas fa-map-marker-alt"></i>
+                                                    {v.location || v.region || 'כל הארץ'}
+                                                </span>
+                                                <span className="vendor-card-rating">
+                                                    <i className="fas fa-star"></i>
+                                                    {v.googleRating ? Number(v.googleRating).toFixed(1) : '4.9'}
+                                                </span>
+                                            </div>
+
+                                            {displayPrice && (
+                                                <div className="vendor-card-price-row">
+                                                    <div className="vendor-card-prices">
+                                                        {displayOriginalPrice && (
+                                                            <span className="vendor-card-old">₪{displayOriginalPrice}</span>
+                                                        )}
+                                                        <span className="vendor-card-price">₪{displayPrice}</span>
+                                                    </div>
+                                                    {discountPct != null && (
+                                                        <span className="vendor-card-save">-{discountPct}%</span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.article>
+                                );
+                            })}
                         </div>
                     )}
                 </AnimatePresence>
             </div>
 
             <style jsx>{`
-                @media (min-width: 900px) {
-                    .gallery-grid-full-image {
-                        grid-template-columns: repeat(4, 1fr) !important;
-                        gap: 25px !important;
+                .category-page {
+                    min-height: 100vh;
+                    background: var(--white);
+                    padding-bottom: 24px;
+                }
+                .category-hero {
+                    height: 32vh;
+                    min-height: 240px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .category-hero-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    filter: brightness(0.72);
+                }
+                .category-hero-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(to top, rgba(12,12,12,0.75) 0%, rgba(12,12,12,0.2) 55%, transparent 100%);
+                }
+                .category-hero-text {
+                    position: absolute;
+                    bottom: 32px;
+                    right: 40px;
+                    left: 40px;
+                    color: white;
+                    text-align: right;
+                }
+                .category-hero-text h1 {
+                    font-size: clamp(1.7rem, 4vw, 2.4rem);
+                    font-weight: 500;
+                    margin-bottom: 6px;
+                    font-family: var(--font-display);
+                    color: #fff;
+                }
+                .category-hero-meta {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    justify-content: flex-end;
+                }
+                .category-hero-line { display: none; }
+                .category-hero-text p {
+                    font-size: 0.95rem;
+                    opacity: 0.8;
+                    font-weight: 400;
+                    margin: 0;
+                }
+                .category-back-btn {
+                    position: absolute;
+                    top: 16px;
+                    left: 20px;
+                    z-index: 10;
+                    color: white;
+                    background: rgba(0,0,0,0.35);
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .category-back-btn i { font-size: 0.85rem; }
+                .category-content {
+                    max-width: 1200px;
+                    margin-top: 24px;
+                }
+                .category-sort-bar {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    padding: 0 8px;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
+                .category-count {
+                    font-size: 0.95rem;
+                    font-weight: 500;
+                    color: var(--text-light);
+                }
+                .category-sort-chips {
+                    display: flex;
+                    gap: 8px;
+                    overflow-x: auto;
+                    padding-bottom: 4px;
+                    -webkit-overflow-scrolling: touch;
+                    max-width: 100%;
+                }
+                .category-sort-chip {
+                    padding: 8px 14px;
+                    border-radius: 6px;
+                    border: 1px solid #e5e2dc;
+                    background: white;
+                    color: var(--text-light);
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    transition: border-color 0.2s, background 0.2s, color 0.2s;
+                    font-family: inherit;
+                    min-height: 40px;
+                    flex-shrink: 0;
+                }
+                .category-sort-chip.active {
+                    background: var(--charcoal);
+                    color: white;
+                    border-color: var(--charcoal);
+                }
+                .category-empty {
+                    text-align: center;
+                    padding: 60px 20px;
+                    background: var(--off-white);
+                    border-radius: var(--radius-md);
+                }
+                .category-empty h2 {
+                    font-size: 1.2rem;
+                    font-weight: 500;
+                }
+
+                .vendor-cards-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                    padding: 0 8px 16px;
+                }
+                .vendor-card {
+                    background: #fff;
+                    border-radius: var(--radius-md);
+                    overflow: hidden;
+                    cursor: pointer;
+                    border: 1px solid var(--border-color);
+                    transition: border-color 0.2s;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .vendor-card:hover { border-color: #cfc9be; }
+                .vendor-card-media {
+                    position: relative;
+                    height: 200px;
+                    background: #eee;
+                    flex-shrink: 0;
+                }
+                .vendor-card-media img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+                .vendor-card-top {
+                    position: absolute;
+                    inset: 10px 10px auto 10px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    gap: 8px;
+                    z-index: 2;
+                }
+                .vendor-card-badge {
+                    background: var(--charcoal);
+                    color: white;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    font-size: 0.72rem;
+                    font-weight: 600;
+                }
+                .vendor-card-top-actions {
+                    display: flex;
+                    gap: 6px;
+                    margin-right: auto;
+                }
+                .vendor-card-fav {
+                    background: white;
+                    border: none;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #bbb;
+                    cursor: pointer;
+                    font-size: 0.95rem;
+                }
+                .vendor-card-fav.active { color: #c0392b; }
+                .vendor-card-body {
+                    padding: 14px 16px 16px;
+                    text-align: right;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    flex: 1;
+                }
+                .vendor-card-title {
+                    font-family: var(--font-main);
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: var(--text-dark);
+                    margin: 0;
+                    line-height: 1.35;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+                .vendor-card-meta {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+                    color: var(--text-light);
+                    font-size: 0.82rem;
+                    font-weight: 500;
+                }
+                .vendor-card-loc {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .vendor-card-loc i { color: var(--text-light); font-size: 0.75rem; flex-shrink: 0; }
+                .vendor-card-rating {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    color: var(--text-dark);
+                    flex-shrink: 0;
+                }
+                .vendor-card-rating i { color: var(--primary-color); font-size: 0.7rem; }
+                .vendor-card-price-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+                    margin-top: auto;
+                    padding-top: 4px;
+                }
+                .vendor-card-prices {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 8px;
+                }
+                .vendor-card-old {
+                    font-size: 0.8rem;
+                    color: #aaa;
+                    text-decoration: line-through;
+                }
+                .vendor-card-price {
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    color: var(--text-dark);
+                }
+                .vendor-card-save {
+                    background: var(--off-white);
+                    color: var(--text-dark);
+                    font-size: 0.72rem;
+                    font-weight: 600;
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                    border: 1px solid var(--border-color);
+                }
+
+                @media (min-width: 1100px) {
+                    .vendor-cards-grid {
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 20px;
                     }
-                    h1 { font-size: 2.5rem !important; }
+                }
+
+                @media (max-width: 900px) {
+                    .vendor-cards-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 12px;
+                    }
+                    .vendor-card-media { height: 160px; }
+                    .vendor-card-title { font-size: 0.95rem; }
+                }
+
+                @media (max-width: 768px) {
+                    .category-hero {
+                        height: 26vh;
+                        min-height: 180px;
+                        max-height: 220px;
+                    }
+                    .category-hero-text {
+                        bottom: 18px;
+                        right: 16px;
+                        left: 16px;
+                    }
+                    .category-hero-text h1 { font-size: 1.55rem; margin-bottom: 4px; }
+                    .category-hero-text p { font-size: 0.85rem; }
+                    .category-back-btn { top: 12px; left: 12px; }
+                    .category-content { margin-top: 14px; padding: 0 14px; }
+                    .category-sort-bar {
+                        flex-direction: column;
+                        align-items: stretch;
+                        padding: 0;
+                        margin-bottom: 14px;
+                        gap: 10px;
+                    }
+                    .category-count { font-size: 0.9rem; }
+                    .vendor-cards-grid {
+                        grid-template-columns: 1fr;
+                        gap: 16px;
+                        padding: 0 0 24px;
+                    }
+                    .vendor-card-media {
+                        width: 100%;
+                        height: 220px;
+                        min-height: 220px;
+                    }
+                    .vendor-card-body { padding: 16px 18px 18px; gap: 10px; }
+                    .vendor-card-title { font-size: 1.1rem; }
+                    .vendor-card-meta { font-size: 0.88rem; }
+                    .vendor-card-price { font-size: 1.2rem; }
+                }
+
+                @media (max-width: 480px) {
+                    .category-hero { min-height: 160px; max-height: 200px; }
+                    .category-hero-text h1 { font-size: 1.4rem; }
+                    .vendor-card-media { height: 200px; min-height: 200px; }
                 }
             `}</style>
         </div>
