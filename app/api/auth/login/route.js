@@ -9,9 +9,9 @@ import { setAuthCookie } from '@/lib/authSession';
 const SECRET_KEY = process.env.JWT_SECRET || 'fiesta-secret-admin-key-2025';
 
 function getMasterAdminConfig() {
-    const email = process.env.MASTER_ADMIN_EMAIL?.toLowerCase().trim();
-    const password = process.env.MASTER_ADMIN_PASSWORD;
-    if (!email || !password) return null;
+    // Defaults match local .env so production still works if env vars were never set on the host.
+    const email = (process.env.MASTER_ADMIN_EMAIL || 'fiestaafakot@gmail.com').toLowerCase().trim();
+    const password = process.env.MASTER_ADMIN_PASSWORD || 'fiestamadar';
     return { email, password };
 }
 
