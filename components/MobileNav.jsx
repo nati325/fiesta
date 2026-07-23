@@ -78,24 +78,26 @@ export default function MobileNav() {
                 .mobile-nav-wrapper {
                     display: none;
                     position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    background: rgba(255, 255, 255, 0.96);
+                    z-index: 1000;
+                    /* Floating pill — inset so it doesn't cover full-bleed content */
+                    left: 50%;
+                    transform: translateX(-50%);
+                    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+                    width: calc(100% - 24px);
+                    max-width: 420px;
+                    background: rgba(255, 255, 255, 0.94);
                     backdrop-filter: blur(16px);
                     -webkit-backdrop-filter: blur(16px);
-                    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
-                    border-top: 1px solid rgba(0, 0, 0, 0.06);
-                    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
-                    z-index: 1000;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    padding: 6px 6px;
                 }
 
                 .mobile-nav-container {
                     display: flex;
                     justify-content: space-around;
                     align-items: center;
-                    max-width: 500px;
-                    margin: 0 auto;
                 }
 
                 .mobile-nav-item {
@@ -103,40 +105,37 @@ export default function MobileNav() {
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 3px;
+                    gap: 2px;
                     color: #888;
                     text-decoration: none;
-                    font-size: 0.7rem;
+                    font-size: 0.68rem;
                     font-weight: 600;
                     font-family: var(--font-main);
                     position: relative;
-                    padding: 6px 10px;
-                    min-height: 44px;
-                    min-width: 56px;
+                    padding: 8px 6px 6px;
+                    min-height: 48px;
+                    min-width: 0;
                     transition: color 0.2s;
                     flex: 1;
                     background: none;
                     border: none;
                     cursor: pointer;
                     -webkit-tap-highlight-color: transparent;
+                    border-radius: 14px;
                 }
 
                 .mobile-nav-item i {
-                    font-size: 1.15rem;
+                    font-size: 1.1rem;
                     line-height: 1;
                 }
 
                 .mobile-nav-item.active {
                     color: var(--primary-color);
+                    background: rgba(143, 115, 68, 0.08);
                 }
 
                 .nav-indicator {
-                    position: absolute;
-                    top: 0;
-                    width: 22px;
-                    height: 3px;
-                    background: var(--primary-color);
-                    border-radius: 0 0 4px 4px;
+                    display: none;
                 }
 
                 @media (max-width: 768px) {

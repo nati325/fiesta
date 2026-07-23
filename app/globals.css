@@ -87,6 +87,11 @@ img {
     min-height: 50vh;
 }
 
+/* Footer sits outside main — must also clear the floating bottom nav */
+.app > .footer {
+    padding-bottom: calc(40px + var(--mobile-bottom-gap));
+}
+
 /* Buttons */
 .btn {
     display: inline-block;
@@ -2356,8 +2361,9 @@ body.studio-mode .app > main {
 @media (max-width: 768px) {
     :root {
         --section-padding: 60px 0;
-        --mobile-nav-height: 64px;
-        --mobile-bottom-gap: calc(var(--mobile-nav-height) + var(--safe-bottom) + 8px);
+        /* Floating pill nav: bar ~56px + bottom inset 10px */
+        --mobile-nav-height: 56px;
+        --mobile-bottom-gap: calc(var(--mobile-nav-height) + var(--safe-bottom) + 22px);
     }
 
     /* Typography */
