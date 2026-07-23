@@ -46,7 +46,9 @@ export const AuthProvider = ({ children }) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(
+                email ? { email, password } : { password }
+            )
         });
         const data = await res.json();
 
@@ -58,6 +60,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(data.user));
         return data;
     };
+
+    /** Master unlock with site password only (e.g. fiestamadar). */
+    const unlockAdmin = async (password) => login(null, password);
 
     const register = async (name, email, password) => {
         const res = await fetch('/api/auth/register', {
@@ -85,7 +90,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{
-            user, token, loading, login, register, logout,
+            user, token, loading, login, unlockAdmin, register, logout,
             isAdmin: user?.isAdmin,
             eventPreference,
             setEventPreference: updateEventPreference,

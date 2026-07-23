@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useCustomers } from '@/context/CustomerContext';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useVendors } from '@/context/VendorContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getAdminHeaders } from '@/lib/getAdminHeaders';
 import { VENDOR_CATEGORIES, getCategoryLabel } from '@/lib/vendorCategories';
 import AdminNav from '@/components/admin/AdminNav';
@@ -42,6 +42,7 @@ const EMPTY_VENDOR_FORM = {
     priceIncludesVat: true,
     videos: [],
     products: [],
+    portfolio: [],
     mainProductId: ''
 };
 
@@ -62,10 +63,19 @@ const StatCard = ({ count, label, icon, color, bg }) => (
 );
 
 export default function AdminPage() {
+    return (
+        <Suspense fallback={<div style={{ padding: '120px', textAlign: 'center' }}>טוען ניהול...</div>}>
+            <AdminPageInner />
+        </Suspense>
+    );
+}
+
+function AdminPageInner() {
     const { addVendor, vendors, deleteVendor, updateVendor, loading: vendorsLoading } = useVendors();
     const { customers, addCustomer, updateCustomer, deleteCustomer, STATUS_OPTIONS, loading: customersLoading } = useCustomers();
     const { user, logout } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [activeTab, setActiveTab] = useState('vendors');
     const [vendorSearch, setVendorSearch] = useState('');
@@ -336,8 +346,16 @@ export default function AdminPage() {
                 : ''
         );
         setShowVendorAdvanced(true);
+        setActiveTab('vendors');
         window.scrollTo(0, 0);
     };
+
+    // Deep-link from public site: /admin?editVendor=<id> → dedicated edit page
+    useEffect(() => {
+        const editId = searchParams.get('editVendor');
+        if (!editId) return;
+        router.replace(`/admin/vendors/${editId}`);
+    }, [searchParams, router]);
 
     const getMeetingCountdown = (date) => {
         if (!date) return null;
@@ -352,19 +370,6 @@ export default function AdminPage() {
         if (days === 1) return { text: 'מחר', color: '#f39c12' };
         if (days < 0) return { text: `עברו ${Math.abs(days)} ימים`, color: '#94a3b8' };
         return { text: `בעוד ${days} ימים`, color: '#2ecc71' };
-    };
-
-    const updatePricingField = (field, value) => {
-        setVendorForm(prev => {
-            const next = { ...prev, [field]: value };
-            if (field === 'originalPrice' || field === 'discount' || field === 'discountType') {
-                const calculated = calculateClientPrice(next);
-                if (calculated > 0) {
-                    next.price = String(Math.round(calculated));
-                }
-            }
-            return next;
-        });
     };
 
     return (
@@ -590,6 +595,84 @@ export default function AdminPage() {
                                         </div>
                                     </div>
 
+                                    <div className="vendor-form-section">
+                                        <h4>גלריית עבודות ({(vendorForm.portfolio || []).length})</h4>
+                                        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '12px' }}>
+                                            תמונות שיופיעו בגלריה בדף הספק באתר
+                                        </p>
+                                        {(vendorForm.portfolio || []).length > 0 && (
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+                                                {(vendorForm.portfolio || []).map((item, idx) => {
+                                                    const src = typeof item === 'string' ? item : item?.image;
+                                                    return (
+                                                        <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                                            <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setVendorForm((f) => ({
+                                                                    ...f,
+                                                                    portfolio: (f.portfolio || []).filter((_, i) => i !== idx),
+                                                                }))}
+                                                                style={{
+                                                                    position: 'absolute', top: 4, left: 4,
+                                                                    width: 22, height: 22, borderRadius: '50%',
+                                                                    border: 'none', background: '#ef4444', color: 'white',
+                                                                    cursor: 'pointer', fontWeight: 800, fontSize: 11,
+                                                                }}
+                                                                title="הסר"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                        <label
+                                            style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: 8,
+                                                padding: '10px 14px',
+                                                borderRadius: 10,
+                                                border: '1.5px dashed #94a3b8',
+                                                cursor: 'pointer',
+                                                fontWeight: 700,
+                                                fontSize: '0.85rem',
+                                                color: '#334155',
+                                                background: '#f8fafc',
+                                            }}
+                                        >
+                                            <i className="fas fa-plus" />
+                                            הוסף תמונות לגלריה
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                style={{ display: 'none' }}
+                                                onChange={async (e) => {
+                                                    const files = Array.from(e.target.files || []);
+                                                    e.target.value = '';
+                                                    if (!files.length) return;
+                                                    try {
+                                                        for (const file of files) {
+                                                            const data = await uploadVendorFile(file, 'image');
+                                                            setVendorForm((f) => ({
+                                                                ...f,
+                                                                portfolio: [
+                                                                    ...(f.portfolio || []),
+                                                                    { title: `תמונה ${(f.portfolio || []).length + 1}`, image: data.url },
+                                                                ],
+                                                            }));
+                                                        }
+                                                    } catch (err) {
+                                                        alert(err.message || 'שגיאה בהעלאת תמונות');
+                                                    }
+                                                }}
+                                            />
+                                        </label>
+                                    </div>
+
                                     <div className="crm-input-group">
                                         <label>תיאור קצר (אופציונלי)</label>
                                         <textarea value={vendorForm.description} onChange={e => setVendorForm({ ...vendorForm, description: e.target.value })} rows={2} placeholder="משפט או שניים על הספק..." />
@@ -679,6 +762,10 @@ export default function AdminPage() {
                             </div>
 
                 <div className="crm-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', gap: '12px', flexWrap: 'wrap' }}>
+                        <h3 style={{ margin: 0 }}>ספקים קיימים ({filteredVendors.length})</h3>
+                        <span style={{ fontSize: '0.85rem', color: '#64748b' }}>לחץ על &quot;עריכת ספק&quot; ליד כל שם</span>
+                    </div>
                     <div className="crm-search-bar">
                         <div className="crm-search-input">
                             <i className="fas fa-search"></i>
@@ -704,13 +791,33 @@ export default function AdminPage() {
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 {v.image && <img src={v.image} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }} />}
-                                                <div>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
                                                     <div style={{ fontWeight: 700, color: '#1a1a1a' }}>{v.name}</div>
                                                     {v.adminNotes && (
                                                         <div style={{ fontSize: '0.7rem', color: '#856404', background: '#fff9e6', padding: '1px 5px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                                                             <i className="fas fa-sticky-note"></i> הערה
                                                         </div>
                                                     )}
+                                                    <Link
+                                                        href={`/admin/vendors/${v.id}`}
+                                                        style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            marginTop: '8px',
+                                                            background: '#16a34a',
+                                                            color: 'white',
+                                                            textDecoration: 'none',
+                                                            padding: '8px 14px',
+                                                            borderRadius: '8px',
+                                                            fontWeight: 800,
+                                                            fontSize: '0.85rem',
+                                                            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)',
+                                                        }}
+                                                    >
+                                                        <i className="fas fa-pen" />
+                                                        עריכת ספק
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </td>
@@ -734,17 +841,35 @@ export default function AdminPage() {
                                             )}
                                         </td>
                                         <td>
-                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
+                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end', alignItems: 'center' }}>
                                                         <button onClick={() => sendVendorAvailabilityCheck(v)} title="בדוק זמינות" style={{ background: '#3498db', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="far fa-calendar-check"></i>
                                                         </button>
                                                         <button onClick={() => sendVendorDealSummary(v)} title="שלח סיכום סגירה" style={{ background: '#f39c12', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-file-invoice-dollar"></i>
                                                         </button>
-                                                        <button onClick={() => startEditVendor(v)} style={{ background: '#2ecc71', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                        <Link
+                                                            href={`/admin/vendors/${v.id}`}
+                                                            title="ערוך ספק"
+                                                            style={{
+                                                                background: '#2ecc71',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                padding: '5px 10px',
+                                                                borderRadius: '4px',
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'none',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '5px',
+                                                                fontWeight: 700,
+                                                                fontSize: '0.8rem',
+                                                            }}
+                                                        >
                                                             <i className="fas fa-edit"></i>
-                                                        </button>
-                                                        <button onClick={() => handleDeleteVendor(v.id, v.name)} style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
+                                                            עריכה
+                                                        </Link>
+                                                        <button onClick={() => handleDeleteVendor(v.id, v.name)} title="מחק" style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                                                             <i className="fas fa-trash"></i>
                                                         </button>
                                                     </div>

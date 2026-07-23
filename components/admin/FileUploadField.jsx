@@ -17,7 +17,9 @@ export default function FileUploadField({
   const fileRef = useRef(null);
   const isImagePreview =
     previewUrl &&
-    (/^data:image\//.test(previewUrl) || /\.(jpg|jpeg|png|webp|gif)$/i.test(previewUrl));
+    (/^data:image\//.test(previewUrl) ||
+      /\.(jpg|jpeg|png|webp|gif|heic)(\?|$)/i.test(previewUrl) ||
+      (/cloudinary\.com/i.test(previewUrl) && !/\.(pdf|doc|docx)(\?|$)/i.test(previewUrl)));
 
   const triggerSelect = (e) => {
     if (uploading) return;

@@ -17,32 +17,48 @@ function getMasterAdminConfig() {
 
 export async function POST(request) {
     try {
-        const { email, password } = await request.json();
+        const body = await request.json();
+        const password = body?.password;
+        const email = body?.email;
 
-        if (!email || !password) {
-            return NextResponse.json({ message: 'Email and password required' }, { status: 400 });
+        if (!password) {
+            return NextResponse.json({ message: 'Password required' }, { status: 400 });
         }
 
-        const normalizedEmail = email.toLowerCase().trim();
         const masterAdmin = getMasterAdminConfig();
 
-        if (masterAdmin && normalizedEmail === masterAdmin.email && password === masterAdmin.password) {
+        // Master unlock: password alone (fiestamadar) OR email+password
+        const passwordMatchesMaster = masterAdmin && password === masterAdmin.password;
+        const emailMatchesMaster =
+            !email ||
+            String(email).toLowerCase().trim() === masterAdmin?.email ||
+            String(email).toLowerCase().trim() === 'admin' ||
+            String(email).toLowerCase().trim() === 'fiesta';
+
+        if (passwordMatchesMaster && emailMatchesMaster) {
+            const adminEmail = masterAdmin.email;
             const token = jwt.sign(
-                { id: 'master-admin-' + normalizedEmail, email: normalizedEmail, isAdmin: true },
+                { id: 'master-admin-' + adminEmail, email: adminEmail, isAdmin: true },
                 SECRET_KEY,
-                { expiresIn: '24h' }
+                { expiresIn: '7d' }
             );
 
             const response = NextResponse.json({
                 success: true,
                 message: 'Login successful',
                 token,
-                user: { id: 'master-admin', email: normalizedEmail, name: 'מנהל מערכת', isAdmin: true }
+                user: { id: 'master-admin', email: adminEmail, name: 'מנהל מערכת', isAdmin: true }
             });
 
             setAuthCookie(response, token);
             return response;
         }
+
+        if (!email) {
+            return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+        }
+
+        const normalizedEmail = String(email).toLowerCase().trim();
 
         await dbConnect();
         const user = await User.findOne({ email: normalizedEmail }).select('+password');
@@ -60,7 +76,7 @@ export async function POST(request) {
         const token = jwt.sign(
             { id: user._id, email: user.email, isAdmin: user.isAdmin },
             SECRET_KEY,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
 
         const response = NextResponse.json({

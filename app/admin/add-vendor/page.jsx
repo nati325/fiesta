@@ -105,6 +105,11 @@ export default function QuickAddVendorPage() {
       if (!skip) return;
     }
 
+    if (!form.agreementImage) {
+      const skip = confirm('לא הועלה חוזה / צילום שיחה.\nלהמשיך בכל זאת בלי חוזה?');
+      if (!skip) return;
+    }
+
     setSaving(true);
     try {
       const payload = buildVendorPayload(form);
@@ -237,19 +242,49 @@ export default function QuickAddVendorPage() {
               onFileSelect={handleImageUpload}
               icon="fa-image"
             />
-            <div>
-              <FileUploadField
-                label="חוזה / צילום שיחה"
-                hint="צלמו את החוזה או העלו PDF"
-                accept={DOCUMENT_ACCEPT}
-                showCamera
-                uploading={agreementUploading}
-                fileName={agreementFileName}
-                previewUrl={form.agreementImage}
-                onFileSelect={handleAgreementUpload}
-                icon="fa-file-contract"
-              />
-              <label className="agreement-signed-row">
+          </div>
+
+          <div
+            className="crm-card"
+            style={{
+              marginTop: '8px',
+              padding: '16px',
+              border: form.agreementImage ? '2px solid #86efac' : '2px dashed #f59e0b',
+              background: form.agreementImage ? '#f0fdf4' : '#fffbeb',
+              borderRadius: '14px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', gap: '10px', flexWrap: 'wrap' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#92400e' }}>
+                  <i className="fas fa-file-contract" style={{ marginLeft: '8px' }} />
+                  חוזה / צילום שיחה
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#78716c' }}>
+                  חובה מומלצת — צלמו את החוזה או העלו PDF / תמונה
+                </p>
+              </div>
+              {form.agreementImage && (
+                <span className="crm-badge crm-badge-success" style={{ fontWeight: 800 }}>
+                  ✅ חוזה הועלה
+                </span>
+              )}
+            </div>
+
+            <FileUploadField
+              label=""
+              hint=""
+              accept={DOCUMENT_ACCEPT}
+              showCamera
+              uploading={agreementUploading}
+              fileName={agreementFileName}
+              previewUrl={form.agreementImage}
+              onFileSelect={handleAgreementUpload}
+              icon="fa-file-signature"
+            />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '12px', flexWrap: 'wrap' }}>
+              <label className="agreement-signed-row" style={{ margin: 0 }}>
                 <input
                   type="checkbox"
                   checked={form.agreementSigned}
@@ -257,6 +292,36 @@ export default function QuickAddVendorPage() {
                 />
                 הסכם חתום
               </label>
+              {form.agreementImage && (
+                <>
+                  <a
+                    href={form.agreementImage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '0.85rem', color: '#2563eb', fontWeight: 700 }}
+                  >
+                    <i className="fas fa-external-link-alt" /> צפייה בחוזה
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm((prev) => ({ ...prev, agreementImage: '', agreementSigned: false }));
+                      setAgreementFileName('');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#dc2626',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    הסר חוזה
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
