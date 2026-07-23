@@ -2623,6 +2623,16 @@ body.studio-mode .app > main {
         font-size: 1rem;
     }
 
+    body.admin-mode .btn-save-vendor,
+    .quick-add-vendor .btn-save-vendor {
+        min-height: 58px;
+        font-size: 1.2rem;
+        font-weight: 800;
+        border-radius: 14px;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 20px rgba(17, 17, 17, 0.18);
+    }
+
     body.admin-mode .vendor-advanced-panel label[style*="grid-template-columns"] {
         display: block !important;
     }
@@ -2632,7 +2642,16 @@ body.studio-mode .app > main {
     }
 }
 
-/* Quick add vendor page */
+/* Larger save CTA on vendor edit / quick-add (desktop + mobile) */
+.btn-save-vendor {
+    min-height: 56px !important;
+    padding: 16px 28px !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.16);
+}
+
 .quick-add-vendor .crm-main {
     max-width: 640px;
 }

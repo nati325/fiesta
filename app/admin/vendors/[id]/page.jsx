@@ -489,7 +489,7 @@ export default function EditVendorPage() {
           </div>
 
           <div className="crm-form-actions vendor-form-sticky-actions">
-            <button type="submit" className="btn-primary btn-mobile-full" disabled={saving}>
+            <button type="submit" className="btn-primary btn-mobile-full btn-save-vendor" disabled={saving}>
               {saving ? '⏳ שומר...' : '💾 שמור שינויים'}
             </button>
             <Link href="/admin" className="btn-secondary btn-mobile-full" style={{ textAlign: 'center' }}>

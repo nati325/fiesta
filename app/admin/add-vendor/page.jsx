@@ -310,7 +310,7 @@ export default function QuickAddVendorPage() {
           </div>
 
           <div className="crm-form-actions vendor-form-sticky-actions">
-            <button type="submit" className="btn-primary btn-mobile-full" disabled={saving}>
+            <button type="submit" className="btn-primary btn-mobile-full btn-save-vendor" disabled={saving}>
               {saving ? '⏳ שומר...' : '✅ שמור ספק לאתר'}
             </button>
           </div>
