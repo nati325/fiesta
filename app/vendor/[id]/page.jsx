@@ -591,7 +591,7 @@ export default function VendorDetailPage() {
 
                 @media (max-width: 768px) {
                     .vendor-page {
-                        padding-bottom: calc(var(--mobile-bottom-gap) + 72px);
+                        padding-bottom: 72px;
                     }
                     .vendor-hero {
                         height: 26vh;
@@ -645,7 +645,7 @@ export default function VendorDetailPage() {
                     .mobile-sticky-cta {
                         display: block;
                         position: fixed;
-                        bottom: calc(var(--mobile-nav-height) + var(--safe-bottom));
+                        bottom: calc(var(--safe-bottom));
                         left: 0;
                         right: 0;
                         padding: 10px 12px;

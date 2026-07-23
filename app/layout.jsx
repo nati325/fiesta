@@ -2,7 +2,6 @@ import { Heebo, Frank_Ruhl_Libre } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
 import Navbar from '@/components/Navbar';
-import MobileNav from '@/components/MobileNav';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import TrafficTracker from '@/components/TrafficTracker';
 import SiteEditBar from '@/components/SiteEditBar';
@@ -60,7 +59,6 @@ export default function RootLayout({ children }) {
                             </div>
                         </footer>
                         <WhatsAppButton />
-                        <MobileNav />
                     </div>
                 </Providers>
             </body>
