@@ -268,11 +268,11 @@ export default function VendorDetailPage() {
                     {/* Action Bar */}
                     <div className="vendor-actions">
                         <a
-                            href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי, אני רוצה לקבוע פגישה עם ${vendor.name}`)}`}
+                            href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי, הגעתי מ־Fiesta לגבי ${vendor.name} ואשמח לתיאום`)}`}
                             target="_blank" rel="noopener noreferrer"
-                            className="btn btn-primary vendor-wa-btn"
+                            className="btn btn-outline vendor-contact-btn"
                         >
-                            <i className="fab fa-whatsapp"></i> פנו אלינו בוואטסאפ
+                            לתיאום דרך Fiesta
                         </a>
                         
                         <button className="btn btn-outline vendor-fav-btn">
@@ -408,18 +408,6 @@ export default function VendorDetailPage() {
                 </div>
             </div>
 
-            {/* Mobile Sticky WhatsApp CTA */}
-            <div className="mobile-sticky-cta">
-                <a
-                    href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי, אני רוצה לקבוע פגישה עם ${vendor.name}`)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="sticky-whatsapp-btn"
-                >
-                    <i className="fab fa-whatsapp"></i>
-                    פנייה בוואטסאפ ל-{vendor.name}
-                </a>
-            </div>
-
             <style jsx>{`
                 .vendor-page {
                     min-height: 100vh;
@@ -492,20 +480,21 @@ export default function VendorDetailPage() {
                     justify-content: center;
                     gap: 12px;
                 }
-                .vendor-wa-btn {
-                    padding: 14px 28px !important;
-                    background: #25D366 !important;
-                    border-color: #25D366 !important;
+                .vendor-contact-btn {
+                    padding: 12px 22px !important;
                     border-radius: 8px !important;
                     font-weight: 600 !important;
-                    font-size: 1rem !important;
-                    display: inline-flex !important;
-                    align-items: center;
-                    gap: 10px;
+                    font-size: 0.95rem !important;
+                    border: 1px solid var(--border-color) !important;
+                    color: var(--text-dark) !important;
+                    background: white !important;
                 }
-                .vendor-wa-btn i { font-size: 1.25rem; }
+                .vendor-contact-btn:hover {
+                    border-color: var(--primary-color) !important;
+                    color: var(--primary-color) !important;
+                }
                 .vendor-fav-btn {
-                    padding: 14px 28px !important;
+                    padding: 12px 22px !important;
                     border-radius: 8px !important;
                     font-weight: 600 !important;
                     font-size: 0.95rem !important;
@@ -591,7 +580,7 @@ export default function VendorDetailPage() {
 
                 @media (max-width: 768px) {
                     .vendor-page {
-                        padding-bottom: 72px;
+                        padding-bottom: 24px;
                     }
                     .vendor-hero {
                         height: 26vh;
@@ -621,12 +610,12 @@ export default function VendorDetailPage() {
                         margin-bottom: 10px;
                     }
                     .vendor-actions { flex-direction: column; gap: 10px; }
-                    .vendor-wa-btn,
+                    .vendor-contact-btn,
                     .vendor-fav-btn {
                         width: 100%;
                         justify-content: center;
-                        padding: 14px 20px !important;
-                        min-height: 48px;
+                        padding: 12px 18px !important;
+                        min-height: 44px;
                     }
                     .vendor-info-grid {
                         grid-template-columns: 1fr;
@@ -642,33 +631,7 @@ export default function VendorDetailPage() {
                         height: 140px;
                         border-radius: 10px;
                     }
-                    .mobile-sticky-cta {
-                        display: block;
-                        position: fixed;
-                        bottom: calc(var(--safe-bottom));
-                        left: 0;
-                        right: 0;
-                        padding: 10px 12px;
-                        background: linear-gradient(to top, rgba(255,255,255,1) 55%, rgba(255,255,255,0));
-                        z-index: 999;
-                        pointer-events: none;
-                    }
-                    .sticky-whatsapp-btn {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 10px;
-                        background: #25D366;
-                        color: white;
-                        text-decoration: none;
-                        padding: 14px 16px;
-                        border-radius: 10px;
-                        font-weight: 600;
-                        font-size: 0.95rem;
-                        pointer-events: auto;
-                        width: 100%;
-                        min-height: 48px;
-                    }
+                    .google-review-btn:hover { border-color: #cfc9be !important; }
                 }
             `}</style>
         </div>

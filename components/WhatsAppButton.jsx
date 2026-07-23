@@ -8,11 +8,12 @@ const WhatsAppButton = () => {
     const pathname = usePathname();
 
     if (pathname?.startsWith('/admin')) return null;
-    if (pathname?.startsWith('/vendor/')) return null;
     if (HIDDEN_PATHS.some((p) => pathname === p || pathname?.startsWith(`${p}/`))) return null;
 
     const phoneNumber = '972535378985';
-    const message = encodeURIComponent('היי, הגעתי מהאתר Fiesta ואשמח לקבל פרטים נוספים');
+    const message = encodeURIComponent(
+        'היי, הגעתי מ־Fiesta ואשמח לתיאום דרככם'
+    );
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
     return (
@@ -21,7 +22,8 @@ const WhatsAppButton = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="whatsapp-float-compact"
-            aria-label="Contact us on WhatsApp"
+            aria-label="יצירת קשר עם נציג Fiesta"
+            title="נציג Fiesta"
         >
             <i className="fab fa-whatsapp"></i>
             <span className="whatsapp-label-small">נציג Fiesta</span>
