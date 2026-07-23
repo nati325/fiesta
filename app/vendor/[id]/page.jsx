@@ -575,7 +575,6 @@ export default function VendorDetailPage() {
                     cursor: zoom-in;
                     position: relative;
                 }
-                .mobile-sticky-cta { display: none; }
                 .google-review-btn:hover { border-color: #cfc9be !important; }
 
                 @media (max-width: 768px) {
