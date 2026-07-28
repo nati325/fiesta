@@ -22,11 +22,11 @@ const WhatsAppButton = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="whatsapp-float-compact"
-            aria-label="יצירת קשר עם נציג Fiesta"
-            title="נציג Fiesta"
+            aria-label="תעבור לנציג פייסטה"
+            title="תעבור לנציג פייסטה"
         >
             <i className="fab fa-whatsapp"></i>
-            <span className="whatsapp-label-small">נציג Fiesta</span>
+            <span className="whatsapp-label-small">תעבור לנציג פייסטה</span>
         </a>
     );
 };

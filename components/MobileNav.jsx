@@ -18,7 +18,7 @@ export default function MobileNav() {
     const navItems = [
         { id: 'home', label: 'בית', icon: 'fas fa-home', path: '/' },
         { id: 'search', label: 'חיפוש', icon: 'fas fa-search', action: 'search' },
-        { id: 'favorites', label: 'מועדפים', icon: 'fas fa-heart', path: '/favorites' },
+        { id: 'favorites', label: 'מועדפים', icon: 'fas fa-heart', path: '/profile' },
         { id: 'planner', label: 'מתכנן', icon: 'fas fa-calculator', path: '/budget-planner' },
     ];
 

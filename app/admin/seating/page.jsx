@@ -13,8 +13,29 @@ function SeatingContent() {
     const [loading, setLoading] = useState(true);
     const [selectedGuest, setSelectedGuest] = useState(null);
     const [tableCount, setTableCount] = useState(30);
+    const [seatsPerTable, setSeatsPerTable] = useState(12);
     const [viewMode, setViewMode] = useState('grid');
     const [search, setSearch] = useState('');
+
+    useEffect(() => {
+        if (!eventId) return;
+        try {
+            const saved = localStorage.getItem(`fiesta_seating_${eventId}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.tableCount) setTableCount(Number(parsed.tableCount) || 30);
+                if (parsed.seatsPerTable) setSeatsPerTable(Number(parsed.seatsPerTable) || 12);
+            }
+        } catch { /* ignore */ }
+    }, [eventId]);
+
+    useEffect(() => {
+        if (!eventId) return;
+        localStorage.setItem(
+            `fiesta_seating_${eventId}`,
+            JSON.stringify({ tableCount, seatsPerTable })
+        );
+    }, [eventId, tableCount, seatsPerTable]);
 
     useEffect(() => {
         fetchGuests();
@@ -143,7 +164,9 @@ function SeatingContent() {
                         </div>
                         <div className="table-settings">
                             <span>מספר שולחנות:</span>
-                            <input type="number" value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} />
+                            <input type="number" min={1} max={200} value={tableCount} onChange={(e) => setTableCount(Math.max(1, Number(e.target.value) || 1))} />
+                            <span>מקומות לשולחן:</span>
+                            <input type="number" min={1} max={30} value={seatsPerTable} onChange={(e) => setSeatsPerTable(Math.max(1, Number(e.target.value) || 1))} />
                         </div>
                     </div>
 
@@ -152,16 +175,24 @@ function SeatingContent() {
                             {Array.from({ length: tableCount }, (_, i) => i + 1).map(num => {
                                 const tableGuests = getTableGuests(num);
                                 const totalSeats = tableGuests.reduce((acc, g) => acc + g.guests, 0);
+                                const over = totalSeats > seatsPerTable;
 
                                 return (
                                     <div
                                         key={num}
-                                        className={`table-node ${selectedGuest ? 'assignable' : ''}`}
-                                        onClick={() => selectedGuest && assignTable(selectedGuest._id, num)}
+                                        className={`table-node ${selectedGuest ? 'assignable' : ''} ${over ? 'over-capacity' : ''}`}
+                                        onClick={() => {
+                                            if (!selectedGuest) return;
+                                            const next = totalSeats + (selectedGuest.guests || 1);
+                                            if (next > seatsPerTable && !confirm(`שולחן ${num} יעבור את הקיבולת (${next}/${seatsPerTable}). להמשיך?`)) return;
+                                            assignTable(selectedGuest._id, num);
+                                        }}
                                     >
                                         <div className="table-circle">
                                             <span className="number">{num}</span>
-                                            <span className="seats-count">{totalSeats} / 12</span>
+                                            <span className="seats-count" style={over ? { color: '#b91c1c', fontWeight: 800 } : undefined}>
+                                                {totalSeats} / {seatsPerTable}
+                                            </span>
                                         </div>
                                         <div className="table-details">
                                             {tableGuests.map(tg => (

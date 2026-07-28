@@ -43,7 +43,7 @@ export default function AdminNav({ user, onLogout, tabs = [] }) {
         </div>
 
         <div className="crm-user">
-          <span>שלום, {user?.email}</span>
+          <span>שלום, {user?.name || user?.username || user?.email || 'מנהל'}</span>
           <button type="button" onClick={onLogout} className="btn-logout">
             התנתק
           </button>

@@ -15,25 +15,14 @@ export default function ArticlePage({ params }) {
     notFound();
   }
 
-  // Generate realistic boutique content since it's not present in the JSON yet
-  const content = article.content || `
-    <p>ברוכים הבאים למאמר המלא על <strong>${article.title}</strong>.</p>
-    <p>בחירת ספקים, אולמות וניהול תקציב הם החלקים המורכבים ביותר בהפקת אירוע. במדריך זה אנחנו נצלול עמוק לתוך כל מה שאתם צריכים לדעת כדי לקבל את ההחלטות הנכונות בלי לחרוג מהתקציב.</p>
-    
-    <h2>למה התכנון המוקדם הוא כל כך קריטי?</h2>
-    <p>מחקר מקדים וארגון נכון לא רק יחסכו לכם אלפי שקלים, אלא יבטיחו לכם אירוע רגוע ונטול הפתעות ביום עצמו. רוב הזוגות מתחילים להתפזר כשהם נתקלים בים של אפשרויות. סגירת חבילה מרוכזת דרך פלטפורמות כמו פייסטה פותרת בדיוק את הכאב הזה.</p>
-    
-    <blockquote>"חתונה מושלמת היא חתונה מתוכננת היטב - מהאולם ועד לאחרון הספקים."</blockquote>
-    
-    <h2>איך מתקדמים מכאן?</h2>
-    <p>אל תשאירו את הדברים לרגע האחרון. מומלץ לקבוע פגישת ייעוץ איתנו כדי להבין בדיוק מה הצרכים שלכם, לבנות חבילה מותאמת אישית שכוללת את כל השירותים, ולקבל את כל הערבויות לאירוע בלתי נשכח.</p>
-    
-    <p>נשמח לעמוד לשירותכם בכל שאלה, צוות Fiesta.</p>
-  `;
+  const content = article.content
+    ? article.content
+    : article.excerpt
+      ? `<p>${article.excerpt}</p>`
+      : '';
 
   return (
     <div style={{ background: '#fdfdfd', minHeight: '100vh', paddingBottom: '80px' }}>
-      {/* Header Spacer - Allows navbar to clear */}
       <div style={{ height: '90px', background: 'white', borderBottom: '1px solid #f0f0f0' }}></div>
       
       <main className="container" style={{ maxWidth: '850px', margin: '40px auto', padding: '0 20px' }}>
@@ -42,8 +31,8 @@ export default function ArticlePage({ params }) {
           חזרה למאמרים
         </Link>
         
-        <article style={{ background: 'white', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.04)', border: '1px solid #f5f5f5' }}>
-          <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+        <article style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', border: '1px solid #f0eee8' }}>
+          <div style={{ position: 'relative', width: '100%', height: 'min(400px, 45vw)', minHeight: 180 }}>
             <img 
               src={article.image} 
               alt={article.title} 
@@ -51,42 +40,48 @@ export default function ArticlePage({ params }) {
             />
           </div>
           
-          <div style={{ padding: '50px 8%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: '1px solid #eaeaea', paddingBottom: '20px' }}>
-              <span style={{ color: '#D4AF37', fontWeight: 700, fontSize: '1.1rem' }}>
+          <div style={{ padding: 'clamp(24px, 5vw, 50px) clamp(16px, 6%, 8%)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: '1px solid #eaeaea', paddingBottom: '20px', flexWrap: 'wrap', gap: 12 }}>
+              <span style={{ color: 'var(--primary-color, #8F7344)', fontWeight: 600, fontSize: '1rem' }}>
                 <i className="far fa-calendar-alt" style={{ marginLeft: '8px' }}></i>
                 {(() => {
                     const d = new Date(article.date);
+                    if (Number.isNaN(d.getTime())) return '';
                     return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()}`;
                 })()}
               </span>
-              <span style={{ color: '#666', fontSize: '1rem', fontWeight: 500 }}>
+              <span style={{ color: '#666', fontSize: '0.95rem', fontWeight: 500 }}>
                 <i className="far fa-user-circle" style={{ marginLeft: '8px' }}></i>
                 מאת: {article.author || 'צוות Fiesta'}
               </span>
             </div>
             
-            <h1 style={{ fontSize: '2.8rem', color: '#1a1a1a', fontWeight: 900, marginBottom: '25px', lineHeight: 1.2, fontFamily: 'var(--font-main)' }}>
+            <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', color: '#1a1a1a', fontWeight: 600, marginBottom: '25px', lineHeight: 1.25, fontFamily: 'var(--font-display), var(--font-main)' }}>
               {article.title}
             </h1>
             
-            <div 
-              style={{ fontSize: '1.15rem', color: '#444', lineHeight: 1.9 }}
-              className="article-body"
-              dangerouslySetInnerHTML={{ __html: content }} 
-            />
+            {content ? (
+              <div 
+                style={{ fontSize: '1.1rem', color: '#444', lineHeight: 1.9 }}
+                className="article-body"
+                dangerouslySetInnerHTML={{ __html: content }} 
+              />
+            ) : (
+              <p style={{ color: '#666', fontSize: '1.05rem', lineHeight: 1.7 }}>
+                תוכן המאמר יועלה בקרוב.
+              </p>
+            )}
             
-            {/* Call to Action Box */}
-            <div style={{ marginTop: '60px', padding: '40px 30px', background: '#fafafa', border: '1px solid #eaeaea', borderRadius: '16px', textAlign: 'center' }}>
-              <h3 style={{ fontSize: '1.6rem', marginBottom: '15px', color: '#1a1a1a', fontWeight: 800 }}>מוכנים להרים אירוע בלתי נשכח?</h3>
-              <p style={{ marginBottom: '25px', color: '#666', fontSize: '1.1rem' }}>צרו איתנו קשר עכשיו וקבלו הצעות פרימיום לכל הספקים שלכם במקום אחד.</p>
+            <div style={{ marginTop: '48px', padding: '28px 22px', background: '#faf9f7', border: '1px solid #ebe7e0', borderRadius: '12px', textAlign: 'center' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '12px', color: '#1a1a1a', fontWeight: 600 }}>מוכנים לתכנן את האירוע?</h3>
+              <p style={{ marginBottom: '20px', color: '#666', fontSize: '1rem' }}>דברו איתנו בוואטסאפ ונחבר אתכם לספקים הנכונים.</p>
               <a 
                 href="https://wa.me/972535378985" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                style={{ background: '#25D366', color: 'white', padding: '14px 35px', borderRadius: '50px', textDecoration: 'none', fontWeight: 700, fontSize: '1.15rem', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(37,211,102,0.3)', transition: 'transform 0.2s' }}
+                style={{ background: '#25D366', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '1rem', display: 'inline-flex', alignItems: 'center', gap: '10px' }}
               >
-                <i className="fab fa-whatsapp" style={{ fontSize: '1.3rem' }}></i> שלחו הודעה לייעוץ
+                <i className="fab fa-whatsapp" style={{ fontSize: '1.2rem' }}></i> שלחו הודעה לייעוץ
               </a>
             </div>
           </div>
@@ -94,33 +89,17 @@ export default function ArticlePage({ params }) {
       </main>
       
       <style dangerouslySetInnerHTML={{__html: `
-        .back-link:hover {
-          color: #1a1a1a !important;
-        }
-        .article-body h2 {
-          font-size: 1.8rem;
-          margin: 40px 0 20px;
-          color: #1a1a1a;
-          font-weight: 800;
-        }
-        .article-body p {
-          margin-bottom: 20px;
-        }
+        .back-link:hover { color: #1a1a1a !important; }
+        .article-body h2 { font-size: 1.4rem; margin: 32px 0 16px; color: #1a1a1a; font-weight: 600; }
+        .article-body p { margin-bottom: 16px; }
         .article-body blockquote {
-          border-right: 5px solid #D4AF37;
-          padding-right: 25px;
-          margin: 40px 0;
-          font-size: 1.4rem;
-          font-style: italic;
+          border-right: 4px solid #8F7344;
+          margin: 28px 0;
+          font-size: 1.15rem;
           color: #1a1a1a;
           background: #fcfcfc;
-          padding: 25px;
-          border-radius: 12px 0 0 12px;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
-        @media (max-width: 768px) {
-          .article-body h2 { font-size: 1.5rem; }
-          .article-body blockquote { font-size: 1.2rem; }
+          padding: 18px 20px;
+          border-radius: 8px 0 0 8px;
         }
       `}} />
     </div>

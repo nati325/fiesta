@@ -42,20 +42,44 @@ function RSVPContent() {
     }, [eventId]);
 
     const displayEvent = eventInfo ? {
-        couple: eventInfo.coupleName,
+        couple: eventInfo.coupleName || 'האירוע',
         date: eventInfo.eventDate
             ? new Date(eventInfo.eventDate).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' })
-            : 'תאריך יעודכן',
-        location: 'מקום האירוע',
-        city: '',
-        time: '19:30'
+            : '',
+        location: eventInfo.venue || eventInfo.location || '',
+        city: eventInfo.city || '',
+        time: eventInfo.receptionTime || eventInfo.time || '',
+        label: eventInfo.eventLabel || 'מזמינים אתכם!',
+        calendarStart: eventInfo.eventDate || null,
     } : {
-        couple: 'הזוג המאושר',
-        date: 'תאריך האירוע',
-        location: 'מקום האירוע',
+        couple: '',
+        date: '',
+        location: '',
         city: '',
-        time: '19:30'
+        time: '',
+        label: 'מזמינים אתכם!',
+        calendarStart: null,
     };
+
+    const calendarUrl = (() => {
+        const title = encodeURIComponent(displayEvent.couple ? `האירוע של ${displayEvent.couple}` : 'אירוע');
+        const loc = encodeURIComponent([displayEvent.location, displayEvent.city].filter(Boolean).join(', '));
+        if (!displayEvent.calendarStart) {
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${encodeURIComponent('נתראה בשמחות!')}&location=${loc}`;
+        }
+        const start = new Date(displayEvent.calendarStart);
+        if (Number.isNaN(start.getTime())) {
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&location=${loc}`;
+        }
+        const end = new Date(start.getTime() + 5 * 60 * 60 * 1000);
+        const fmt = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(start)}/${fmt(end)}&details=${encodeURIComponent('נתראה בשמחות!')}&location=${loc}`;
+    })();
+
+    const wazeQuery = [displayEvent.location, displayEvent.city].filter(Boolean).join(' ');
+    const wazeUrl = wazeQuery
+        ? `https://waze.com/ul?q=${encodeURIComponent(wazeQuery)}`
+        : '';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -116,12 +140,14 @@ function RSVPContent() {
                             className="glass-card welcome-card"
                         >
                             <div className="decoration">✨</div>
-                            <h2 className="event-label">מתחתנים!</h2>
-                            <h1 className="couple-names">{displayEvent.couple}</h1>
+                            <h2 className="event-label">{displayEvent.label}</h2>
+                            <h1 className="couple-names">{displayEvent.couple || 'טוענים פרטי אירוע...'}</h1>
                             <div className="event-details">
-                                <p><i className="far fa-calendar-alt"></i> {displayEvent.date}</p>
-                                <p><i className="fas fa-map-marker-alt"></i> {displayEvent.location}, {displayEvent.city}</p>
-                                <p><i className="far fa-clock"></i> קבלת פנים: {displayEvent.time}</p>
+                                {displayEvent.date ? <p><i className="far fa-calendar-alt"></i> {displayEvent.date}</p> : null}
+                                {(displayEvent.location || displayEvent.city) ? (
+                                    <p><i className="fas fa-map-marker-alt"></i> {[displayEvent.location, displayEvent.city].filter(Boolean).join(', ')}</p>
+                                ) : null}
+                                {displayEvent.time ? <p><i className="far fa-clock"></i> קבלת פנים: {displayEvent.time}</p> : null}
                             </div>
                             
                             <div className="action-buttons">
@@ -272,12 +298,14 @@ function RSVPContent() {
                             </p>
                             
                             <div className="success-actions">
-                                <button className="btn-outline-dark" onClick={() => window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=החתונה+של+נועה+ודניאל&dates=20260914T163000Z/20260914T210000Z&details=נתראה+בשמחות!&location=${displayEvent.location}`, '_blank')}>
+                                <button className="btn-outline-dark" onClick={() => window.open(calendarUrl, '_blank')}>
                                     <i className="far fa-calendar-plus"></i> הוספה ליומן
                                 </button>
-                                <button className="btn-outline-dark" onClick={() => window.open(`https://waze.com/ul?q=${encodeURIComponent(displayEvent.location + ' ' + displayEvent.city)}`, '_blank')}>
-                                    <i className="fab fa-waze"></i> ניווט לאירוע
-                                </button>
+                                {wazeUrl ? (
+                                    <button className="btn-outline-dark" onClick={() => window.open(wazeUrl, '_blank')}>
+                                        <i className="fab fa-waze"></i> ניווט לאירוע
+                                    </button>
+                                ) : null}
                             </div>
                         </motion.div>
                     )}

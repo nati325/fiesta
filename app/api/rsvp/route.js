@@ -65,6 +65,10 @@ export async function GET(request) {
         const mode = searchParams.get('mode');
 
         if (mode === 'summary') {
+            // Public hall view — gated by knowing eventId (capability URL). Never return phones.
+            if (!eventId || eventId === 'default-event') {
+                return NextResponse.json({ error: 'Missing eventId' }, { status: 400 });
+            }
             const rsvps = await RSVP.find({ eventId, hasResponded: true, isComing: true })
                 .select('name guests veganCount vegCount tableNumber dietary shuttle')
                 .sort({ name: 1 });

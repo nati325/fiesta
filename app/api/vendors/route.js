@@ -16,7 +16,7 @@ export async function GET(request) {
         }
 
         const vendors = await Vendor.find({}).select(
-            'name type description image region price originalPrice discount discountType googleReviewsLink googleRating googleReviewsCount products portfolio eventTypes'
+            'name type description image region price originalPrice discount discountType googleRating googleReviewsCount products portfolio eventTypes reviews'
         );
         return Response.json(vendors);
     } catch (error) {

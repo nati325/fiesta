@@ -9,61 +9,18 @@ export default function PackagesCarousel() {
     const [isPaused, setIsPaused] = useState(false);
     const [direction, setDirection] = useState(1); // 1 for next, -1 for prev
 
-    const DEFAULT_PACKAGES = [
-        {
-            id: 'default-1',
-            title: 'חבילת כלה',
-            tagline: 'הנמכרת ביותר',
-            description: 'צלם, מאפרת וספק שמלות — בחבילה אחת שחוסכת אלפי שקלים.',
-            saving: 'חיסכון עד 30%',
-            badge: 'הנמכר ביותר',
-            image: '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.35.jpeg',
-            active: true
-        },
-        {
-            id: 'default-2',
-            title: 'חבילת אירוע הכל כלול',
-            tagline: 'המשתלמת',
-            description: 'DJ, קייטרינג, עיצוב אולם ותאורה — חוויה מלאה מהרגע הראשון.',
-            saving: 'חיסכון עד 25%',
-            badge: 'בלעדי לפייסטה',
-            image: '/missing_photos/WhatsApp Image 2026-05-07 at 21.26.27.jpeg',
-            active: true
-        },
-        {
-            id: 'default-3',
-            title: 'חבילת צילום',
-            tagline: 'זיכרון לנצח',
-            description: 'צלם וידאו וסטילס, אלבום וסרטון מקצועי.',
-            saving: 'חיסכון עד 20%',
-            badge: 'פופולרי',
-            image: '/missing_photos/WhatsApp Image 2026-05-07 at 22.05.38.jpeg',
-            active: true
-        },
-        {
-            id: 'default-bonus',
-            title: 'מתנה לסוגרים דרך פייסטה',
-            tagline: 'בונוס',
-            description: 'סוגרים 2 ספקים ומעלה ומקבלים אישורי הגעה וסידור שולחנות בחינם.',
-            saving: 'בשווי ₪1,500',
-            badge: 'מתנה',
-            image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80',
-            active: true
-        }
-    ];
-
     useEffect(() => {
         fetch('/api/packages')
             .then(r => r.json())
             .then(data => {
                 if (!Array.isArray(data) || data.length === 0) {
-                    setPackages(DEFAULT_PACKAGES);
+                    setPackages([]);
                     return;
                 }
-                const active = data.filter(p => p.active);
-                setPackages(active.length > 0 ? active : DEFAULT_PACKAGES);
+                const active = data.filter(p => p.active !== false);
+                setPackages(active);
             })
-            .catch(() => setPackages(DEFAULT_PACKAGES));
+            .catch(() => setPackages([]));
     }, []);
 
     // Auto-advance — slower, calmer pace
@@ -289,12 +246,12 @@ export default function PackagesCarousel() {
                     {packages.length > 1 && (
                         <>
                             {/* Left Arrow */}
-                            <button onClick={slideFromLeft} className="nav-arrow-side left-arrow" aria-label="Next slide">
+                            <button onClick={slideFromLeft} className="nav-arrow-side left-arrow" aria-label="שקופית הבאה">
                                 <i className="fas fa-chevron-left"></i>
                             </button>
                             
                             {/* Right Arrow */}
-                            <button onClick={slideFromRight} className="nav-arrow-side right-arrow" aria-label="Previous slide">
+                            <button onClick={slideFromRight} className="nav-arrow-side right-arrow" aria-label="שקופית קודמת">
                                 <i className="fas fa-chevron-right"></i>
                             </button>
                         </>
@@ -394,16 +351,17 @@ export default function PackagesCarousel() {
                 }
                 @media (max-width: 600px) {
                     .featured-carousel-container {
-                        height: 360px !important;
+                        height: 320px !important;
                     }
                     .featured-content {
                         padding: 10px 5vw 20px !important;
                     }
                     .action-row .luxury-btn {
-                        padding: 10px 25px !important;
+                        padding: 12px 20px !important;
                         font-size: 0.9rem !important;
                         width: 100%;
                         text-align: center;
+                        min-height: 44px;
                     }
                     .featured-slide img {
                         filter: brightness(0.8) !important;

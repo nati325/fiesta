@@ -12,6 +12,13 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [eventPreference, setEventPreference] = useState(null);
 
+    const persistSession = (data) => {
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+    };
+
     const validateSession = useCallback(async () => {
         try {
             const res = await fetch('/api/auth/me', { credentials: 'include' });
@@ -41,37 +48,40 @@ export const AuthProvider = ({ children }) => {
         validateSession().finally(() => setLoading(false));
     }, [validateSession]);
 
-    const login = async (email, password) => {
+    const login = async (username, password) => {
         const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify(
-                email ? { email, password } : { password }
-            )
+            body: JSON.stringify({
+                username: username || '',
+                password,
+            }),
         });
         const data = await res.json();
 
         if (!data.success) throw new Error(data.message);
 
-        setToken(data.token);
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        persistSession(data);
         return data;
     };
 
-    /** Master unlock with site password only (e.g. fiestamadar). */
-    const unlockAdmin = async (password) => login(null, password);
+    /** Master unlock with site password only. */
+    const unlockAdmin = async (password) => login('', password);
 
-    const register = async (name, email, password) => {
+    const register = async (name, username, password) => {
         const res = await fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
+            credentials: 'include',
+            body: JSON.stringify({ name, username, password }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.message);
+
+        if (data.token && data.user) {
+            persistSession(data);
+        }
         return data;
     };
 

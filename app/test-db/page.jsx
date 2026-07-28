@@ -1,25 +1,26 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function TestDB() {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { user, loading } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
-        fetch('/api/vendors')
-            .then(res => res.json())
-            .then(json => {
-                setData(json);
-                setLoading(false);
-            });
-    }, []);
+        if (!loading && !user?.isAdmin) {
+            router.replace('/');
+        }
+    }, [loading, user, router]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading || !user?.isAdmin) {
+        return <div style={{ padding: 40, textAlign: 'center' }}>אין גישה</div>;
+    }
 
     return (
         <div style={{ padding: 20 }}>
-            <h1>Vendors in DB: {Array.isArray(data) ? data.length : 'Error'}</h1>
-            <pre>{JSON.stringify(data?.slice(0, 2), null, 2)}</pre>
+            <h1>דף בדיקה — למנהלים בלבד</h1>
+            <p>השתמשו בכלי הניהול במקום דף זה.</p>
         </div>
     );
 }

@@ -7,13 +7,22 @@ import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { resolveVendorImage } from '@/lib/vendorImage';
+import VendorCardImage from '@/components/VendorCardImage';
 import { EditChip } from '@/components/SiteEditBar';
+import { getVendorDisplayPrice, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
+
+function sortPriceValue(vendor) {
+    const info = getVendorDisplayPrice(vendor);
+    const range = parsePriceRange(info.raw);
+    if (range) return range.min;
+    return parsePrice(info.raw) ?? Number.POSITIVE_INFINITY;
+}
 
 export default function CategoryPage() {
     const params = useParams();
     const router = useRouter();
     const type = params.type;
-    const { getVendorsByType, toggleFavorite, isFavorite } = useVendors();
+    const { getVendorsByType, toggleFavorite, isFavorite, loading: vendorsLoading } = useVendors();
     const { eventPreference } = useAuth();
     const [vendors, setVendors] = useState([]);
     const [sortBy, setSortBy] = useState('popularity');
@@ -23,14 +32,24 @@ export default function CategoryPage() {
         const filtered = allVendors.filter(v => 
             !eventPreference || 
             v.eventTypes?.includes(eventPreference) || 
-            v.eventTypes?.includes('מתאים לכל האירועים')
+            v.eventTypes?.includes('מתאים לכל האירועים') ||
+            // Match onboarding "בר/בת מצווה" with either DB value
+            (eventPreference === 'בר/בת מצווה' && (
+                v.eventTypes?.includes('בר מצווה') || v.eventTypes?.includes('בת מצווה')
+            ))
         );
 
-        // Sort vendors
         const sorted = [...filtered].sort((a, b) => {
-            if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
-            if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
-            return 0; // Default popularity
+            if (sortBy === 'price-low') return sortPriceValue(a) - sortPriceValue(b);
+            if (sortBy === 'price-high') return sortPriceValue(b) - sortPriceValue(a);
+            // Popularity: real rating first, then review count, then name
+            const ra = Number(a.googleRating) || 0;
+            const rb = Number(b.googleRating) || 0;
+            if (rb !== ra) return rb - ra;
+            const ca = Number(a.googleReviewsCount) || 0;
+            const cb = Number(b.googleReviewsCount) || 0;
+            if (cb !== ca) return cb - ca;
+            return String(a.name || '').localeCompare(String(b.name || ''), 'he');
         });
 
         setVendors(sorted);
@@ -90,7 +109,7 @@ export default function CategoryPage() {
                     className="category-back-btn"
                     aria-label="חזרה"
                 >
-                    <i className="fas fa-arrow-left"></i>
+                    <i className="fas fa-arrow-right"></i>
                 </button>
             </div>
 
@@ -118,31 +137,28 @@ export default function CategoryPage() {
                 </div>
 
                 <AnimatePresence>
-                    {vendors.length === 0 ? (
+                    {vendorsLoading ? (
                         <div className="category-empty">
-                            <h2>מיד נציג את הספקים...</h2>
+                            <h2>טוענים ספקים...</h2>
+                        </div>
+                    ) : vendors.length === 0 ? (
+                        <div className="category-empty">
+                            <h2>אין עדיין ספקים בקטגוריה זו</h2>
+                            <p style={{ color: 'var(--text-light)', marginTop: 8 }}>נחזור אליכם בקרוב עם נבחרת מעודכנת.</p>
                         </div>
                     ) : (
                         <div className="vendor-cards-grid">
                             {vendors.map((v, i) => {
                                 const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
 
-                                let displayImage = resolveVendorImage(mainProduct?.image || v.image, '');
-                                if (!displayImage || displayImage.trim() === '' || displayImage === currentCategory.img) {
-                                    const seeds = [
-                                        '1516280440614-37939bbacd41', '1571266028243-3716f02d2d2e', '1470229722913-7c090be05e7f',
-                                        '1598387181032-a3103a2db5b3', '1514525253161-7a46d19cd819', '1511285560929-80b456fea0bc',
-                                        '1520854221256-17451cc331bf', '1487412947147-5cebf100ffc2'
-                                    ];
-                                    displayImage = `https://images.unsplash.com/photo-${seeds[i % seeds.length]}?auto=format&fit=crop&w=800&q=80`;
-                                }
-
-                                const displayPrice = mainProduct?.price || v.price;
-                                const displayOriginalPrice = mainProduct?.originalPrice || v.originalPrice;
-                                const displayName = mainProduct ? `${v.name} - ${mainProduct.name}` : v.name;
-                                const discountPct = displayOriginalPrice && Number(displayOriginalPrice) > 0 && Number(displayPrice) > 0 && Number(displayPrice) !== Number(displayOriginalPrice)
-                                    ? Math.round((1 - (displayPrice / displayOriginalPrice)) * 100)
-                                    : null;
+                                const displayImage = resolveVendorImage(mainProduct?.image || v.image, '');
+                                const priceInfo = getVendorDisplayPrice(v);
+                                const displayName = mainProduct?.name ? `${v.name} - ${mainProduct.name}` : v.name;
+                                const showDiscountBadge =
+                                    v.discount != null &&
+                                    String(v.discount).trim() !== '' &&
+                                    String(v.discount) !== '0';
+                                const hasRating = v.googleRating != null && String(v.googleRating).trim() !== '' && Number(v.googleRating) > 0;
 
                                 return (
                                     <motion.article
@@ -154,14 +170,10 @@ export default function CategoryPage() {
                                         onClick={() => router.push(`/vendor/${v.id}`)}
                                     >
                                         <div className="vendor-card-media">
-                                            <img
-                                                src={displayImage}
-                                                alt={displayName}
-                                                onError={(e) => { e.target.src = currentCategory.img; }}
-                                            />
+                                            <VendorCardImage src={displayImage} alt={displayName} />
 
                                             <div className="vendor-card-top">
-                                                {v.discount && (
+                                                {showDiscountBadge && (
                                                     <span className="vendor-card-badge">
                                                         {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'} הנחה
                                                     </span>
@@ -199,23 +211,26 @@ export default function CategoryPage() {
                                                     <i className="fas fa-map-marker-alt"></i>
                                                     {v.location || v.region || 'כל הארץ'}
                                                 </span>
-                                                <span className="vendor-card-rating">
-                                                    <i className="fas fa-star"></i>
-                                                    {v.googleRating ? Number(v.googleRating).toFixed(1) : '4.9'}
-                                                </span>
+                                                {hasRating && (
+                                                    <span className="vendor-card-rating">
+                                                        <i className="fas fa-star"></i>
+                                                        {Number(v.googleRating).toFixed(1)}
+                                                    </span>
+                                                )}
                                             </div>
 
-                                            {displayPrice && (
+                                            {priceInfo.display ? (
                                                 <div className="vendor-card-price-row">
                                                     <div className="vendor-card-prices">
-                                                        {displayOriginalPrice && (
-                                                            <span className="vendor-card-old">₪{displayOriginalPrice}</span>
+                                                        {priceInfo.originalDisplay && (
+                                                            <span className="vendor-card-old">{priceInfo.originalDisplay}</span>
                                                         )}
-                                                        <span className="vendor-card-price">₪{displayPrice}</span>
+                                                        <span className="vendor-card-price">{priceInfo.display}</span>
                                                     </div>
-                                                    {discountPct != null && (
-                                                        <span className="vendor-card-save">-{discountPct}%</span>
-                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="vendor-card-price-row">
+                                                    <span className="vendor-card-price" style={{ fontSize: '0.95rem' }}>לתיאום מחיר</span>
                                                 </div>
                                             )}
                                         </div>

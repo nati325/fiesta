@@ -5,6 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { resolveVendorImage } from '@/lib/vendorImage';
+import VendorCardImage from '@/components/VendorCardImage';
+import { getVendorDisplayPrice } from '@/lib/vendorPrice';
+import { getCategoryLabel } from '@/lib/vendorCategories';
 
 function SearchResultsContent() {
     const searchParams = useSearchParams();
@@ -32,7 +35,8 @@ function SearchResultsContent() {
         'הזמנות': 'invitations', 'כרטיסים': 'invitations',
         'מזכרות': 'souvenirs', 'מתנות': 'souvenirs',
         'מלון': 'hotels', 'בית מלון': 'hotels',
-        'רכב': 'cars', 'לימוזין': 'cars', 'הסעות': 'cars',
+        'רכב': 'cars', 'לימוזין': 'cars',
+        'הסעות': 'transportation', 'הסעה': 'transportation',
         'הפקה': 'event-production', 'מפיק': 'event-production',
         'פייטן': 'cantors', 'חזן': 'cantors',
         'נעליים': 'bride-shoes', 'נעלי כלה': 'bride-shoes',
@@ -52,7 +56,7 @@ function SearchResultsContent() {
                 )?.[1];
 
                 const filtered = data.filter(v => {
-                    if (!q) return true;
+                    if (!q) return false;
                     const matchesName = v.name?.toLowerCase().includes(q);
                     const matchesType = v.type?.toLowerCase().includes(q);
                     const matchesMappedType = mappedType && v.type === mappedType;
@@ -72,8 +76,16 @@ function SearchResultsContent() {
         <div className="search-results-page">
             <div className="results-header">
                 <div className="container">
-                    <h1>תוצאות חיפוש עבור: <span className="highlight">"{query}"</span></h1>
-                    <p>מצאנו {vendors.length} ספקים רלוונטיים {area !== 'כל הארץ' ? `באזור ${area}` : ''}</p>
+                    <h1>
+                        {query.trim()
+                            ? <>תוצאות חיפוש עבור: <span className="highlight">&quot;{query}&quot;</span></>
+                            : 'חיפוש ספקים'}
+                    </h1>
+                    <p>
+                        {query.trim()
+                            ? <>מצאנו {vendors.length} ספקים רלוונטיים {area !== 'כל הארץ' ? `באזור ${area}` : ''}</>
+                            : 'הזינו מילת חיפוש כדי למצוא ספקים'}
+                    </p>
                 </div>
             </div>
 
@@ -82,7 +94,9 @@ function SearchResultsContent() {
                     <div className="loading-state">טוען ספקים...</div>
                 ) : vendors.length > 0 ? (
                     <div className="vendors-grid">
-                        {vendors.map((v, i) => (
+                        {vendors.map((v, i) => {
+                            const priceInfo = getVendorDisplayPrice(v);
+                            return (
                             <motion.div 
                                 key={v.id}
                                 initial={{ opacity: 0, y: 20 }}
@@ -92,20 +106,23 @@ function SearchResultsContent() {
                             >
                                 <Link href={`/vendor/${v.id}`}>
                                     <div className="card-image">
-                                        <img src={resolveVendorImage(v.image)} alt={v.name} />
-                                        <div className="category-tag">{v.type}</div>
+                                        <VendorCardImage src={resolveVendorImage(v.image, '')} alt={v.name} />
+                                        <div className="category-tag">{getCategoryLabel(v.type)}</div>
                                     </div>
                                     <div className="card-info">
                                         <h3>{v.name}</h3>
-                                        <div className="location"><i className="fas fa-map-marker-alt"></i> {v.region}</div>
+                                        <div className="location"><i className="fas fa-map-marker-alt"></i> {v.region || 'כל הארץ'}</div>
                                         <div className="price-row">
-                                            <span className="price">₪{v.price}</span>
-                                            {v.originalPrice && <span className="old-price">₪{v.originalPrice}</span>}
+                                            <span className="price">{priceInfo.display || 'לתיאום מחיר'}</span>
+                                            {priceInfo.originalDisplay && (
+                                                <span className="old-price">{priceInfo.originalDisplay}</span>
+                                            )}
                                         </div>
                                     </div>
                                 </Link>
                             </motion.div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="no-results">

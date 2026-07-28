@@ -53,13 +53,13 @@ const IMAGE_TEMPLATES = [
 
 const DEFAULT_DATA = {
     bsd: 'בס"ד',
-    intro: 'נעלה את ירושלים על ראש שמחתנו',
-    names: 'נועה & דניאל',
-    date: 'יום שלישי, י"ד באלול תשפ"ו',
-    times: 'קבלת פנים: 19:30 | חופה: 20:30',
-    location: 'מתחם האירועים שדות',
-    groomParents: 'שלמה ורחל לוי',
-    brideParents: 'בני ושרה כהן',
+    intro: '',
+    names: '',
+    date: '',
+    times: '',
+    location: '',
+    groomParents: '',
+    brideParents: '',
 };
 
 const DEFAULT_LAYOUT = [
@@ -200,20 +200,73 @@ function loadFabricScript() {
             resolve(window.fabric);
             return;
         }
+
+        let settled = false;
+        const ok = (fabric) => {
+            if (settled) return;
+            settled = true;
+            resolve(fabric);
+        };
+        const fail = (err) => {
+            if (settled) return;
+            settled = true;
+            reject(err instanceof Error ? err : new Error(String(err)));
+        };
+
+        const finish = () => {
+            if (window.fabric) ok(window.fabric);
+            else fail(new Error('Fabric.js loaded but window.fabric is missing'));
+        };
+
         const existing = document.querySelector('script[data-fabric]');
         if (existing) {
-            existing.addEventListener('load', () => resolve(window.fabric));
-            existing.addEventListener('error', reject);
+            if (window.fabric) {
+                ok(window.fabric);
+                return;
+            }
+            existing.addEventListener('load', finish);
+            existing.addEventListener('error', () => fail(new Error('Fabric.js failed to load')));
+            // Already finished loading before listeners attached
+            if (existing.dataset.loaded === '1') finish();
             return;
         }
         const s = document.createElement('script');
         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js';
         s.async = true;
         s.dataset.fabric = '1';
-        s.onload = () => resolve(window.fabric);
-        s.onerror = reject;
+        s.onload = () => {
+            s.dataset.loaded = '1';
+            finish();
+        };
+        s.onerror = () => fail(new Error('Fabric.js failed to load'));
         document.head.appendChild(s);
+
+        // Mobile networks / CDN stalls — don't hang forever on a blank editor
+        setTimeout(() => {
+            if (!window.fabric) fail(new Error('Fabric.js load timeout'));
+        }, 15000);
     });
+}
+
+function TemplateThumb({ url, name }) {
+    const [failed, setFailed] = useState(false);
+    if (failed) {
+        return (
+            <div className="tpl-fallback" role="img" aria-label={`${name} — אין תצוגה`}>
+                <i className="fas fa-image" aria-hidden />
+                <span>אין תצוגה</span>
+            </div>
+        );
+    }
+    return (
+        <img
+            src={url}
+            alt={name}
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailed(true)}
+        />
+    );
 }
 
 function loadStudioFonts() {
@@ -594,7 +647,9 @@ export default function DesignInvitationPage() {
 
                 setFabricReady(true);
             })
-            .catch(() => setInitError('לא הצלחנו לטעון את מנוע העריכה. רעננו את הדף.'));
+            .catch(() =>
+                setInitError('לא הצלחנו לטעון את מנוע העריכה. בדקו את החיבור לרשת ורעננו את הדף.')
+            );
 
         return () => {
             disposed = true;
@@ -658,6 +713,10 @@ export default function DesignInvitationPage() {
     const goNext = () => {
         if (step === 0 && !selectedTemplate) {
             showToast('בחרו תבנית כדי להמשיך');
+            return;
+        }
+        if (step === 0 && (initError || !fabricReady)) {
+            showToast(initError || 'מנוע העריכה עדיין נטען — נסו שוב בעוד רגע');
             return;
         }
         // Do NOT call renderTemplate again — races Image.fromURL and duplicates text lines.
@@ -1248,6 +1307,19 @@ export default function DesignInvitationPage() {
                 {/* —— STEP 0: Templates —— */}
                 {step === 0 && (
                     <section className="template-step">
+                        {initError && (
+                            <div className="studio-banner error" role="alert">
+                                <strong>שגיאה בטעינת העורך</strong>
+                                <span>{initError}</span>
+                                <button
+                                    type="button"
+                                    className="btn-ghost"
+                                    onClick={() => window.location.reload()}
+                                >
+                                    רענון הדף
+                                </button>
+                            </div>
+                        )}
                         <div className="step-intro">
                             <h1>בחרו תבנית להזמנה</h1>
                             <p>לאחר הבחירה תערכו את התוכן והעיצוב בשלבים הבאים</p>
@@ -1304,19 +1376,24 @@ export default function DesignInvitationPage() {
                                     }}
                                 >
                                     <div className="tpl-img-wrap">
-                                        <img src={t.url} alt={t.name} loading="lazy" />
+                                        <TemplateThumb url={t.url} name={t.name} />
                                     </div>
                                     <span>{t.name}</span>
                                 </button>
                             ))}
                         </div>
-                        {selectedTemplate && (
-                            <div className="mobile-sticky-cta">
-                                <button type="button" className="btn-primary full" onClick={goNext}>
-                                    המשך עם “{selectedTemplate.name}”
-                                </button>
-                            </div>
-                        )}
+                        <div className={`mobile-sticky-cta ${selectedTemplate ? 'visible' : ''}`}>
+                            <button
+                                type="button"
+                                className="btn-primary full"
+                                onClick={goNext}
+                                disabled={!selectedTemplate}
+                            >
+                                {selectedTemplate
+                                    ? `המשך עם “${selectedTemplate.name}”`
+                                    : 'בחרו תבנית כדי להמשיך'}
+                            </button>
+                        </div>
                     </section>
                 )}
 
@@ -1606,7 +1683,17 @@ export default function DesignInvitationPage() {
                     ref={stageRef}
                     aria-hidden={step === 0}
                 >
-                    {initError && <div className="stage-msg error">{initError}</div>}
+                    {initError && step > 0 && (
+                        <div className="stage-msg error" role="alert">
+                            <div className="stage-error-box">
+                                <strong>לא ניתן להציג את העורך</strong>
+                                <p>{initError}</p>
+                                <button type="button" className="btn-ghost" onClick={() => window.location.reload()}>
+                                    רענון הדף
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     {!fabricReady && !initError && step > 0 && (
                         <div className="stage-msg">טוען את ההזמנה…</div>
                     )}
@@ -1973,16 +2060,44 @@ export default function DesignInvitationPage() {
                     flex: 1;
                     min-height: 0;
                     display: flex;
+                    background: #f3f2ef;
                 }
                 .workspace.step-template {
                     display: block;
                     overflow: auto;
+                    -webkit-overflow-scrolling: touch;
+                    overscroll-behavior: contain;
+                }
+
+                .studio-banner {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px 14px;
+                    margin: 0 0 18px;
+                    padding: 12px 14px;
+                    border-radius: 12px;
+                    text-align: center;
+                    font-size: 0.88rem;
+                    line-height: 1.45;
+                }
+                .studio-banner.error {
+                    background: #fdecea;
+                    color: #8a1f11;
+                    border: 1px solid #f5c6cb;
+                }
+                .studio-banner strong {
+                    display: block;
+                    width: 100%;
+                    font-size: 0.95rem;
                 }
 
                 .template-step {
                     max-width: 1100px;
                     margin: 0 auto;
-                    padding: 28px 20px 100px;
+                    padding: 28px 20px 120px;
+                    min-height: min(70vh, 640px);
                 }
                 .step-intro {
                     text-align: center;
@@ -1993,6 +2108,7 @@ export default function DesignInvitationPage() {
                     font-weight: 500;
                     font-size: clamp(1.5rem, 3vw, 2rem);
                     margin: 0 0 8px;
+                    color: #141414;
                 }
                 .step-intro p { color: #6b6b6b; margin: 0 0 10px; }
                 .draft-load { margin-top: 4px; }
@@ -2014,21 +2130,41 @@ export default function DesignInvitationPage() {
                 }
                 .tpl-img-wrap {
                     aspect-ratio: 600 / 840;
-                    background: #eee;
+                    background: #e8e6e1;
                     overflow: hidden;
+                    position: relative;
                 }
-                .tpl img {
+                .tpl-img-wrap :global(img) {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
                     display: block;
                     background: #f7f6f4;
                 }
+                .tpl-img-wrap :global(.tpl-fallback) {
+                    width: 100%;
+                    height: 100%;
+                    min-height: 120px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    background: #ebe8e2;
+                    color: #888;
+                    font-size: 0.78rem;
+                    font-weight: 600;
+                }
+                .tpl-img-wrap :global(.tpl-fallback i) {
+                    font-size: 1.4rem;
+                    opacity: 0.7;
+                }
                 .tpl span {
                     display: block;
                     padding: 10px 8px;
                     font-size: 0.8rem;
                     font-weight: 600;
+                    color: #141414;
                 }
                 .tpl.active {
                     border-color: #111;
@@ -2680,8 +2816,30 @@ export default function DesignInvitationPage() {
                     justify-content: center;
                     color: #666;
                     z-index: 2;
+                    padding: 16px;
+                    background: rgba(243, 242, 239, 0.92);
                 }
-                .stage-msg.error { color: #c0392b; }
+                .stage-msg.error { color: #8a1f11; }
+                .stage-error-box {
+                    max-width: 320px;
+                    text-align: center;
+                    background: #fff;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 12px;
+                    padding: 18px 16px;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+                }
+                .stage-error-box strong {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-size: 1rem;
+                }
+                .stage-error-box p {
+                    margin: 0 0 14px;
+                    font-size: 0.88rem;
+                    line-height: 1.45;
+                    color: #666;
+                }
                 .stage-parked {
                     position: absolute !important;
                     left: -10000px !important;
@@ -2745,6 +2903,17 @@ export default function DesignInvitationPage() {
                         text-overflow: ellipsis;
                         white-space: nowrap;
                     }
+                    .workspace.step-template {
+                        /* Keep template picker above the fold — never a blank white frame */
+                        min-height: calc(100vh - 52px - 88px);
+                    }
+                    .template-step {
+                        padding: 20px 14px 140px;
+                        min-height: auto;
+                    }
+                    .step-intro h1 {
+                        font-size: 1.45rem;
+                    }
                     .workspace.step-content,
                     .workspace.step-design,
                     .workspace.step-export {
@@ -2783,7 +2952,22 @@ export default function DesignInvitationPage() {
                         border-left: none;
                     }
                     .mobile-sticky-cta {
-                        display: none;
+                        display: block;
+                        position: sticky;
+                        bottom: calc(76px + env(safe-area-inset-bottom));
+                        z-index: 30;
+                        margin: 18px -14px 0;
+                        padding: 12px 14px;
+                        background: linear-gradient(180deg, rgba(243,242,239,0) 0%, #f3f2ef 28%, #f3f2ef 100%);
+                        pointer-events: none;
+                    }
+                    .mobile-sticky-cta .btn-primary {
+                        pointer-events: auto;
+                        min-height: 48px;
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+                    }
+                    .mobile-sticky-cta:not(.visible) .btn-primary {
+                        opacity: 0.55;
                     }
                     .template-grid {
                         grid-template-columns: repeat(2, 1fr);

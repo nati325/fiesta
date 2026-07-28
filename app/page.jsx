@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import PackagesCarousel from '@/components/PackagesCarousel';
 import { useAuth } from '@/context/AuthContext';
-import { resolveVendorImage } from '@/lib/vendorImage';
+import { resolveHomepageVendorImage } from '@/lib/vendorImage';
+import { getVendorDisplayPrice } from '@/lib/vendorPrice';
 
 const SUPPLIER_GROUPS = [
     {
@@ -99,7 +100,7 @@ const CATEGORY_IMAGES = {
 export default function HomePage() {
     const [articles, setArticles] = useState([]);
     const [vendors, setVendors] = useState([]);
-    const [contactData, setContactData] = useState({ name: '', email: '', phone: '', date: '' });
+    const [contactData, setContactData] = useState({ name: '', phone: '' });
     const { user, eventPreference, setEventPreference } = useAuth();
     const [showOnboarding, setShowOnboarding] = useState(false);
     const router = useRouter();
@@ -114,7 +115,20 @@ export default function HomePage() {
         e.preventDefault();
         const message = `היי Fiesta!\nהשארתי פרטים באתר ואשמח שתחזרו אליי:\n\n*שם:* ${contactData.name}\n*טלפון:* ${contactData.phone}`;
         window.open(`https://wa.me/972535378985?text=${encodeURIComponent(message)}`, '_blank');
-        setContactData({ name: '', email: '', phone: '', date: '' });
+        setContactData({ name: '', phone: '' });
+    };
+
+    const matchesEventPreference = (v) => {
+        if (!eventPreference) return true;
+        if (v.eventTypes?.includes(eventPreference)) return true;
+        if (v.eventTypes?.includes('מתאים לכל האירועים')) return true;
+        if (eventPreference === 'בר מצווה' || eventPreference === 'בת מצווה') {
+            return v.eventTypes?.includes('בר מצווה') || v.eventTypes?.includes('בת מצווה');
+        }
+        if (eventPreference === 'ברית' || eventPreference === 'בריתה') {
+            return v.eventTypes?.includes('ברית') || v.eventTypes?.includes('בריתה');
+        }
+        return false;
     };
 
     // Calculate counts per category
@@ -156,14 +170,17 @@ export default function HomePage() {
                             >
                                 מצאו ספק
                             </button>
-                            <button
-                                type="button"
-                                className="btn-hero-ghost"
-                                onClick={() => setShowOnboarding(true)}
-                            >
-                                התאימו לאירוע שלכם
-                            </button>
+                            <Link href="/budget-planner" className="btn-hero-ghost">
+                                מחשבון תקציב
+                            </Link>
                         </div>
+                        <button
+                            type="button"
+                            className="hero-soft-link"
+                            onClick={() => setShowOnboarding(true)}
+                        >
+                            או התאימו את האתר לסוג האירוע שלכם
+                        </button>
                     </motion.div>
                 </div>
             </section>
@@ -187,6 +204,34 @@ export default function HomePage() {
                         <div className="stat-item">
                             <span className="stat-num">₪0 עמלה</span>
                             <span className="stat-label">השירות לזוגות ללא עלות</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Budget calculator invite — product tease, not a promo banner */}
+            <section className="budget-invite" aria-labelledby="budget-invite-title">
+                <div className="container">
+                    <div className="budget-invite-inner">
+                        <div className="budget-invite-copy">
+                            <p className="budget-invite-kicker">כלי תכנון של Fiesta</p>
+                            <h2 id="budget-invite-title">מה נכנס בתקציב שלכם?</h2>
+                            <p className="budget-invite-lead">
+                                הזינו סכום ובחרו קטגוריות — המחשבון ירכיב שילוב ספקים שנשאר בתוך המסגרת.
+                            </p>
+                            <Link href="/budget-planner" className="budget-invite-cta">
+                                פתחו את מחשבון התקציב
+                                <i className="fas fa-arrow-left" aria-hidden="true"></i>
+                            </Link>
+                        </div>
+                        <div className="budget-invite-preview" aria-hidden="true">
+                            <span className="budget-preview-label">תקציב לדוגמה</span>
+                            <span className="budget-preview-amount">₪80,000</span>
+                            <div className="budget-preview-track">
+                                <div className="budget-preview-fill"></div>
+                                <div className="budget-preview-thumb"></div>
+                            </div>
+                            <p className="budget-preview-cats">אולם · DJ · צילום</p>
                         </div>
                     </div>
                 </div>
@@ -229,6 +274,7 @@ export default function HomePage() {
                                                     <div className="cat-info-premium">
                                                         <div className="cat-meta">
                                                             <i className={`fas ${s.icon}`}></i>
+                                                            {count > 0 && <span className="cat-count">{count} ספקים</span>}
                                                         </div>
                                                         <h3>{s.title}</h3>
                                                     </div>
@@ -253,16 +299,46 @@ export default function HomePage() {
                                 <p>הכי מתאימים, הכי משתלמים</p>
                             </div>
                             <div className="p-items">
-                                {vendors.filter(v => v.eventTypes?.includes(eventPreference)).slice(0, 4).map(v => (
+                                {vendors.filter(matchesEventPreference).slice(0, 4).map(v => (
                                     <Link href={`/vendor/${v.id}`} key={v.id} className="p-item">
-                                        <img src={resolveVendorImage(v.image)} alt={v.name} />
+                                        <img src={resolveHomepageVendorImage(v.image, CATEGORY_IMAGES[v.type])} alt={v.name} />
                                         <div className="p-info">
                                             <strong>{v.name}</strong>
-                                            <span>₪{v.price}</span>
+                                            <span>{getVendorDisplayPrice(v).display || 'לתיאום'}</span>
                                         </div>
                                     </Link>
                                 ))}
+                                {vendors.filter(matchesEventPreference).length === 0 && (
+                                    <p style={{ color: 'rgba(255,255,255,0.75)', margin: 0, fontSize: '0.95rem' }}>
+                                        עדיין אין ספקים מסומנים לסוג אירוע זה — דפדפו בקטגוריות למטה.
+                                    </p>
+                                )}
                             </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Articles — only when API returns real items */}
+            {articles.length > 0 && (
+                <section id="articles" className="articles-home-section">
+                    <div className="container">
+                        <div className="section-header">
+                            <h2>מדריכים והשראה</h2>
+                            <p>טיפים לתכנון האירוע — מהשטח של Fiesta</p>
+                        </div>
+                        <div className="articles-home-grid">
+                            {articles.slice(0, 4).map((a) => (
+                                <Link key={a.id} href={`/article/${a.id}`} className="article-home-card">
+                                    <div className="article-home-img">
+                                        <img src={a.image} alt={a.title || ''} loading="lazy" />
+                                    </div>
+                                    <div className="article-home-body">
+                                        <h3>{a.title}</h3>
+                                        {a.excerpt ? <p>{a.excerpt}</p> : null}
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
                     </div>
                 </section>
@@ -377,11 +453,29 @@ export default function HomePage() {
                     font-family: inherit;
                     cursor: pointer;
                     transition: border-color 0.2s, background 0.2s;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
                 }
                 .btn-hero-ghost:hover {
                     border-color: #fff;
                     background: rgba(255, 255, 255, 0.08);
                 }
+                .hero-soft-link {
+                    display: block;
+                    margin-top: 18px;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                    color: rgba(255, 255, 255, 0.62);
+                    font-size: 0.88rem;
+                    font-family: inherit;
+                    cursor: pointer;
+                    text-decoration: underline;
+                    text-underline-offset: 3px;
+                    transition: color 0.2s;
+                }
+                .hero-soft-link:hover { color: rgba(255, 255, 255, 0.9); }
 
                 .stats-bar {
                     background: var(--charcoal);
@@ -408,6 +502,112 @@ export default function HomePage() {
                     color: rgba(255, 255, 255, 0.55);
                     font-weight: 400;
                     line-height: 1.4;
+                }
+
+                .budget-invite {
+                    background: linear-gradient(180deg, #f7f5f1 0%, #f3f0ea 100%);
+                    padding: 56px 0;
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+                }
+                .budget-invite-inner {
+                    display: grid;
+                    grid-template-columns: 1.15fr 0.85fr;
+                    gap: 40px;
+                    align-items: center;
+                }
+                .budget-invite-kicker {
+                    margin: 0 0 10px;
+                    font-size: 0.78rem;
+                    font-weight: 600;
+                    letter-spacing: 0.06em;
+                    color: var(--text-light);
+                }
+                .budget-invite-copy h2 {
+                    margin: 0 0 12px;
+                    font-family: var(--font-display);
+                    font-size: clamp(1.55rem, 2.8vw, 2.1rem);
+                    font-weight: 500;
+                    color: var(--text-dark);
+                    line-height: 1.25;
+                }
+                .budget-invite-lead {
+                    margin: 0 0 22px;
+                    max-width: 420px;
+                    color: var(--text-light);
+                    font-size: 1rem;
+                    line-height: 1.65;
+                }
+                .budget-invite-cta {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: var(--charcoal);
+                    color: #fff;
+                    text-decoration: none;
+                    padding: 13px 22px;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 0.92rem;
+                    transition: background 0.2s, transform 0.2s;
+                }
+                .budget-invite-cta:hover {
+                    background: #1a1a1a;
+                    transform: translateY(-1px);
+                }
+                .budget-invite-cta i { font-size: 0.8rem; opacity: 0.85; }
+                .budget-invite-preview {
+                    justify-self: stretch;
+                    padding: 28px 26px;
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    border-radius: 14px;
+                    background: rgba(255, 255, 255, 0.72);
+                    text-align: right;
+                }
+                .budget-preview-label {
+                    display: block;
+                    font-size: 0.78rem;
+                    color: var(--text-light);
+                    margin-bottom: 8px;
+                }
+                .budget-preview-amount {
+                    display: block;
+                    font-family: var(--font-display);
+                    font-size: clamp(2rem, 3.5vw, 2.6rem);
+                    font-weight: 600;
+                    color: var(--text-dark);
+                    line-height: 1;
+                    margin-bottom: 18px;
+                }
+                .budget-preview-track {
+                    position: relative;
+                    height: 4px;
+                    border-radius: 999px;
+                    background: rgba(0, 0, 0, 0.08);
+                    margin-bottom: 18px;
+                }
+                .budget-preview-fill {
+                    width: 62%;
+                    height: 100%;
+                    border-radius: inherit;
+                    background: var(--primary-color);
+                }
+                .budget-preview-thumb {
+                    position: absolute;
+                    top: 50%;
+                    right: 38%;
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    background: #fff;
+                    border: 2px solid var(--primary-color);
+                    transform: translate(50%, -50%);
+                    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+                }
+                .budget-preview-cats {
+                    margin: 0;
+                    font-size: 0.85rem;
+                    color: var(--text-light);
+                    letter-spacing: 0.02em;
                 }
 
                 .categories-section { padding: 72px 0; background: var(--white); }
@@ -480,7 +680,8 @@ export default function HomePage() {
                     color: #fff;
                     text-align: right;
                 }
-                .cat-meta { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+                .cat-meta { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px; }
+                .cat-count { font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 500; }
                 .cat-info-premium i { font-size: 0.85rem; color: rgba(255,255,255,0.75); }
                 .cat-info-premium h3 {
                     font-family: var(--font-main);
@@ -489,6 +690,44 @@ export default function HomePage() {
                     margin: 0;
                     line-height: 1.25;
                     color: #fff;
+                }
+
+                .articles-home-section { padding: 56px 0 72px; background: var(--off-white); border-top: 1px solid var(--border-color); }
+                .articles-home-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                    gap: 16px;
+                }
+                .article-home-card {
+                    text-decoration: none;
+                    background: #fff;
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius-md);
+                    overflow: hidden;
+                    color: inherit;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100%;
+                }
+                .article-home-img { height: 140px; background: #eee; }
+                .article-home-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+                .article-home-body { padding: 14px 16px 18px; text-align: right; }
+                .article-home-body h3 {
+                    margin: 0 0 8px;
+                    font-size: 1.05rem;
+                    font-weight: 600;
+                    color: var(--text-dark);
+                    line-height: 1.35;
+                }
+                .article-home-body p {
+                    margin: 0;
+                    font-size: 0.88rem;
+                    color: var(--text-light);
+                    line-height: 1.5;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
                 }
 
                 .personal-banner-section { padding-bottom: 72px; }
@@ -598,6 +837,14 @@ export default function HomePage() {
                     .hero-btns { justify-content: center; }
                     .stats-grid { grid-template-columns: 1fr 1fr; gap: 20px 16px; }
                     .stat-item { text-align: center; }
+                    .budget-invite { padding: 44px 0; }
+                    .budget-invite-inner {
+                        grid-template-columns: 1fr;
+                        gap: 24px;
+                        text-align: center;
+                    }
+                    .budget-invite-lead { margin-left: auto; margin-right: auto; }
+                    .budget-invite-preview { text-align: center; }
                     .contact-card { grid-template-columns: 1fr; padding: 32px 20px; gap: 28px; }
                     .c-text, .p-text, .section-header { text-align: center; }
                     .c-perks { justify-content: center; }
@@ -609,6 +856,13 @@ export default function HomePage() {
                     .stats-bar { padding: 22px 0; }
                     .stat-num { font-size: 1.05rem; }
                     .stat-label { font-size: 0.75rem; }
+                    .budget-invite { padding: 36px 0; }
+                    .budget-invite-cta {
+                        width: 100%;
+                        max-width: 320px;
+                        justify-content: center;
+                        min-height: 48px;
+                    }
                     .categories-section { padding: 48px 0; }
                     .categories-visual-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
                     .cat-card-visual { height: 140px; }
@@ -619,6 +873,7 @@ export default function HomePage() {
                         width: 100%;
                         max-width: 300px;
                         min-height: 48px;
+                        justify-content: center;
                     }
                     .hero-btns { flex-direction: column; width: 100%; align-items: center; }
                     .personal-banner-section { padding-bottom: 48px; }
@@ -651,10 +906,12 @@ export default function HomePage() {
                             <div className="onboarding-options">
                                 {[
                                     { id: 'חתונה', label: 'חתונה' },
-                                    { id: 'בר/בת מצווה', label: 'בר/בת מצווה' },
-                                    { id: 'ברית/ה', label: 'ברית/ה' },
+                                    { id: 'בר מצווה', label: 'בר מצווה' },
+                                    { id: 'בת מצווה', label: 'בת מצווה' },
+                                    { id: 'ברית', label: 'ברית' },
+                                    { id: 'בריתה', label: 'בריתה' },
                                     { id: 'אירוע עסקי', label: 'אירוע עסקי' },
-                                    { id: 'מסיבת רווקים/ות', label: 'מסיבה' }
+                                    { id: 'יום הולדת', label: 'יום הולדת' },
                                 ].map(opt => (
                                     <button 
                                         key={opt.id} 

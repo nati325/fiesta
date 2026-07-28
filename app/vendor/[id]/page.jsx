@@ -1,21 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useVendors } from '@/context/VendorContext';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { resolveVendorImage, resolvePortfolioImage } from '@/lib/vendorImage';
+import VendorNoImage from '@/components/VendorNoImage';
 import { EditChip } from '@/components/SiteEditBar';
+import { formatPrice, getVendorDisplayPrice, getSavings, hasValidPrice } from '@/lib/vendorPrice';
 
 export default function VendorDetailPage() {
     const params = useParams();
     const id = params.id;
     const router = useRouter();
-    const { vendors } = useVendors();
+    const { vendors, toggleFavorite, isFavorite, loading: vendorsLoading } = useVendors();
     const { isAdmin } = useAuth();
+    const [lightboxSrc, setLightboxSrc] = useState('');
 
     const vendor = vendors.find(v => v.id.toString() === id);
+
+    if (vendorsLoading) {
+        return (
+            <div style={{ paddingTop: '150px', textAlign: 'center', minHeight: '80vh' }}>
+                <h2 style={{ fontSize: '1.4rem', marginBottom: '12px', fontWeight: 500 }}>טוענים את הספק...</h2>
+            </div>
+        );
+    }
 
     if (!vendor) {
         return (
@@ -26,47 +38,43 @@ export default function VendorDetailPage() {
         );
     }
 
-    const categoryData = {
-        'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80' },
-        'photographer': { label: 'צילום אירועים', img: '/images/event_photographer.png' },
-        'alcohol': { label: 'אלכוהול ובר', img: '/images/bar_hero.png' },
-        'catering': { label: 'קייטרינג', img: '/images/catering.jpeg' },
-        'venue': { label: 'אולמות וגנים', img: '/images/venue_hero.png' },
-        'design': { label: 'עיצוב אירועים', img: '/images/wedding_floral_arch_1765744424651.png' },
-        'dresses': { label: 'שמלות כלה', img: '/images/wedding_dress.jpeg' },
-        'suits': { label: 'חליפות חתן', img: '/images/groom_suits.jpeg' },
-        'bride-shoes': { label: 'נעלי כלה', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1200&q=80' },
-        'groom-shoes': { label: 'נעלי חתן', img: 'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80' },
-        'hair': { label: 'עיצוב שיער', img: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=1200&q=80' },
-        'makeup': { label: 'איפור', img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1200&q=80' },
-        'rings': { label: 'טבעות נישואין', img: '/images/jewelry_hero.png' },
-        'event-production': { label: 'הפקת אירועים', img: '/images/event_production.jpeg' },
-        'rsvp': { label: 'אישורי הגעה', img: 'https://images.unsplash.com/photo-1512418490979-92798ccc13fb?auto=format&fit=crop&w=1200&q=80' },
-        'invitations': { label: 'הזמנות', img: '/images/invitations_hero.png' },
-        'transportation': { label: 'הסעות', img: '/images/car_hero.png' },
-        'cars': { label: 'רכבי יוקרה', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80' },
-        'equipment-rental': { label: 'השכרת ציוד', img: '/images/wedding_table_detail_1765744408525.png' },
-        'rabbi': { label: 'רב לחופה', img: '/images/rabbi.jpeg' },
-        'cantors': { label: 'חזנים ופייטנים', img: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&w=1200&q=80' },
-        'singers': { label: 'זמרים ולהקות', img: '/images/entertainment_hero.png' },
-        'religious-bands': { label: 'להקות דתיות', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80' },
-        'challa': { label: 'הפרשת חלה', img: 'https://images.unsplash.com/photo-1610452399201-9a7076594d2f?auto=format&fit=crop&w=1200&q=80' },
-        'attractions': { label: 'אטרקציות', img: '/images/attractions_hero.png' },
-        'souvenirs': { label: 'מזכרות', img: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=1200&q=80' },
-        'hotels': { label: 'מלונות', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' },
-        'bachelor': { label: 'מסיבות רווקים', img: 'https://images.unsplash.com/photo-1514525253344-f81bcd3ce942?auto=format&fit=crop&w=1200&q=80' },
-        'getting-ready': { label: 'התארגנות כלה', img: '/images/wedding_lounge_1765744440712.png' },
-        'dietitians': { label: 'תזונה ודיאטה', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80' },
-        'personal-training': { label: 'כושר ואימון', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80' },
+    const categoryLabels = {
+        'dj': 'DJ ומוזיקה',
+        'photographer': 'צילום אירועים',
+        'alcohol': 'אלכוהול ובר',
+        'catering': 'קייטרינג',
+        'venue': 'אולמות וגנים',
+        'design': 'עיצוב אירועים',
+        'dresses': 'שמלות כלה',
+        'suits': 'חליפות חתן',
+        'bride-shoes': 'נעלי כלה',
+        'groom-shoes': 'נעלי חתן',
+        'hair': 'עיצוב שיער',
+        'makeup': 'איפור',
+        'rings': 'טבעות נישואין',
+        'event-production': 'הפקת אירועים',
+        'rsvp': 'אישורי הגעה',
+        'invitations': 'הזמנות',
+        'transportation': 'הסעות',
+        'cars': 'רכבי יוקרה',
+        'equipment-rental': 'השכרת ציוד',
+        'rabbi': 'רב לחופה',
+        'cantors': 'חזנים ופייטנים',
+        'singers': 'זמרים ולהקות',
+        'religious-bands': 'להקות דתיות',
+        'challa': 'הפרשת חלה',
+        'attractions': 'אטרקציות',
+        'souvenirs': 'מזכרות',
+        'hotels': 'מלונות',
+        'bachelor': 'מסיבות רווקים',
+        'getting-ready': 'התארגנות כלה',
+        'dietitians': 'תזונה ודיאטה',
+        'personal-training': 'כושר ואימון',
     };
 
-    const currentCategory = categoryData[vendor.type] || {
-        label: 'ספק מובחר',
-        img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
-    };
+    const categoryLabel = categoryLabels[vendor.type] || 'ספק מובחר';
 
-    // Collect unique vendor images in display order:
-    // main product → vendor.image → other products → portfolio
+    // Unique real images only — no category/stock defaults
     const collectVendorImages = () => {
         const urls = [];
         const push = (raw) => {
@@ -89,20 +97,51 @@ export default function VendorDetailPage() {
     };
 
     const vendorImages = collectVendorImages();
-    // Circle avatar = first image; hero = second if exists, else category topic image
-    const avatarImage = vendorImages[0] || currentCategory.img;
-    const heroBackground = vendorImages.length >= 2 ? vendorImages[1] : currentCategory.img;
+    // 1 photo → same for avatar + hero background; 2+ → avatar first, hero second; 0 → no image placeholder
+    const avatarImage = vendorImages[0] || '';
+    const heroBackground =
+        vendorImages.length >= 2 ? vendorImages[1] : vendorImages.length === 1 ? vendorImages[0] : '';
+
+    // Gallery: unique real images only (prefer portfolio, then other vendor images)
+    const galleryImages = (() => {
+        const urls = [];
+        const push = (raw) => {
+            const resolved = resolveVendorImage(raw, '');
+            if (!resolved || !resolved.trim()) return;
+            if (urls.includes(resolved)) return;
+            urls.push(resolved);
+        };
+        (vendor.portfolio || []).forEach((item) => {
+            if (typeof item === 'string') push(item);
+            else push(item?.image);
+        });
+        // If portfolio empty, fall back to unique vendor images (still no duplicates)
+        if (urls.length === 0) vendorImages.forEach(push);
+        return urls;
+    })();
+
+    const priceInfo = getVendorDisplayPrice(vendor);
+    const liked = isFavorite(vendor.id);
+    const waUrl = `https://wa.me/972535378985?text=${encodeURIComponent(
+        `היי, הגעתי מ־Fiesta לגבי ${vendor.name} ואשמח לדבר עם נציג`
+    )}`;
 
     return (
         <div className="vendor-page">
             {/* Elegant Hero Header */}
             <div className="vendor-hero">
-                <img
-                    src={heroBackground}
-                    alt=""
-                    className="vendor-hero-img"
-                    onError={(e) => { e.target.src = currentCategory.img; }}
-                />
+                {heroBackground ? (
+                    <img
+                        src={heroBackground}
+                        alt=""
+                        className="vendor-hero-img"
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                ) : (
+                    <div className="vendor-hero-empty">
+                        <VendorNoImage />
+                    </div>
+                )}
                 <div className="vendor-hero-overlay" />
                 
                 <button
@@ -123,19 +162,23 @@ export default function VendorDetailPage() {
                 >
                     {/* Avatar */}
                     <div className="vendor-avatar">
-                        <img 
-                            src={avatarImage}
-                            alt={vendor.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={(e) => { e.target.src = currentCategory.img; }}
-                        />
+                        {avatarImage ? (
+                            <img 
+                                src={avatarImage}
+                                alt={vendor.name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                        ) : (
+                            <VendorNoImage compact />
+                        )}
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
                         <div style={{ background: 'var(--off-white)', color: 'var(--text-dark)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid var(--border-color)' }}>
-                            {currentCategory.label}
+                            {categoryLabel}
                         </div>
-                        {vendor.discount && (
+                        {vendor.discount != null && String(vendor.discount).trim() !== '' && String(vendor.discount) !== '0' && (
                             <div style={{ background: 'var(--charcoal)', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600 }}>
                                 {vendor.discountType === 'amount' ? '₪' : ''}{vendor.discount}{vendor.discountType === 'amount' ? '' : '%'} הנחה לחברים
                             </div>
@@ -152,25 +195,29 @@ export default function VendorDetailPage() {
                             <i className="fas fa-map-marker-alt"></i>
                             <span>{vendor.region || vendor.location || 'כל הארץ'}</span>
                         </div>
-                        <div style={{ width: '1px', height: '14px', background: '#e5e2dc' }}></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-color)' }}>
-                            <i className="fas fa-star"></i>
-                            <span style={{ color: 'var(--text-dark)' }}>
-                                {vendor.googleRating ? Number(vendor.googleRating).toFixed(1) : '5.0'}
-                                {vendor.googleReviewsCount > 0 && ` (${vendor.googleReviewsCount} ביקורות)`}
-                            </span>
-                        </div>
+                        {vendor.googleRating != null && String(vendor.googleRating).trim() !== '' && Number(vendor.googleRating) > 0 && (
+                            <>
+                                <div style={{ width: '1px', height: '14px', background: '#e5e2dc' }}></div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-color)' }}>
+                                    <i className="fas fa-star"></i>
+                                    <span style={{ color: 'var(--text-dark)' }}>
+                                        {Number(vendor.googleRating).toFixed(1)}
+                                        {vendor.googleReviewsCount > 0 && ` (${vendor.googleReviewsCount} ביקורות)`}
+                                    </span>
+                                </div>
+                            </>
+                        )}
                     </div>
 
-                    {vendor.price && (
+                    {priceInfo.display ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                                {vendor.originalPrice && (
-                                    <span style={{ fontSize: '1.15rem', color: '#999', textDecoration: 'line-through' }}>₪{vendor.originalPrice}</span>
+                                {priceInfo.originalDisplay && (
+                                    <span style={{ fontSize: '1.15rem', color: '#999', textDecoration: 'line-through' }}>{priceInfo.originalDisplay}</span>
                                 )}
-                                <span style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-dark)', fontFamily: 'var(--font-display)' }}>₪{vendor.price}</span>
+                                <span style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-dark)', fontFamily: 'var(--font-display)' }}>{priceInfo.display}</span>
                             </div>
-                            {vendor.originalPrice && (
+                            {priceInfo.savings != null && (
                                 <div style={{ 
                                     marginTop: '10px',
                                     background: 'var(--off-white)', 
@@ -181,53 +228,67 @@ export default function VendorDetailPage() {
                                     fontWeight: 500,
                                     border: '1px solid var(--border-color)'
                                 }}>
-                                    מחיר פייסטה: חיסכון של ₪{vendor.originalPrice - vendor.price}
+                                    מחיר פייסטה: חיסכון של ₪{priceInfo.savings.toLocaleString('he-IL')}
                                 </div>
                             )}
                         </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+                            <span style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-dark)' }}>לתיאום מחיר</span>
+                        </div>
                     )}
 
-                    <div style={{ maxWidth: '680px', margin: '0 auto 40px' }}>
-                        <p style={{ fontSize: '1.05rem', color: 'var(--text-light)', lineHeight: '1.75', textAlign: 'right' }}>
-                            {vendor.description ? (
-                                <>
-                                    <span style={{ display: 'block', marginBottom: '10px', fontWeight: 600, color: 'var(--text-dark)' }}>קצת עלינו</span>
-                                    {vendor.description}
-                                </>
-                            ) : (
-                                `אנחנו ב-${vendor.name} מאמינים שכל אירוע הוא סיפור ייחודי. עם ניסיון בתחום ה-${currentCategory.label}, אנחנו מביאים יצירתיות, מקצועיות ויחס אישי.`
-                            )}
-                        </p>
-                    </div>
+                    {vendor.description ? (
+                        <div style={{ maxWidth: '680px', margin: '0 auto 40px' }}>
+                            <p style={{ fontSize: '1.05rem', color: 'var(--text-light)', lineHeight: '1.75', textAlign: 'right' }}>
+                                <span style={{ display: 'block', marginBottom: '10px', fontWeight: 600, color: 'var(--text-dark)' }}>קצת עלינו</span>
+                                {vendor.description}
+                            </p>
+                        </div>
+                    ) : null}
 
-                    {/* Google Reviews */}
-                    <div style={{ marginBottom: '36px', display: 'flex', justifyContent: 'center' }}>
-                        <a 
-                            href={vendor.googleReviewsLink || `https://www.google.com/maps/search/${encodeURIComponent(vendor.name)}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '12px',
-                                background: 'white', padding: '12px 22px', borderRadius: '8px',
-                                border: '1px solid var(--border-color)',
-                                textDecoration: 'none', color: 'var(--text-dark)', fontWeight: 500, transition: 'border-color 0.2s'
-                            }}
-                            className="google-review-btn"
-                        >
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style={{ width: '20px' }} />
-                            <span>
-                                {vendor.googleReviewsCount > 0
-                                    ? `${vendor.googleReviewsCount} ביקורות בגוגל`
-                                    : 'ביקורות גוגל'}
-                            </span>
-                            <div style={{ color: 'var(--primary-color)', display: 'flex', gap: '2px', fontSize: '0.8rem' }}>
-                                {[...Array(Math.floor(vendor.googleRating || 5))].map((_, i) => (
-                                    <i key={i} className="fas fa-star"></i>
-                                ))}
-                                {((vendor.googleRating || 5) % 1 !== 0) && <i className="fas fa-star-half-alt"></i>}
+                    {/* Reviews from DB only — never link to Google */}
+                    {Array.isArray(vendor.reviews) && vendor.reviews.length > 0 && (
+                        <div className="vendor-reviews-block" style={{ marginBottom: '36px', maxWidth: '720px', marginLeft: 'auto', marginRight: 'auto' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+                                <h2 style={{ fontSize: '1.35rem', fontWeight: 500, color: 'var(--text-dark)', margin: 0, fontFamily: 'var(--font-display)' }}>
+                                    ביקורות ({vendor.reviews.length})
+                                </h2>
                             </div>
-                        </a>
-                    </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {vendor.reviews.map((review, idx) => {
+                                    if (!review?.text) return null;
+                                    const stars = Math.max(0, Math.min(5, Math.round(Number(review.rating) || 5)));
+                                    return (
+                                        <div
+                                            key={idx}
+                                            style={{
+                                                background: 'white',
+                                                border: '1px solid var(--border-color)',
+                                                borderRadius: '12px',
+                                                padding: '14px 16px',
+                                                textAlign: 'right',
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '8px' }}>
+                                                <span style={{ fontWeight: 600, color: 'var(--text-dark)', fontSize: '0.95rem' }}>
+                                                    {review.reviewer || 'לקוח'}
+                                                </span>
+                                                <div style={{ color: 'var(--primary-color)', display: 'flex', gap: '2px', fontSize: '0.75rem' }}>
+                                                    {[...Array(stars)].map((_, i) => (
+                                                        <i key={i} className="fas fa-star"></i>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p style={{ margin: 0, color: 'var(--text-light)', lineHeight: 1.65, fontSize: '0.95rem' }}>
+                                                {review.text}
+                                            </p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Videos Section */}
                     {vendor.videos && vendor.videos.length > 0 && (
@@ -268,40 +329,54 @@ export default function VendorDetailPage() {
                     {/* Action Bar */}
                     <div className="vendor-actions">
                         <a
-                            href={`https://wa.me/972535378985?text=${encodeURIComponent(`היי, הגעתי מ־Fiesta לגבי ${vendor.name} ואשמח לתיאום`)}`}
-                            target="_blank" rel="noopener noreferrer"
+                            href={waUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="btn btn-outline vendor-contact-btn"
                         >
-                            לתיאום דרך Fiesta
+                            <i className="fab fa-whatsapp" style={{ marginLeft: 6 }}></i>
+                            לדבר עם נציג פייסטה
                         </a>
                         
-                        <button className="btn btn-outline vendor-fav-btn">
-                            <i className="far fa-heart"></i> שמירה במועדפים
+                        <button
+                            type="button"
+                            className="btn btn-outline vendor-fav-btn"
+                            onClick={() => toggleFavorite(vendor.id)}
+                            aria-pressed={liked}
+                        >
+                            <i className={liked ? 'fas fa-heart' : 'far fa-heart'} style={{ color: liked ? '#e11d48' : undefined, marginLeft: 6 }}></i>
+                            {liked ? 'אהבתי' : 'שמירה במועדפים'}
                         </button>
                     </div>
                 </motion.div>
 
-                {/* Info Grid */}
+                {/* Info from DB only — hide marketing filler when empty */}
+                {(Array.isArray(vendor.highlights) && vendor.highlights.length > 0) || vendor.whyUs ? (
                 <div className="vendor-info-grid">
+                    {Array.isArray(vendor.highlights) && vendor.highlights.length > 0 && (
                     <div className="vendor-info-card">
                         <h4>שירותים מובילים</h4>
                         <ul>
-                            <li><i className="fas fa-check"></i> ליווי אישי מיום הסגירה</li>
-                            <li><i className="fas fa-check"></i> ציוד טכנולוגי המתקדם בעולם</li>
-                            <li><i className="fas fa-check"></i> פגישת תיאום ציפיות מפורטת</li>
+                            {vendor.highlights.filter(Boolean).map((item, i) => (
+                                <li key={i}><i className="fas fa-check"></i> {item}</li>
+                            ))}
                         </ul>
                     </div>
+                    )}
                     
+                    {vendor.whyUs ? (
                     <div className="vendor-info-card">
                         <h4>למה אנחנו?</h4>
-                        <p>אנחנו לא רק מספקים שירות, אנחנו בונים חוויה. האיכות שלנו נמדדת בפרטים הקטנים ובחיוך שלכם בסוף הערב.</p>
+                        <p>{vendor.whyUs}</p>
                     </div>
+                    ) : null}
                 </div>
+                ) : null}
 
                 {/* Portfolio / Services section */}
                 <div className="vendor-sections">
                     {/* Services & Prices (Conditional) */}
-                    {((vendor.portfolio && vendor.portfolio.some(item => item.price)) || (vendor.products && vendor.products.length > 0)) && (
+                    {((vendor.portfolio && vendor.portfolio.some(item => hasValidPrice(item.price))) || (vendor.products && vendor.products.some(p => hasValidPrice(p.price)))) && (
                         <div className="vendor-services-block">
                             <div className="vendor-section-head">
                                 <h2>שירותים ומחירים</h2>
@@ -309,7 +384,14 @@ export default function VendorDetailPage() {
                             </div>
                             
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
-                                {(vendor.products && vendor.products.length > 0 ? vendor.products : (vendor.portfolio || []).filter(item => item.price)).map((item, i) => (
+                                {(vendor.products && vendor.products.length > 0
+                                    ? vendor.products.filter((p) => hasValidPrice(p.price))
+                                    : (vendor.portfolio || []).filter(item => hasValidPrice(item.price))
+                                ).map((item, i) => {
+                                    const itemPrice = formatPrice(item.price);
+                                    const itemSavings = getSavings(item.originalPrice, item.price);
+                                    const itemOrig = itemSavings != null ? formatPrice(item.originalPrice) : null;
+                                    return (
                                     <div 
                                         key={i} 
                                         style={{ 
@@ -319,12 +401,16 @@ export default function VendorDetailPage() {
                                         }}
                                     >
                                         <div style={{ width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-                                            <img 
-                                                src={typeof item === 'number' ? currentCategory.img : resolvePortfolioImage(item, currentCategory.img)} 
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                                alt={item.title || item.name} 
-                                                onError={(e) => { e.target.src = currentCategory.img; }}
-                                            />
+                                            {resolvePortfolioImage(item, '') ? (
+                                                <img 
+                                                    src={resolvePortfolioImage(item, '')} 
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                    alt={item.title || item.name} 
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                                />
+                                            ) : (
+                                                <VendorNoImage compact />
+                                            )}
                                             {vendor.mainProductId === item.id && (
                                                 <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--charcoal)', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderBottomLeftRadius: '6px', fontWeight: 600 }}>
                                                     ראשי
@@ -335,78 +421,99 @@ export default function VendorDetailPage() {
                                             <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-dark)', margin: '0 0 4px 0', fontFamily: 'var(--font-main)' }}>{item.title || item.name || 'שירות מותאם אישית'}</h3>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                    {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
-                                                        <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>₪{item.originalPrice}</span>
+                                                    {itemOrig && (
+                                                        <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>{itemOrig}</span>
                                                     )}
                                                     <span style={{ color: 'var(--text-dark)', fontWeight: 700, fontSize: '1.05rem' }}>
-                                                        ₪{item.price}
+                                                        {itemPrice}
                                                     </span>
                                                 </div>
-                                                {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
+                                                {itemSavings != null && (
                                                     <span style={{ background: 'var(--off-white)', color: 'var(--text-dark)', fontSize: '0.7rem', fontWeight: 600, padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                                                        חיסכון ₪{item.originalPrice - item.price}
+                                                        חיסכון ₪{itemSavings.toLocaleString('he-IL')}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
 
-                    {/* Pure Image Gallery */}
-                    <div className="vendor-section-head gallery-head">
-                        <h2>גלריית עבודות</h2>
-                        <div className="vendor-section-actions">
-                            <EditChip href={`/admin/vendors/${vendor.id}`} label="ערוך גלריה / ספק" />
-                            <div className="vendor-section-line short"></div>
-                        </div>
-                    </div>
-
-                    {isAdmin && (!vendor.portfolio || vendor.portfolio.length === 0) && (!vendor.products || vendor.products.length === 0) && (
-                        <div style={{
-                            marginBottom: '20px',
-                            padding: '18px',
-                            borderRadius: '16px',
-                            border: '1.5px dashed #fbbf24',
-                            background: '#fffbeb',
-                            color: '#92400e',
-                            fontWeight: 700,
-                            textAlign: 'right',
-                        }}>
-                            הגלריה ריקה כרגע. לחץ על &quot;ערוך גלריה / ספק&quot; בדף הניהול כדי להוסיף תמונות.
-                        </div>
-                    )}
-                    
-                    <div className="vendor-gallery-grid">
-                        {(
-                            (vendor.products && vendor.products.length > 0)
-                                ? vendor.products
-                                : (vendor.portfolio && vendor.portfolio.length > 0)
-                                    ? vendor.portfolio
-                                    : (isAdmin ? [] : [1, 2, 3, 4, 5, 6])
-                        ).map((item, i) => (
-                            <motion.div 
-                                key={i} 
-                                whileHover={{ scale: 1.02 }}
-                                className="vendor-gallery-item"
-                            >
-                                <img 
-                                    src={typeof item === 'number' ? currentCategory.img : resolvePortfolioImage(item, currentCategory.img)} 
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} 
-                                    alt="portfolio image" 
-                                    className="gallery-img"
-                                    onError={(e) => { e.target.src = currentCategory.img; }}
-                                />
-                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', opacity: 0, transition: 'opacity 0.3s' }} className="gallery-overlay">
-                                    <i className="fas fa-search-plus" style={{ color: 'white', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2rem' }}></i>
+                    {/* Pure Image Gallery — only real unique images; hide when empty */}
+                    {(galleryImages.length > 0 || isAdmin) && (
+                        <>
+                            <div className="vendor-section-head gallery-head">
+                                <h2>גלריית עבודות</h2>
+                                <div className="vendor-section-actions">
+                                    <EditChip href={`/admin/vendors/${vendor.id}`} label="ערוך גלריה / ספק" />
+                                    <div className="vendor-section-line short"></div>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                            </div>
+
+                            {isAdmin && galleryImages.length === 0 && (
+                                <div style={{
+                                    marginBottom: '20px',
+                                    padding: '18px',
+                                    borderRadius: '16px',
+                                    border: '1.5px dashed #fbbf24',
+                                    background: '#fffbeb',
+                                    color: '#92400e',
+                                    fontWeight: 700,
+                                    textAlign: 'right',
+                                }}>
+                                    הגלריה ריקה כרגע. לחץ על &quot;ערוך גלריה / ספק&quot; בדף הניהול כדי להוסיף תמונות.
+                                </div>
+                            )}
+
+                            {galleryImages.length > 0 && (
+                                <div className="vendor-gallery-grid">
+                                    {galleryImages.map((src, i) => (
+                                        <motion.div 
+                                            key={`${src}-${i}`}
+                                            whileHover={{ scale: 1.02 }}
+                                            className="vendor-gallery-item"
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={() => setLightboxSrc(src)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightboxSrc(src); }}
+                                            aria-label="הגדלת תמונה"
+                                        >
+                                            <img 
+                                                src={src}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} 
+                                                alt={`${vendor.name} — תמונה ${i + 1}`} 
+                                                className="gallery-img"
+                                                onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+                                            />
+                                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', opacity: 0, transition: 'opacity 0.3s' }} className="gallery-overlay">
+                                                <i className="fas fa-search-plus" style={{ color: 'white', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2rem' }}></i>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
+
+            {lightboxSrc ? (
+                <div
+                    className="vendor-lightbox"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="תצוגת תמונה"
+                    onClick={() => setLightboxSrc('')}
+                >
+                    <button type="button" className="vendor-lightbox-close" aria-label="סגירה" onClick={() => setLightboxSrc('')}>
+                        <i className="fas fa-times"></i>
+                    </button>
+                    <img src={lightboxSrc} alt="" onClick={(e) => e.stopPropagation()} />
+                </div>
+            ) : null}
 
             <style jsx>{`
                 .vendor-page {
@@ -425,6 +532,10 @@ export default function VendorDetailPage() {
                     height: 100%;
                     object-fit: cover;
                     filter: brightness(0.7);
+                }
+                .vendor-hero-empty {
+                    position: absolute;
+                    inset: 0;
                 }
                 .vendor-hero-overlay {
                     position: absolute;
@@ -575,8 +686,6 @@ export default function VendorDetailPage() {
                     cursor: zoom-in;
                     position: relative;
                 }
-                .google-review-btn:hover { border-color: #cfc9be !important; }
-
                 @media (max-width: 768px) {
                     .vendor-page {
                         padding-bottom: 24px;
@@ -630,7 +739,37 @@ export default function VendorDetailPage() {
                         height: 140px;
                         border-radius: 10px;
                     }
-                    .google-review-btn:hover { border-color: #cfc9be !important; }
+                }
+                .vendor-lightbox {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 10000;
+                    background: rgba(0, 0, 0, 0.88);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 16px;
+                    cursor: zoom-out;
+                }
+                .vendor-lightbox img {
+                    max-width: min(960px, 100%);
+                    max-height: min(90vh, 100%);
+                    object-fit: contain;
+                    border-radius: 8px;
+                    cursor: default;
+                }
+                .vendor-lightbox-close {
+                    position: absolute;
+                    top: 16px;
+                    left: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border: none;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.15);
+                    color: #fff;
+                    font-size: 1.2rem;
+                    cursor: pointer;
                 }
             `}</style>
         </div>

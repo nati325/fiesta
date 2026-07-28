@@ -155,7 +155,7 @@ const Navbar = () => {
                         <li><Link href="/category/venue" className={isActive('/category/venue')}>אולמות</Link></li>
                         <li style={{ marginLeft: '15px' }}>
                             {!user ? (
-                                <Link href="/login" style={{ 
+                                <Link href="/login?next=/profile" style={{ 
                                     display: 'flex', 
                                     alignItems: 'center', 
                                     gap: '8px',
@@ -184,6 +184,17 @@ const Navbar = () => {
                                             ניהול
                                         </Link>
                                     )}
+                                    <Link href="/profile" style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        color: 'var(--text-dark)',
+                                        textDecoration: 'none',
+                                        fontWeight: '500',
+                                    }}>
+                                        <i className="far fa-user" style={{ fontSize: '1.1rem', color: 'var(--primary-color)' }}></i>
+                                        <span>{user.name || user.username || 'אזור אישי'}</span>
+                                    </Link>
                                     <div onClick={logout} style={{ 
                                         cursor: 'pointer', 
                                         display: 'flex', 
@@ -236,6 +247,12 @@ const Navbar = () => {
                     </Link>
                     <Link href="/budget-planner" onClick={() => setMobileMenuOpen(false)}>
                         <i className="fas fa-calculator"></i> מחשבון תקציב
+                    </Link>
+                    <Link href="/guest-rsvp" onClick={() => setMobileMenuOpen(false)}>
+                        <i className="fas fa-clipboard-check"></i> אישורי הגעה
+                    </Link>
+                    <Link href="/table-seating" onClick={() => setMobileMenuOpen(false)}>
+                        <i className="fas fa-chair"></i> סידור שולחנות
                     </Link>
                     {user?.isAdmin && (
                         <Link href="/admin" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-shield-halved"></i> ניהול</Link>

@@ -22,8 +22,10 @@ export async function GET(request) {
                 user: {
                     id: decoded.id,
                     email: decoded.email,
+                    username: 'admin',
                     name: 'מנהל מערכת',
-                    isAdmin: true
+                    isAdmin: true,
+                    favorites: []
                 }
             });
         }
@@ -38,9 +40,11 @@ export async function GET(request) {
             authenticated: true,
             user: {
                 id: user._id,
+                username: user.username,
                 email: user.email,
                 name: user.name,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                favorites: Array.isArray(user.favorites) ? user.favorites.map(String) : []
             }
         });
     } catch {

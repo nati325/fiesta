@@ -1496,48 +1496,80 @@ body:not(.admin-area) img {
     }
 }
 
-/* Compact & Non-intrusive WhatsApp Button */
+/* Round WhatsApp-style Fiesta agent button */
 .whatsapp-float-compact {
     position: fixed;
-    bottom: 15px;
-    right: 10px;
+    bottom: 18px;
+    right: 14px;
+    width: 58px;
+    height: 58px;
+    padding: 0;
     background-color: #25d366;
     color: white;
-    border-radius: 20px;
-    padding: 4px 12px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    justify-content: center;
+    box-shadow:
+        0 4px 14px rgba(37, 211, 102, 0.45),
+        0 2px 8px rgba(0, 0, 0, 0.18);
     z-index: 9999;
-    transition: all 0.3s ease;
+    transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
     text-decoration: none;
     direction: rtl;
+    animation: pulse-whatsapp-lite 2.8s ease-in-out infinite;
 }
 
 @media (max-width: 768px) {
     .whatsapp-float-compact {
-        bottom: calc(12px + var(--safe-bottom));
-        right: 10px;
-        padding: 6px 12px;
+        bottom: calc(16px + var(--safe-bottom));
+        right: 12px;
+        width: 54px;
+        height: 54px;
         z-index: 990;
+    }
+
+    .whatsapp-label-small {
+        display: none;
+    }
+
+    .app > main {
+        padding-bottom: 72px;
+    }
+
+    .footer {
+        padding-bottom: calc(72px + var(--safe-bottom));
     }
 }
 
 .whatsapp-float-compact:hover {
-    transform: translateY(-2px);
-    background-color: #128c7e;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transform: scale(1.08);
+    background-color: #1ebe57;
+    box-shadow:
+        0 6px 18px rgba(37, 211, 102, 0.55),
+        0 3px 10px rgba(0, 0, 0, 0.2);
     color: white;
+    animation: none;
 }
 
 .whatsapp-float-compact i {
-    font-size: 1rem;
+    font-size: 1.85rem;
+    line-height: 1;
 }
 
 .whatsapp-label-small {
-    font-size: 0.75rem;
+    position: absolute;
+    right: calc(100% + 10px);
+    white-space: nowrap;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 0.78rem;
     font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 10px;
+    opacity: 1;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 .whatsapp-label-small small {
@@ -1549,21 +1581,20 @@ body:not(.admin-area) img {
 }
 
 @keyframes pulse-whatsapp-lite {
-    0% {
+    0%,
+    100% {
         transform: scale(1);
+        box-shadow:
+            0 4px 14px rgba(37, 211, 102, 0.45),
+            0 2px 8px rgba(0, 0, 0, 0.18);
     }
 
     50% {
-        transform: scale(1.02);
+        transform: scale(1.05);
+        box-shadow:
+            0 5px 18px rgba(37, 211, 102, 0.55),
+            0 2px 10px rgba(0, 0, 0, 0.2);
     }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-.whatsapp-float-compact {
-    animation: none;
 }
 
 /* Delicate Free Branding */

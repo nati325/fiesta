@@ -10,7 +10,7 @@ import { useActiveEvent } from '@/hooks/useActiveEvent';
 
 function RSVPAdminContent() {
     const router = useRouter();
-    const { eventId, rsvpPublicUrl } = useActiveEvent();
+    const { eventId, rsvpPublicUrl, summaryPublicUrl, activeCustomer } = useActiveEvent();
     const [rsvps, setRsvps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -28,41 +28,52 @@ function RSVPAdminContent() {
     const [importData, setImportData] = useState([]);
     const fileInputRef = useRef(null);
     const [isImporting, setIsImporting] = useState(false);
-    const [isEligible, setIsEligible] = useState(false); // Free if booked 2+ vendors
+    const [isEligible, setIsEligible] = useState(true);
     const [showPayModal, setShowPayModal] = useState(false);
-    const [paymentProcessing, setPaymentProcessing] = useState(false);
-    const [paymentSuccess, setPaymentSuccess] = useState(false);
-    const [hasShuttle, setHasShuttle] = useState(false); // Toggle for shuttle feature
+    const [hasShuttle, setHasShuttle] = useState(false);
+    const [venueName, setVenueName] = useState('');
+    const [wazeLink, setWazeLink] = useState('');
     
+    const coupleName = activeCustomer?.name || 'הזוג';
+    const eventDateLabel = activeCustomer?.eventDate
+        ? new Date(activeCustomer.eventDate).toLocaleDateString('he-IL')
+        : 'התאריך';
+
     const [msgTemplates, setMsgTemplates] = useState({
-        round1: "היי {name}! ✨\nנשמח מאוד לראותכם בחתונה שלנו ב-14.09.\nאנא אשרו הגעה בקישור הבא:\n{link}\n\nשלכם, נועה ודניאל",
-        reminder: "היי {name}, מה קורה? 😊\nרק רצינו לוודא שקיבלתם את ההזמנה לחתונה שלנו.\nנשמח אם תוכלו לאשר הגעה כאן:\n{link}\n\nמחכים לכם!",
-        final: "היי {name}, שבוע טוב! 🌸\nאנחנו סוגרים רשימות סופיות מול האולם.\nנודה מאוד לעדכון בקישור אם אתם מגיעים:\n{link}\n\nתודה, נועה ודניאל",
-        eventDay: "היי {name}, זה קורה היום! 🎉\nמתרגשים מאוד לראות אתכם.\n📍 מקום: גן האירועים \"החורשה\"\n🪑 שולחן: {table}\n🚙 ניווט בוויז: {waze}\n\nנתראה בשמחות!",
-        thankYou: "היי {name}, תודה רבה שבאתם לשמוח איתנו! ❤️\nהיה לנו ערב בלתי נשכח, והנוכחות שלכם הפכה אותו למיוחד אפילו יותר.\nאוהבים, נועה ודניאל"
+        round1: '',
+        reminder: '',
+        final: '',
+        eventDay: '',
+        thankYou: ''
     });
     const [isEditingMsg, setIsEditingMsg] = useState(false);
 
     useEffect(() => {
-        // Load XLSX library from CDN
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
         script.async = true;
         document.head.appendChild(script);
         
         fetchRSVPs();
-        checkEligibility();
-    }, [eventId]);
+        const status = activeCustomer?.status || '';
+        setIsEligible(
+            !status ||
+            status.includes('סגר') ||
+            status === 'סגר עם אולם ושני ספקים' ||
+            status === 'סגר עסקה עם אולם' ||
+            status === 'סגר עסקה עם ספק'
+        );
+    }, [eventId, activeCustomer?.status]);
 
-    const checkEligibility = () => {
-        const status = localStorage.getItem('fiesta_customer_status');
-        const hasPaid = localStorage.getItem('fiesta_rsvp_paid');
-        if (status === 'סגר עם אולם ושני ספקים' || hasPaid === 'true') {
-            setIsEligible(true);
-        } else {
-            setIsEligible(false);
-        }
-    };
+    useEffect(() => {
+        setMsgTemplates({
+            round1: `היי {name}!\nנשמח מאוד לראותכם באירוע של ${coupleName}${eventDateLabel !== 'התאריך' ? ` ב-${eventDateLabel}` : ''}.\nאנא אשרו הגעה בקישור הבא:\n{link}\n\nשלכם, ${coupleName}`,
+            reminder: `היי {name}, מה קורה?\nרק רצינו לוודא שקיבלתם את ההזמנה לאירוע של ${coupleName}.\nנשמח אם תוכלו לאשר הגעה כאן:\n{link}\n\nמחכים לכם!`,
+            final: `היי {name}, שבוע טוב!\nאנחנו סוגרים רשימות סופיות מול האולם.\nנודה מאוד לעדכון בקישור אם אתם מגיעים:\n{link}\n\nתודה, ${coupleName}`,
+            eventDay: `היי {name}, זה קורה היום!\nמתרגשים מאוד לראות אתכם.\n📍 מקום: {venue}\n🪑 שולחן: {table}\n🚙 ניווט בוויז: {waze}\n\nנתראה בשמחות!`,
+            thankYou: `היי {name}, תודה רבה שבאתם לשמוח איתנו!\nהיה לנו ערב בלתי נשכח, והנוכחות שלכם הפכה אותו למיוחד אפילו יותר.\nאוהבים, ${coupleName}`
+        });
+    }, [coupleName, eventDateLabel]);
 
     const fetchRSVPs = async () => {
         if (!eventId) {
@@ -153,15 +164,18 @@ function RSVPAdminContent() {
 
     const sendWhatsApp = async (rsvp) => {
         let template = msgTemplates[msgType];
-        const rsvpUrl = rsvpPublicUrl || `${typeof window !== 'undefined' ? window.location.origin : ''}/rsvp${eventId ? `?event=${eventId}` : ''}`;
-        const wazeUrl = `https://waze.com/ul?q=test-location`;
+        const shuttleQs = hasShuttle ? '&shuttle=1' : '';
+        const rsvpUrl = rsvpPublicUrl
+            ? `${rsvpPublicUrl}${hasShuttle ? (rsvpPublicUrl.includes('?') ? '&shuttle=1' : '?shuttle=1') : ''}`
+            : `${typeof window !== 'undefined' ? window.location.origin : ''}/rsvp${eventId ? `?event=${eventId}${shuttleQs}` : ''}`;
+        const resolvedWaze = wazeLink.trim() || (venueName.trim() ? `https://waze.com/ul?q=${encodeURIComponent(venueName.trim())}` : '');
 
-        // Replace placeholders
         let message = template
             .replace(/{name}/g, rsvp.name)
             .replace(/{link}/g, rsvpUrl)
             .replace(/{table}/g, rsvp.tableNumber || 'ימתין לכם בכניסה')
-            .replace(/{waze}/g, wazeUrl);
+            .replace(/{venue}/g, venueName.trim() || 'מקום האירוע')
+            .replace(/{waze}/g, resolvedWaze || 'יעודכן בהמשך');
 
         const imagePart = invitationImage ? `\n\nמצורפת ההזמנה שלנו: ${invitationImage}` : '';
         const fullMessage = message + (msgType === 'round1' ? imagePart : '');
@@ -169,7 +183,6 @@ function RSVPAdminContent() {
         
         window.open(url, '_blank');
 
-        // Update status and round in DB
         const roundMap = { round1: 1, reminder: 2, final: 3, eventDay: 4 };
         try {
             await fetch('/api/rsvp', {
@@ -189,19 +202,36 @@ function RSVPAdminContent() {
         }
     };
 
+    const exportGuestsCsv = () => {
+        if (!rsvps.length) {
+            alert('אין אורחים לייצוא');
+            return;
+        }
+        const headers = ['שם', 'טלפון', 'מגיע', 'כמות', 'שולחן', 'הערות תזונה', 'הסעה'];
+        const rows = rsvps.map((g) => [
+            g.name || '',
+            g.phone || '',
+            g.hasResponded ? (g.isComing ? 'כן' : 'לא') : 'ממתין',
+            g.guests || 0,
+            g.tableNumber || '',
+            g.dietary || '',
+            g.shuttle ? 'כן' : 'לא',
+        ]);
+        const escape = (v) => `"${String(v).replace(/"/g, '""')}"`;
+        const csv = '\uFEFF' + [headers, ...rows].map((r) => r.map(escape).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `fiesta-rsvp-${eventId || 'export'}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const handlePayment = () => {
-        setPaymentProcessing(true);
-        // Simulate payment processing
-        setTimeout(() => {
-            setPaymentProcessing(false);
-            setPaymentSuccess(true);
-            setTimeout(() => {
-                setIsEligible(true);
-                setShowPayModal(false);
-                setPaymentSuccess(false);
-                localStorage.setItem('fiesta_rsvp_paid', 'true');
-            }, 2000);
-        }, 3000);
+        const text = encodeURIComponent(`היי Fiesta, אשמח לרכוש את מערכת אישורי ההגעה לאירוע ${coupleName} (${eventId || ''})`);
+        window.open(`https://wa.me/972535378985?text=${text}`, '_blank');
+        setShowPayModal(false);
     };
 
     return (
@@ -217,13 +247,29 @@ function RSVPAdminContent() {
                             <div className="img-preview-mini">
                                 {invitationImage ? <img src={invitationImage} alt="הזמנה" /> : <div className="no-img">🖼️</div>}
                             </div>
-                            <input 
-                                type="text" 
-                                placeholder="לינק לתמונת ההזמנה" 
-                                value={invitationImage}
-                                onChange={(e) => setInvitationImage(e.target.value)}
-                                className="img-url-input"
-                            />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 220 }}>
+                                <input 
+                                    type="text" 
+                                    placeholder="לינק לתמונת ההזמנה" 
+                                    value={invitationImage}
+                                    onChange={(e) => setInvitationImage(e.target.value)}
+                                    className="img-url-input"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="שם מקום האירוע"
+                                    value={venueName}
+                                    onChange={(e) => setVenueName(e.target.value)}
+                                    className="img-url-input"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="קישור Waze (אופציונלי)"
+                                    value={wazeLink}
+                                    onChange={(e) => setWazeLink(e.target.value)}
+                                    className="img-url-input"
+                                />
+                            </div>
                         </div>
                         <div className="header-actions">
                             <div className="setting-toggle">
@@ -243,11 +289,17 @@ function RSVPAdminContent() {
                             <button className="btn-import" onClick={() => fileInputRef.current.click()}>
                                 <i className="fas fa-file-excel"></i> ייבוא מאקסל
                             </button>
-                            <button className="btn-export" onClick={() => {/* ... */}}>
+                            <button className="btn-export" onClick={exportGuestsCsv}>
                                 <i className="fas fa-download"></i> ייצוא
                             </button>
                             <button className="btn-share-hall" onClick={() => {
-                                const url = `${window.location.origin}/rsvp/summary`;
+                                const url = summaryPublicUrl || (eventId
+                                    ? `${window.location.origin}/rsvp/summary?event=${encodeURIComponent(eventId)}`
+                                    : '');
+                                if (!url) {
+                                    alert('בחרו אירוע פעיל לפני שיתוף עם האולם');
+                                    return;
+                                }
                                 navigator.clipboard.writeText(url);
                                 alert('הקישור לצפייה עבור האולם הועתק! תוכלו לשלוח אותו למנהל האירוע.');
                             }}>
@@ -286,7 +338,7 @@ function RSVPAdminContent() {
                     </motion.div>
                 )}
 
-                {/* Payment Modal */}
+                {/* Purchase via WhatsApp — no fake card form */}
                 <AnimatePresence>
                     {showPayModal && (
                         <div className="modal-overlay payment-overlay">
@@ -297,71 +349,18 @@ function RSVPAdminContent() {
                                 className="modal-card payment-card"
                             >
                                 <button className="close-btn" onClick={() => setShowPayModal(false)}>×</button>
-                                
-                                {!paymentSuccess ? (
-                                    <>
-                                        <div className="payment-header">
-                                            <div className="fiesta-logo-small">Fiesta</div>
-                                            <h2>רכישת חבילת אישורי הגעה</h2>
-                                            <div className="price-badge">₪400</div>
-                                        </div>
-
-                                        <div className="payment-form">
-                                            <div className="input-row">
-                                                <label>שם על הכרטיס</label>
-                                                <input type="text" placeholder="שם מלא" />
-                                            </div>
-                                            <div className="input-row">
-                                                <label>מספר כרטיס</label>
-                                                <div className="cc-input-wrapper">
-                                                    <input type="text" placeholder="0000 0000 0000 0000" />
-                                                    <i className="fas fa-credit-card"></i>
-                                                </div>
-                                            </div>
-                                            <div className="input-grid">
-                                                <div className="input-row">
-                                                    <label>תוקף</label>
-                                                    <input type="text" placeholder="MM/YY" />
-                                                </div>
-                                                <div className="input-row">
-                                                    <label>CVV</label>
-                                                    <input type="text" placeholder="123" />
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="security-badges">
-                                                <span><i className="fas fa-shield-alt"></i> תשלום מאובטח SSL</span>
-                                                <div className="card-icons">
-                                                    <i className="fab fa-cc-visa"></i>
-                                                    <i className="fab fa-cc-mastercard"></i>
-                                                </div>
-                                            </div>
-
-                                            <button 
-                                                className={`btn-pay-now ${paymentProcessing ? 'processing' : ''}`}
-                                                onClick={handlePayment}
-                                                disabled={paymentProcessing}
-                                            >
-                                                {paymentProcessing ? (
-                                                    <span className="loader-dots">מבצע תשלום<span>.</span><span>.</span><span>.</span></span>
-                                                ) : 'בצע תשלום מאובטח'}
-                                            </button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="payment-success-content">
-                                        <motion.div 
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            className="success-icon"
-                                        >
-                                            <i className="fas fa-check-circle"></i>
-                                        </motion.div>
-                                        <h2>התשלום בוצע בהצלחה!</h2>
-                                        <p>מערכת אישורי ההגעה והסידורי שולחן פתוחה עבורכם.</p>
-                                        <p>מתחילים לעבוד...</p>
-                                    </div>
-                                )}
+                                <div className="payment-header">
+                                    <div className="fiesta-logo-small">Fiesta</div>
+                                    <h2>רכישת חבילת אישורי הגעה</h2>
+                                    <div className="price-badge">₪400</div>
+                                </div>
+                                <p style={{ textAlign: 'center', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
+                                    התשלום מתבצע מול נציג Fiesta בוואטסאפ — בלי הזנת כרטיס אשראי באתר.
+                                </p>
+                                <button className="btn-pay-now" type="button" onClick={handlePayment}>
+                                    <i className="fab fa-whatsapp" style={{ marginLeft: 8 }}></i>
+                                    לדבר עם נציג לרכישה
+                                </button>
                             </motion.div>
                         </div>
                     )}

@@ -51,8 +51,8 @@ export default function RootLayout({ children }) {
                                     <p className="footer-free-msg">השירות ב-Fiesta ניתן בחינם לטובת הקהילה</p>
                                     <p>&copy; {new Date().getFullYear()} Fiesta Events. כל הזכויות שמורות.</p>
                                     <p className="footer-admin-link">
-                                        <Link href="/login" title="כניסת ניהול">
-                                            ניהול
+                                        <Link href="/login?next=/profile" title="התחברות">
+                                            התחברות
                                         </Link>
                                     </p>
                                 </div>

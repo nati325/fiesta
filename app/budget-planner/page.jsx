@@ -1,117 +1,167 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useVendors } from '@/context/VendorContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
+import VendorCardImage from '@/components/VendorCardImage';
+import { resolveVendorImage } from '@/lib/vendorImage';
+import { parsePrice, parsePriceRange, hasValidPrice } from '@/lib/vendorPrice';
 
+/** Must match real vendor.type slugs in DB / site */
 const CATEGORIES = [
     { id: 'venue', name: 'אולם / גן אירועים', icon: 'fa-landmark' },
     { id: 'catering', name: 'קייטרינג', icon: 'fa-utensils' },
-    { id: 'music', name: 'DJ ומוזיקה', icon: 'fa-compact-disc' },
-    { id: 'photography', name: 'צלמים', icon: 'fa-camera' },
+    { id: 'dj', name: 'DJ ומוזיקה', icon: 'fa-compact-disc' },
+    { id: 'photographer', name: 'צלמים', icon: 'fa-camera' },
     { id: 'design', name: 'עיצוב אירועים', icon: 'fa-paint-brush' },
-    { id: 'alcohol', name: 'בר אלכוהול', icon: 'fa-glass-cheers' },
-    { id: 'bar', name: 'שירותי בר', icon: 'fa-cocktail' },
+    { id: 'alcohol', name: 'אלכוהול ובר', icon: 'fa-glass-cheers' },
     { id: 'makeup', name: 'איפור', icon: 'fa-eye' },
     { id: 'suits', name: 'חליפות חתן', icon: 'fa-user-tie' },
-    { id: 'dresses', name: 'שמלות כלה', icon: 'fa-female' }
+    { id: 'dresses', name: 'שמלות כלה', icon: 'fa-female' },
 ];
 
-function BudgetPlannerContent() {
-    const { vendors } = useVendors();
-    const [budget, setBudget] = useState(50000);
-    const [guests, setGuests] = useState(100);
-    const [selectedCategories, setSelectedCategories] = useState(['venue', 'music', 'photography']);
-    const [isCalculating, setIsCalculating] = useState(false);
-    const [results, setResults] = useState([]);
-    const [activeTab, setActiveTab] = useState('input'); // 'input' or 'results'
+const WA_PHONE = '972535378985';
 
-    // Helper to parse price string to number
-    const parsePrice = (priceStr, guestCount = 1) => {
-        if (typeof priceStr === 'number') return priceStr;
-        if (!priceStr) return 0;
-        
-        // Remove commas and non-numeric chars (except dot)
-        const cleanStr = priceStr.toString().replace(/,/g, '').replace(/[^0-9.]/g, '');
-        const num = parseFloat(cleanStr);
-        
-        if (isNaN(num)) return 0;
-        
-        // Handle "per guest" prices
-        if (priceStr.includes('מנה') || priceStr.includes('איש') || priceStr.includes('אורח')) {
-            return num * guestCount;
-        }
-        
-        return num;
+/** Numeric price for planner math — ranges use midpoint; per-guest when marked. */
+function plannerUnitPrice(raw, guestCount) {
+    if (raw == null || raw === '') return null;
+    const str = String(raw);
+    const range = parsePriceRange(str);
+    if (range) return Math.round((range.min + range.max) / 2);
+
+    const single = parsePrice(str);
+    if (single == null) return null;
+
+    if (/מנה|איש|אורח|לאורח|לאורחים/.test(str)) {
+        return Math.round(single * Math.max(1, guestCount || 1));
+    }
+    return Math.round(single);
+}
+
+function buildVendorOptions(vendor, guests) {
+    const options = [];
+    const seen = new Set();
+
+    const push = (title, priceRaw, image) => {
+        const price = plannerUnitPrice(priceRaw, guests);
+        if (price == null || price <= 0) return;
+        const key = `${vendor.id}|${title}|${price}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        options.push({
+            vendorId: String(vendor.id),
+            vendorName: vendor.name,
+            vendorImage: vendor.image,
+            title: title || 'חבילת Fiesta',
+            price,
+            image: image || vendor.image || '',
+        });
     };
 
+    // Prefer real products (priced packages)
+    if (Array.isArray(vendor.products) && vendor.products.length > 0) {
+        const main = vendor.products.find((p) => p.id === vendor.mainProductId);
+        const list = main ? [main, ...vendor.products.filter((p) => p !== main)] : vendor.products;
+        list.forEach((p) => {
+            if (!hasValidPrice(p.price)) return;
+            push(p.name || p.title || 'חבילה', p.price, p.image);
+        });
+    }
+
+    // Fallback: vendor-level price (not gallery portfolio photos)
+    if (options.length === 0 && hasValidPrice(vendor.price)) {
+        push('חבילת Fiesta', vendor.price, vendor.image);
+    }
+
+    // Only portfolio rows that actually have a real price (rare legacy)
+    if (Array.isArray(vendor.portfolio)) {
+        vendor.portfolio.forEach((item) => {
+            if (!item || typeof item === 'string') return;
+            if (!hasValidPrice(item.price)) return;
+            push(item.title || item.name || 'חבילה', item.price, item.image);
+        });
+    }
+
+    return options;
+}
+
+function BudgetPlannerContent() {
+    const { vendors, loading } = useVendors();
+    const [budget, setBudget] = useState(50000);
+    const [guests, setGuests] = useState(100);
+    const [selectedCategories, setSelectedCategories] = useState(['venue', 'dj']);
+    const [isCalculating, setIsCalculating] = useState(false);
+    const [results, setResults] = useState([]);
+    const [activeTab, setActiveTab] = useState('input');
+    const [emptyReason, setEmptyReason] = useState('');
+
+    const realVendors = useMemo(
+        () => (vendors || []).filter((v) => v && v.name && v.type),
+        [vendors]
+    );
+
     const handleCategoryToggle = (id) => {
-        setSelectedCategories(prev => 
-            prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+        setSelectedCategories((prev) =>
+            prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
         );
     };
 
     const calculateCombinations = () => {
+        if (loading) return;
         setIsCalculating(true);
-        
-        // 1. Group relevant packages by category
+        setEmptyReason('');
+
         const optionsByCategory = {};
-        selectedCategories.forEach(catId => {
-            const catVendors = vendors.filter(v => v.type === catId);
+        selectedCategories.forEach((catId) => {
             const packages = [];
-            
-            catVendors.forEach(vendor => {
-                if (vendor.portfolio && vendor.portfolio.length > 0) {
-                    vendor.portfolio.forEach(pkg => {
-                        packages.push({
-                            vendorId: vendor.id,
-                            vendorName: vendor.name,
-                            vendorImage: vendor.image,
-                            title: pkg.title,
-                            price: parsePrice(pkg.price, guests),
-                            originalPrice: pkg.price,
-                            image: pkg.image || vendor.image
-                        });
-                    });
-                } else if (vendor.price) {
-                     packages.push({
-                        vendorId: vendor.id,
-                        vendorName: vendor.name,
-                        vendorImage: vendor.image,
-                        title: 'חבילה בסיסית',
-                        price: parsePrice(vendor.price, guests),
-                        originalPrice: vendor.price,
-                        image: vendor.image
-                    });
-                }
-            });
-            
-            // Sort by price to help search
-            optionsByCategory[catId] = packages.sort((a, b) => a.price - b.price);
+            realVendors
+                .filter((v) => v.type === catId)
+                .forEach((vendor) => {
+                    packages.push(...buildVendorOptions(vendor, guests));
+                });
+            // keep cheapest few per category to avoid explosion, but only real prices
+            optionsByCategory[catId] = packages
+                .sort((a, b) => a.price - b.price)
+                .slice(0, 12);
         });
 
-        // 2. Recursive search for combinations
-        const finalResults = [];
-        const categoriesToProcess = selectedCategories.filter(catId => optionsByCategory[catId]?.length > 0);
-        
+        const categoriesToProcess = selectedCategories.filter(
+            (catId) => optionsByCategory[catId]?.length > 0
+        );
+
+        let reason = '';
         if (categoriesToProcess.length === 0) {
             setResults([]);
+            setEmptyReason('לא מצאנו ספקים עם מחיר אמיתי בקטגוריות שבחרתם.');
             setIsCalculating(false);
             setActiveTab('results');
             return;
         }
 
-        const find = (index, currentCombo, currentTotal) => {
-            if (finalResults.length >= 15) return; // Limit results
-            
+        if (categoriesToProcess.length < selectedCategories.length) {
+            const missing = selectedCategories.filter((c) => !categoriesToProcess.includes(c));
+            const labels = missing
+                .map((id) => CATEGORIES.find((c) => c.id === id)?.name || id)
+                .join(', ');
+            reason = `אין ספקים מתומחרים עבור: ${labels}. מציגים שילובים מהקטגוריות הזמינות.`;
+        }
+
+        const finalResults = [];
+        const usedVendorSets = new Set();
+
+        const find = (index, currentCombo, currentTotal, usedVendors) => {
+            if (finalResults.length >= 20) return;
+
             if (index === categoriesToProcess.length) {
-                if (currentTotal <= budget) {
+                if (currentTotal > 0 && currentTotal <= budget) {
+                    const sig = currentCombo.map((i) => i.vendorId).sort().join('|');
+                    if (usedVendorSets.has(sig)) return;
+                    usedVendorSets.add(sig);
                     finalResults.push({
                         items: [...currentCombo],
                         total: currentTotal,
-                        saving: Math.round(budget - currentTotal)
+                        saving: Math.round(budget - currentTotal),
                     });
                 }
                 return;
@@ -121,65 +171,82 @@ function BudgetPlannerContent() {
             const options = optionsByCategory[catId];
 
             for (const opt of options) {
-                if (currentTotal + opt.price > budget) break; // Optimization: prices are sorted
-                
+                if (usedVendors.has(opt.vendorId)) continue;
+                if (currentTotal + opt.price > budget) break;
+
                 currentCombo.push(opt);
-                find(index + 1, currentCombo, currentTotal + opt.price);
+                usedVendors.add(opt.vendorId);
+                find(index + 1, currentCombo, currentTotal + opt.price, usedVendors);
+                usedVendors.delete(opt.vendorId);
                 currentCombo.pop();
-                
-                if (finalResults.length >= 15) return;
+
+                if (finalResults.length >= 20) return;
             }
         };
 
-        find(0, [], 0);
-        
-        // Sort results by "Best Value" (closest to budget but under it, or most items)
+        find(0, [], 0, new Set());
         setResults(finalResults.sort((a, b) => b.total - a.total));
-        
+
+        if (finalResults.length === 0) {
+            setEmptyReason(reason || 'לא נמצאו שילובים בתקציב הזה. נסו להעלות תקציב או להוריד קטגוריות.');
+        } else {
+            setEmptyReason(reason);
+        }
+
         setTimeout(() => {
             setIsCalculating(false);
             setActiveTab('results');
-        }, 800);
+        }, 400);
+    };
+
+    const buildWaCombo = (combo) => {
+        const lines = combo.items.map(
+            (i) => `• ${i.vendorName} (${i.title}) — ₪${i.price.toLocaleString('he-IL')}`
+        );
+        const text = `היי, הגעתי מ־Fiesta ממתכנן התקציב.\nתקציב: ₪${budget.toLocaleString('he-IL')}\nסה״כ שילוב: ₪${combo.total.toLocaleString('he-IL')}\n\n${lines.join('\n')}\n\nאשמח לדבר עם נציג`;
+        return `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(text)}`;
     };
 
     return (
         <div className="planner-page" dir="rtl">
-            {/* Hero Section */}
             <section className="planner-hero">
                 <div className="container">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="hero-content"
                     >
                         <span className="badge">חכם, פשוט, חסכוני</span>
-                        <h1>מתכנן התקציב של <span className="gold-text">Fiesta</span></h1>
-                        <p>אנחנו נרכיב לכם את השילוב המושלם של ספקים שנכנס בדיוק בתקציב שלכם.</p>
+                        <h1>
+                            מתכנן התקציב של <span className="gold-text">Fiesta</span>
+                        </h1>
+                        <p>שילובים מספקים אמיתיים עם מחירים אמיתיים — בתוך התקציב שלכם.</p>
                     </motion.div>
                 </div>
             </section>
 
             <div className="container main-content">
                 <div className="planner-grid">
-                    {/* Sidebar / Inputs */}
                     <div className="planner-sidebar">
                         <div className="glass-card">
-                            <h3 className="section-title"><i className="fas fa-sliders-h"></i> הגדרות האירוע</h3>
-                            
+                            <h3 className="section-title">
+                                <i className="fas fa-sliders-h"></i> הגדרות האירוע
+                            </h3>
+
                             <div className="input-group">
                                 <label>תקציב כולל (₪)</label>
                                 <div className="budget-slider-container">
-                                    <input 
-                                        type="range" 
-                                        min="5000" 
-                                        max="500000" 
-                                        step="5000" 
-                                        value={budget} 
-                                        onChange={(e) => setBudget(parseInt(e.target.value))}
+                                    <input
+                                        type="range"
+                                        min="5000"
+                                        max="500000"
+                                        step="5000"
+                                        value={budget}
+                                        onChange={(e) => setBudget(parseInt(e.target.value, 10))}
                                         className="budget-slider"
                                     />
                                     <div className="budget-display">
-                                        <span className="amount">₪{budget.toLocaleString()}</span>
+                                        <span className="amount">₪{budget.toLocaleString('he-IL')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -187,22 +254,27 @@ function BudgetPlannerContent() {
                             <div className="input-group">
                                 <label>מספר אורחים משוער</label>
                                 <div className="guests-input">
-                                    <button onClick={() => setGuests(Math.max(10, guests - 10))}>-</button>
-                                    <input 
-                                        type="number" 
-                                        value={guests} 
-                                        onChange={(e) => setGuests(parseInt(e.target.value) || 0)}
+                                    <button type="button" onClick={() => setGuests(Math.max(10, guests - 10))}>
+                                        -
+                                    </button>
+                                    <input
+                                        type="number"
+                                        value={guests}
+                                        onChange={(e) => setGuests(parseInt(e.target.value, 10) || 0)}
                                     />
-                                    <button onClick={() => setGuests(guests + 10)}>+</button>
+                                    <button type="button" onClick={() => setGuests(guests + 10)}>
+                                        +
+                                    </button>
                                 </div>
                             </div>
 
                             <div className="input-group">
                                 <label>מה אתם מחפשים? ({selectedCategories.length})</label>
                                 <div className="category-chips">
-                                    {CATEGORIES.map(cat => (
-                                        <button 
+                                    {CATEGORIES.map((cat) => (
+                                        <button
                                             key={cat.id}
+                                            type="button"
                                             onClick={() => handleCategoryToggle(cat.id)}
                                             className={`chip ${selectedCategories.includes(cat.id) ? 'active' : ''}`}
                                         >
@@ -213,25 +285,33 @@ function BudgetPlannerContent() {
                                 </div>
                             </div>
 
-                            <button 
-                                className="generate-btn" 
+                            <button
+                                type="button"
+                                className="generate-btn"
                                 onClick={calculateCombinations}
-                                disabled={isCalculating || selectedCategories.length === 0}
+                                disabled={isCalculating || selectedCategories.length === 0 || loading}
                             >
-                                {isCalculating ? (
-                                    <><i className="fas fa-spinner fa-spin"></i> מחשב שילובים...</>
+                                {loading ? (
+                                    <>
+                                        <i className="fas fa-spinner fa-spin"></i> טוען ספקים...
+                                    </>
+                                ) : isCalculating ? (
+                                    <>
+                                        <i className="fas fa-spinner fa-spin"></i> מחשב שילובים...
+                                    </>
                                 ) : (
-                                    <><i className="fas fa-magic"></i> מצא שילובים מנצחים</>
+                                    <>
+                                        <i className="fas fa-magic"></i> מצא שילובים מנצחים
+                                    </>
                                 )}
                             </button>
                         </div>
                     </div>
 
-                    {/* Results Area */}
                     <div className="planner-results">
                         <AnimatePresence mode="wait">
                             {activeTab === 'input' ? (
-                                <motion.div 
+                                <motion.div
                                     key="empty"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -242,10 +322,10 @@ function BudgetPlannerContent() {
                                         <i className="fas fa-calculator"></i>
                                     </div>
                                     <h3>הזינו תקציב ובחרו קטגוריות</h3>
-                                    <p>המערכת החכמה שלנו תנתח מאות ספקים ותמצא לכם את השילובים המשתלמים ביותר.</p>
+                                    <p>נבנה שילובים רק מספקים עם מחיר אמיתי במערכת.</p>
                                 </motion.div>
                             ) : results.length > 0 ? (
-                                <motion.div 
+                                <motion.div
                                     key="results"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -253,66 +333,104 @@ function BudgetPlannerContent() {
                                 >
                                     <div className="results-header">
                                         <h3>מצאנו {results.length} שילובים אפשריים</h3>
-                                        <button onClick={() => setActiveTab('input')} className="back-link desktop-hide">שינוי הגדרות</button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveTab('input')}
+                                            className="back-link desktop-hide"
+                                        >
+                                            שינוי הגדרות
+                                        </button>
                                     </div>
-                                    
+                                    {emptyReason && (
+                                        <p style={{ color: '#856404', marginBottom: 12, fontSize: '0.9rem' }}>
+                                            {emptyReason}
+                                        </p>
+                                    )}
+
                                     <div className="results-list">
                                         {results.map((combo, idx) => (
-                                            <motion.div 
+                                            <motion.div
                                                 key={idx}
                                                 initial={{ opacity: 0, x: 20 }}
                                                 animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: idx * 0.1 }}
+                                                transition={{ delay: Math.min(idx * 0.05, 0.4) }}
                                                 className="combo-card"
                                             >
                                                 <div className="combo-badge">אופציה #{idx + 1}</div>
                                                 <div className="combo-main">
                                                     <div className="combo-total">
-                                                        <span className="label">סה"כ לעסקה:</span>
-                                                        <span className="value">₪{combo.total.toLocaleString()}</span>
+                                                        <span className="label">סה&quot;כ לעסקה:</span>
+                                                        <span className="value">
+                                                            ₪{combo.total.toLocaleString('he-IL')}
+                                                        </span>
                                                     </div>
                                                     <div className="combo-saving">
-                                                        נשאר עוד: <span style={{fontWeight: 900}}>₪{combo.saving.toLocaleString()}</span>
+                                                        נשאר עוד:{' '}
+                                                        <span style={{ fontWeight: 900 }}>
+                                                            ₪{combo.saving.toLocaleString('he-IL')}
+                                                        </span>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="combo-items">
                                                     {combo.items.map((item, i) => (
-                                                        <div key={i} className="combo-item">
+                                                        <Link
+                                                            key={i}
+                                                            href={`/vendor/${item.vendorId}`}
+                                                            className="combo-item"
+                                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                                        >
                                                             <div className="item-img">
-                                                                <img src={item.image || '/images/photographer.jpeg'} alt={item.vendorName} />
+                                                                <VendorCardImage
+                                                                    src={resolveVendorImage(item.image, '')}
+                                                                    alt={item.vendorName}
+                                                                />
                                                             </div>
                                                             <div className="item-info">
                                                                 <h4>{item.vendorName}</h4>
                                                                 <p>{item.title}</p>
                                                             </div>
                                                             <div className="item-price">
-                                                                ₪{item.price.toLocaleString()}
+                                                                ₪{item.price.toLocaleString('he-IL')}
                                                             </div>
-                                                        </div>
+                                                        </Link>
                                                     ))}
                                                 </div>
 
                                                 <div className="combo-actions">
-                                                    <button className="details-btn">קבלת הצעה משולבת</button>
+                                                    <a
+                                                        href={buildWaCombo(combo)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="details-btn"
+                                                    >
+                                                        קבלת הצעה משולבת
+                                                    </a>
                                                 </div>
                                             </motion.div>
                                         ))}
                                     </div>
                                 </motion.div>
                             ) : (
-                                <motion.div 
+                                <motion.div
                                     key="no-results"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     className="empty-results"
                                 >
-                                    <div className="illustration no-res">
-                                        <i className="fas fa-exclamation-circle"></i>
+                                    <div className="illustration">
+                                        <i className="fas fa-search-dollar"></i>
                                     </div>
-                                    <h3>לא נמצאו שילובים בתקציב הזה</h3>
-                                    <p>נסו להעלות את התקציב או לבחור פחות קטגוריות.</p>
-                                    <button onClick={() => setActiveTab('input')} className="back-btn">חזרה להגדרות</button>
+                                    <h3>לא מצאנו שילובים</h3>
+                                    <p>{emptyReason || 'נסו לשנות תקציב או קטגוריות.'}</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveTab('input')}
+                                        className="generate-btn"
+                                        style={{ maxWidth: 260, margin: '16px auto 0' }}
+                                    >
+                                        חזרה להגדרות
+                                    </button>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -364,7 +482,7 @@ function BudgetPlannerContent() {
                 .item-info p { font-size: 0.75rem; color: var(--text-light); margin: 1px 0 0; }
                 .item-price { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; }
                 .combo-actions { margin-top: 16px; }
-                .details-btn { width: 100%; padding: 12px; background: var(--off-white); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; font-family: inherit; }
+                .details-btn { display: block; text-align: center; text-decoration: none; width: 100%; padding: 12px; background: var(--off-white); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; font-family: inherit; color: inherit; box-sizing: border-box; }
                 .details-btn:hover { background: var(--charcoal); color: white; border-color: var(--charcoal); }
                 .back-link { background: none; border: none; color: var(--text-dark); font-weight: 600; cursor: pointer; text-decoration: underline; }
                 .desktop-hide { display: none; }
@@ -395,7 +513,7 @@ function BudgetPlannerContent() {
 
 export default function BudgetPlannerPage() {
     return (
-        <Suspense fallback={<div>טוען...</div>}>
+        <Suspense fallback={<div style={{ padding: 80, textAlign: 'center' }}>טוען מתכנן...</div>}>
             <BudgetPlannerContent />
         </Suspense>
     );

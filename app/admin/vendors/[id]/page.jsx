@@ -34,7 +34,7 @@ function vendorToForm(vendor) {
     agreementSigned: Boolean(vendor.agreementSigned),
     agreementImage: vendor.agreementImage || '',
     googleReviewsLink: vendor.googleReviewsLink || '',
-    googleRating: vendor.googleRating ?? 5,
+    googleRating: vendor.googleRating ?? 0,
     googleReviewsCount: vendor.googleReviewsCount ?? 0,
     adminNotes: vendor.adminNotes || '',
     instagramLink: vendor.instagramLink || '',

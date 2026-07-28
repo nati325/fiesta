@@ -36,7 +36,7 @@ const EMPTY_VENDOR_FORM = {
     agreementImage: '',
     adminNotes: '',
     googleReviewsLink: '',
-    googleRating: 5,
+    googleRating: 0,
     googleReviewsCount: 0,
     instagramLink: '',
     priceIncludesVat: true,
@@ -812,17 +812,36 @@ function AdminPageInner() {
                                         </td>
                                         <td>{v.region}</td>
                                         <td>
-                                            <div style={{ fontWeight: 600 }}>₪{v.price}</div>
-                                            <div style={{ fontSize: '0.8rem', color: '#e74c3c' }}>
-                                                {v.discount}{v.discountType === 'amount' ? '₪' : '%'} הטבה
-                                            </div>
+                                            {!v.price || String(v.price) === '0' ? (
+                                                <div style={{ fontWeight: 600, color: '#c0392b' }}>חסר מחיר</div>
+                                            ) : (
+                                                <div style={{ fontWeight: 600 }}>₪{v.price}</div>
+                                            )}
+                                            {!v.discount || String(v.discount) === '0' ? (
+                                                <div style={{ fontSize: '0.8rem', color: '#c0392b' }}>חסרה הנחה</div>
+                                            ) : (
+                                                <div style={{ fontSize: '0.8rem', color: '#e74c3c' }}>
+                                                    {v.discount}{v.discountType === 'amount' ? '₪' : '%'} הטבה
+                                                </div>
+                                            )}
+                                            {v.originalPrice && String(v.originalPrice) !== '0' && (
+                                                <div style={{ fontSize: '0.75rem', color: '#999', textDecoration: 'line-through' }}>
+                                                    ₪{v.originalPrice}
+                                                </div>
+                                            )}
                                         </td>
                                          <td>
-                                            {v.agreementSigned ? <span className="crm-badge crm-badge-success">חתום</span> : <span className="crm-badge crm-badge-warning">ממתין</span>}
-                                            {v.agreementImage && (
-                                                <a href={v.agreementImage} target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', color: '#4a90e2' }} title="צפה בחוזה">
-                                                    <i className="fas fa-file-alt"></i>
-                                                </a>
+                                            {v.agreementImage ? (
+                                                <>
+                                                    <span className="crm-badge crm-badge-success">חתום</span>
+                                                    <a href={v.agreementImage} target="_blank" rel="noopener noreferrer" style={{ marginLeft: '8px', color: '#4a90e2' }} title="צפה בחוזה">
+                                                        <i className="fas fa-file-alt"></i> חוזה
+                                                    </a>
+                                                </>
+                                            ) : v.agreementSigned ? (
+                                                <span className="crm-badge crm-badge-warning">חתום · חסר קובץ</span>
+                                            ) : (
+                                                <span className="crm-badge crm-badge-warning">ממתין לחוזה</span>
                                             )}
                                         </td>
                                         <td>
