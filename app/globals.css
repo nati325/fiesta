@@ -3150,7 +3150,7 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
     .fiesta-hero__content {
         max-width: calc(100% - (2 * var(--content-side)));
-        padding: 20px 6px 96px;
+        padding: 40px 6px 96px;
     }
 
     .fiesta-hero__brand {
@@ -3225,9 +3225,9 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     position: relative;
     overflow: hidden;
     margin-top: 56px;
-    padding: 88px 0;
+    padding: 100px 0;
     background:
-        radial-gradient(ellipse 55% 50% at 50% 40%, rgba(143, 115, 68, 0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 55% 50% at 50% 40%, rgba(143, 115, 68, 0.22) 0%, transparent 70%),
         radial-gradient(ellipse 40% 35% at 18% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 65%),
         radial-gradient(ellipse 40% 35% at 82% 10%, rgba(255, 255, 255, 0.03) 0%, transparent 65%),
         #141210;
@@ -3295,44 +3295,38 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     box-sizing: border-box;
 }
 
-.budget-invite__card {
+.budget-invite__copy {
     width: 100%;
-    max-width: 520px;
-    padding: 40px 36px 36px;
+    max-width: 560px;
     text-align: center;
-    border-radius: 18px;
-    background: rgba(255, 252, 248, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.35),
-        0 0 0 1px rgba(143, 115, 68, 0.12);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
 }
 
 .budget-invite__kicker {
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     font-size: 0.72rem;
     font-weight: 500;
     letter-spacing: 0.18em;
-    color: var(--primary-color);
+    color: #c4a574;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
 }
 
-.budget-invite__card h2 {
-    margin: 0 0 14px;
+.budget-invite__copy h2 {
+    margin: 0 0 16px;
     font-family: var(--font-display);
-    font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+    font-size: clamp(1.7rem, 3.2vw, 2.45rem);
     font-weight: 700;
-    color: var(--charcoal);
+    color: #f7f3ec;
     line-height: 1.25;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
 }
 
 .budget-invite__lead {
-    margin: 0 auto 26px;
-    max-width: 400px;
-    color: var(--text-light);
-    font-size: 1rem;
-    line-height: 1.65;
+    margin: 0 auto 28px;
+    max-width: 420px;
+    color: rgba(247, 243, 236, 0.72);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    text-shadow: 0 1px 16px rgba(0, 0, 0, 0.5);
 }
 
 .budget-invite__cta {
@@ -3340,18 +3334,20 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: var(--charcoal);
-    color: #fff;
+    background: #f7f3ec;
+    color: #141210;
     text-decoration: none;
-    padding: 13px 22px;
+    padding: 14px 24px;
     border-radius: 4px;
     font-weight: 600;
     font-size: 0.92rem;
-    transition: background 0.2s, transform 0.2s;
+    transition: background 0.2s, transform 0.2s, color 0.2s;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
 .budget-invite__cta:hover {
     background: var(--primary-color);
+    color: #fff;
     transform: translateY(-1px);
 }
 
@@ -3363,21 +3359,17 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 @media (max-width: 900px) {
     .budget-invite {
         margin-top: 40px;
-        padding: 64px 0;
-    }
-
-    .budget-invite__card {
-        padding: 32px 24px 28px;
+        padding: 72px 0;
     }
 }
 
 @media (max-width: 768px) {
     .budget-invite {
         margin-top: 32px;
-        padding: 52px 0;
+        padding: 56px 0;
     }
 
-    .budget-invite__coin:nth-child(n + 7) {
+    .budget-invite__coin:nth-child(n + 14) {
         display: none;
     }
 
