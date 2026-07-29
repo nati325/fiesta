@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import PackagesCarousel from '@/components/PackagesCarousel';
 import Hero3D from '@/components/Hero3D';
+import BudgetInvite from '@/components/BudgetInvite';
 import { useAuth } from '@/context/AuthContext';
 import { resolveHomepageVendorImage } from '@/lib/vendorImage';
 import { getVendorDisplayPrice } from '@/lib/vendorPrice';
@@ -145,24 +146,8 @@ export default function HomePage() {
             {/* 1. Hero */}
             <Hero3D onOpenOnboarding={() => setShowOnboarding(true)} />
 
-            {/* Budget calculator invite */}
-            <section className="budget-invite" aria-labelledby="budget-invite-title">
-                <div className="container">
-                    <div className="budget-invite-inner">
-                        <div className="budget-invite-copy">
-                            <p className="budget-invite-kicker">כלי תכנון של Fiesta</p>
-                            <h2 id="budget-invite-title">מה נכנס בתקציב שלכם?</h2>
-                            <p className="budget-invite-lead">
-                                הזינו סכום ובחרו קטגוריות — המחשבון ירכיב שילוב ספקים שנשאר בתוך המסגרת.
-                            </p>
-                            <Link href="/budget-planner" className="budget-invite-cta">
-                                פתחו את מחשבון התקציב
-                                <i className="fas fa-arrow-left" aria-hidden="true"></i>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            {/* Budget calculator invite — first tools-carousel frame */}
+            <BudgetInvite />
 
             {/* 3. Packages Carousel */}
             <section className="carousel-section">
@@ -295,56 +280,6 @@ export default function HomePage() {
             <style jsx>{`
                 .home-container { background: var(--white); overflow-x: hidden; }
                 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
-
-                .budget-invite {
-                    background: #faf9f7;
-                    padding: 64px 0;
-                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-                }
-                .budget-invite-inner {
-                    display: block;
-                    max-width: 560px;
-                }
-                .budget-invite-kicker {
-                    margin: 0 0 10px;
-                    font-size: 0.72rem;
-                    font-weight: 500;
-                    letter-spacing: 0.18em;
-                    color: var(--primary-color);
-                }
-                .budget-invite-copy h2 {
-                    margin: 0 0 12px;
-                    font-family: var(--font-display);
-                    font-size: clamp(1.55rem, 2.8vw, 2.1rem);
-                    font-weight: 700;
-                    color: var(--charcoal);
-                    line-height: 1.25;
-                }
-                .budget-invite-lead {
-                    margin: 0 0 22px;
-                    max-width: 420px;
-                    color: var(--text-light);
-                    font-size: 1rem;
-                    line-height: 1.65;
-                }
-                .budget-invite-cta {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 10px;
-                    background: var(--charcoal);
-                    color: #fff;
-                    text-decoration: none;
-                    padding: 13px 22px;
-                    border-radius: 4px;
-                    font-weight: 600;
-                    font-size: 0.92rem;
-                    transition: background 0.2s, transform 0.2s;
-                }
-                .budget-invite-cta:hover {
-                    background: var(--primary-color);
-                    transform: translateY(-1px);
-                }
-                .budget-invite-cta i { font-size: 0.8rem; opacity: 0.85; }
 
                 .categories-section { padding: 72px 0; background: var(--white); }
                 .section-header { text-align: right; margin-bottom: 36px; }
@@ -559,12 +494,6 @@ export default function HomePage() {
                 .c-form button:hover { background: #000; }
 
                 @media (max-width: 900px) {
-                    .budget-invite { padding: 44px 0; }
-                    .budget-invite-inner {
-                        max-width: 100%;
-                        text-align: center;
-                    }
-                    .budget-invite-lead { margin-left: auto; margin-right: auto; }
                     .contact-card { grid-template-columns: 1fr; padding: 32px 20px; gap: 28px; }
                     .c-text, .p-text, .section-header { text-align: center; }
                     .c-perks { justify-content: center; }
@@ -573,13 +502,6 @@ export default function HomePage() {
 
                 @media (max-width: 768px) {
                     .container { padding: 0 16px; }
-                    .budget-invite { padding: 36px 0; }
-                    .budget-invite-cta {
-                        width: 100%;
-                        max-width: 320px;
-                        justify-content: center;
-                        min-height: 48px;
-                    }
                     .categories-section { padding: 48px 0; }
                     .categories-visual-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
                     .cat-card-visual { height: 140px; }

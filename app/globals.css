@@ -3137,6 +3137,7 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
         --content-side: calc(var(--flower-w) * 0.58 + 8px);
         min-height: min(88vh, 720px);
         height: auto !important;
+        align-items: flex-start;
     }
 
     .fiesta-hero__flower {
@@ -3149,7 +3150,7 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
     .fiesta-hero__content {
         max-width: calc(100% - (2 * var(--content-side)));
-        padding: 36px 6px 96px;
+        padding: 20px 6px 96px;
     }
 
     .fiesta-hero__brand {
@@ -3216,5 +3217,180 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     .fiesta-hero__scroll-line,
     .fiesta-hero__flower-motion {
         animation: none;
+    }
+}
+
+/* —— Budget invite / tools carousel frame —— */
+.budget-invite {
+    position: relative;
+    overflow: hidden;
+    margin-top: 56px;
+    padding: 88px 0;
+    background:
+        radial-gradient(ellipse 55% 50% at 50% 40%, rgba(143, 115, 68, 0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 35% at 18% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 82% 10%, rgba(255, 255, 255, 0.03) 0%, transparent 65%),
+        #141210;
+}
+
+.budget-invite__stage {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.budget-invite__coin {
+    position: absolute;
+    top: -12%;
+    display: block;
+    background: transparent;
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+    animation: budget-coin-fall var(--fall-duration, 8s) linear var(--fall-delay, 0s) infinite;
+    will-change: transform, opacity;
+}
+
+.budget-invite__coin img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: transparent;
+    /* Soft circular mask — kills residual white fringe around the asset */
+    -webkit-mask-image: radial-gradient(circle, #000 64%, transparent 70%);
+    mask-image: radial-gradient(circle, #000 64%, transparent 70%);
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+@keyframes budget-coin-fall {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg) rotateY(0deg);
+        opacity: 0;
+    }
+    8% {
+        opacity: 0.92;
+    }
+    70% {
+        opacity: 0.85;
+    }
+    100% {
+        transform:
+            translate3d(var(--coin-drift, 12px), 118vh, 0)
+            rotate(calc(var(--coin-spin, 1) * 540deg))
+            rotateY(calc(var(--coin-spin, 1) * 180deg));
+        opacity: 0;
+    }
+}
+
+.budget-invite__container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.budget-invite__card {
+    width: 100%;
+    max-width: 520px;
+    padding: 40px 36px 36px;
+    text-align: center;
+    border-radius: 18px;
+    background: rgba(255, 252, 248, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(143, 115, 68, 0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.budget-invite__kicker {
+    margin: 0 0 12px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--primary-color);
+}
+
+.budget-invite__card h2 {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+    font-weight: 700;
+    color: var(--charcoal);
+    line-height: 1.25;
+}
+
+.budget-invite__lead {
+    margin: 0 auto 26px;
+    max-width: 400px;
+    color: var(--text-light);
+    font-size: 1rem;
+    line-height: 1.65;
+}
+
+.budget-invite__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--charcoal);
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 22px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.budget-invite__cta:hover {
+    background: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.budget-invite__cta i {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+@media (max-width: 900px) {
+    .budget-invite {
+        margin-top: 40px;
+        padding: 64px 0;
+    }
+
+    .budget-invite__card {
+        padding: 32px 24px 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .budget-invite {
+        margin-top: 32px;
+        padding: 52px 0;
+    }
+
+    .budget-invite__coin:nth-child(n + 7) {
+        display: none;
+    }
+
+    .budget-invite__cta {
+        width: 100%;
+        max-width: 320px;
+        min-height: 48px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .budget-invite__coin {
+        animation: none;
+        display: none;
     }
 }
