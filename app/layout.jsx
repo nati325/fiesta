@@ -48,7 +48,8 @@ export default function RootLayout({ children }) {
                         <footer className="footer">
                             <div className="container">
                                 <div className="footer-bottom">
-                                    <p className="footer-free-msg">השירות ב-Fiesta ניתן בחינם לטובת הקהילה</p>
+                                    <p className="footer-brand" aria-label="Fiesta">Fiesta</p>
+                                    <p className="footer-free-msg">השירות ב־Fiesta ניתן בחינם לטובת הקהילה</p>
                                     <p>&copy; {new Date().getFullYear()} Fiesta Events. כל הזכויות שמורות.</p>
                                     <p className="footer-admin-link">
                                         <Link href="/login?next=/profile" title="התחברות">

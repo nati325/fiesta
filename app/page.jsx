@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import PackagesCarousel from '@/components/PackagesCarousel';
+import Hero3D from '@/components/Hero3D';
 import { useAuth } from '@/context/AuthContext';
 import { resolveHomepageVendorImage } from '@/lib/vendorImage';
 import { getVendorDisplayPrice } from '@/lib/vendorPrice';
@@ -103,7 +103,6 @@ export default function HomePage() {
     const [contactData, setContactData] = useState({ name: '', phone: '' });
     const { user, eventPreference, setEventPreference } = useAuth();
     const [showOnboarding, setShowOnboarding] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
         if (user && !eventPreference) setShowOnboarding(true);
@@ -144,72 +143,9 @@ export default function HomePage() {
     return (
         <div className="home-container">
             {/* 1. Hero */}
-            <section className="hero-premium">
-                <div className="hero-bg">
-                    <img src="/images/hero_wedding_bg_1765744390134.png" alt="" />
-                    <div className="hero-overlay"></div>
-                </div>
+            <Hero3D onOpenOnboarding={() => setShowOnboarding(true)} />
 
-                <div className="container hero-inner">
-                    <motion.div
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                        className="hero-card"
-                    >
-                        <p className="hero-brand">Fiesta</p>
-                        <h1>אירוע החלומות שלכם, בלי פשרות.</h1>
-                        <p className="hero-lead">
-                            ספקים מובילים, מחירים בלעדיים וליווי מקצועי — בחינם.
-                        </p>
-                        <div className="hero-btns">
-                            <button
-                                type="button"
-                                className="btn-hero-primary"
-                                onClick={() => document.getElementById('browse')?.scrollIntoView({ behavior: 'smooth' })}
-                            >
-                                מצאו ספק
-                            </button>
-                            <Link href="/budget-planner" className="btn-hero-ghost">
-                                מחשבון תקציב
-                            </Link>
-                        </div>
-                        <button
-                            type="button"
-                            className="hero-soft-link"
-                            onClick={() => setShowOnboarding(true)}
-                        >
-                            או התאימו את האתר לסוג האירוע שלכם
-                        </button>
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* 2. Quiet trust strip */}
-            <section className="stats-bar">
-                <div className="container">
-                    <div className="stats-grid">
-                        <div className="stat-item">
-                            <span className="stat-num">ספקים מאומתים</span>
-                            <span className="stat-label">סינון קפדני לפני כניסה לנבחרת</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-num">מחיר פייסטה</span>
-                            <span className="stat-label">הטבות בלעדיות מול מחיר השוק</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-num">ליווי אישי</span>
-                            <span className="stat-label">מענה מהיר לאורך כל הדרך</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-num">₪0 עמלה</span>
-                            <span className="stat-label">השירות לזוגות ללא עלות</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Budget calculator invite — product tease, not a promo banner */}
+            {/* Budget calculator invite */}
             <section className="budget-invite" aria-labelledby="budget-invite-title">
                 <div className="container">
                     <div className="budget-invite-inner">
@@ -223,15 +159,6 @@ export default function HomePage() {
                                 פתחו את מחשבון התקציב
                                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
                             </Link>
-                        </div>
-                        <div className="budget-invite-preview" aria-hidden="true">
-                            <span className="budget-preview-label">תקציב לדוגמה</span>
-                            <span className="budget-preview-amount">₪80,000</span>
-                            <div className="budget-preview-track">
-                                <div className="budget-preview-fill"></div>
-                                <div className="budget-preview-thumb"></div>
-                            </div>
-                            <p className="budget-preview-cats">אולם · DJ · צילום</p>
                         </div>
                     </div>
                 </div>
@@ -304,7 +231,7 @@ export default function HomePage() {
                                         <img src={resolveHomepageVendorImage(v.image, CATEGORY_IMAGES[v.type])} alt={v.name} />
                                         <div className="p-info">
                                             <strong>{v.name}</strong>
-                                            <span>{getVendorDisplayPrice(v).display || 'לתיאום'}</span>
+                                            <span>{getVendorDisplayPrice(v).display || 'לתיאום מחיר'}</span>
                                         </div>
                                     </Link>
                                 ))}
@@ -369,165 +296,28 @@ export default function HomePage() {
                 .home-container { background: var(--white); overflow-x: hidden; }
                 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
 
-                .hero-premium {
-                    position: relative;
-                    min-height: min(88vh, 720px);
-                    display: flex;
-                    align-items: flex-end;
-                    justify-content: center;
-                    text-align: right;
-                    padding: 120px 0 72px;
-                }
-                .hero-bg { position: absolute; inset: 0; z-index: 1; }
-                .hero-bg img { width: 100%; height: 100%; object-fit: cover; }
-                .hero-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(
-                        to top,
-                        rgba(12, 12, 12, 0.88) 0%,
-                        rgba(12, 12, 12, 0.45) 45%,
-                        rgba(12, 12, 12, 0.25) 100%
-                    );
-                }
-                .hero-inner { position: relative; z-index: 2; width: 100%; }
-                .hero-card {
-                    max-width: 640px;
-                    margin: 0;
-                    margin-right: auto;
-                    color: #fff;
-                    padding: 0;
-                }
-                .hero-brand {
-                    font-family: var(--font-display);
-                    font-size: clamp(2.4rem, 5vw, 3.6rem);
-                    font-weight: 700;
-                    color: #fff;
-                    margin: 0 0 18px;
-                    letter-spacing: 0.04em;
-                    line-height: 1;
-                }
-                .hero-card h1 {
-                    font-family: var(--font-display);
-                    font-size: clamp(1.75rem, 3.4vw, 2.65rem);
-                    font-weight: 500;
-                    line-height: 1.25;
-                    margin: 0 0 16px;
-                    color: #fff;
-                }
-                .hero-lead {
-                    font-size: clamp(1rem, 1.4vw, 1.15rem);
-                    line-height: 1.6;
-                    font-weight: 400;
-                    color: rgba(255, 255, 255, 0.82);
-                    max-width: 420px;
-                    margin: 0 0 32px;
-                }
-                .hero-btns {
-                    display: flex;
-                    gap: 12px;
-                    flex-wrap: wrap;
-                    align-items: center;
-                }
-                .btn-hero-primary {
-                    background: #fff;
-                    color: #111;
-                    border: none;
-                    padding: 14px 28px;
-                    border-radius: 6px;
-                    font-weight: 600;
-                    font-size: 0.95rem;
-                    font-family: inherit;
-                    cursor: pointer;
-                    transition: background 0.2s, color 0.2s;
-                }
-                .btn-hero-primary:hover { background: var(--primary-color); color: #fff; }
-                .btn-hero-ghost {
-                    background: transparent;
-                    color: #fff;
-                    border: 1px solid rgba(255, 255, 255, 0.45);
-                    padding: 14px 28px;
-                    border-radius: 6px;
-                    font-weight: 500;
-                    font-size: 0.95rem;
-                    font-family: inherit;
-                    cursor: pointer;
-                    transition: border-color 0.2s, background 0.2s;
-                    text-decoration: none;
-                    display: inline-flex;
-                    align-items: center;
-                }
-                .btn-hero-ghost:hover {
-                    border-color: #fff;
-                    background: rgba(255, 255, 255, 0.08);
-                }
-                .hero-soft-link {
-                    display: block;
-                    margin-top: 18px;
-                    padding: 0;
-                    border: none;
-                    background: none;
-                    color: rgba(255, 255, 255, 0.62);
-                    font-size: 0.88rem;
-                    font-family: inherit;
-                    cursor: pointer;
-                    text-decoration: underline;
-                    text-underline-offset: 3px;
-                    transition: color 0.2s;
-                }
-                .hero-soft-link:hover { color: rgba(255, 255, 255, 0.9); }
-
-                .stats-bar {
-                    background: var(--charcoal);
-                    padding: 28px 0;
-                    color: #fff;
-                    border-top: 1px solid rgba(255, 255, 255, 0.06);
-                }
-                .stats-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 24px;
-                }
-                .stat-item { text-align: right; }
-                .stat-num {
-                    display: block;
-                    font-family: var(--font-display);
-                    font-size: 1.15rem;
-                    font-weight: 500;
-                    color: #fff;
-                    margin-bottom: 6px;
-                }
-                .stat-label {
-                    font-size: 0.82rem;
-                    color: rgba(255, 255, 255, 0.55);
-                    font-weight: 400;
-                    line-height: 1.4;
-                }
-
                 .budget-invite {
-                    background: linear-gradient(180deg, #f7f5f1 0%, #f3f0ea 100%);
-                    padding: 56px 0;
-                    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+                    background: #faf9f7;
+                    padding: 64px 0;
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
                 }
                 .budget-invite-inner {
-                    display: grid;
-                    grid-template-columns: 1.15fr 0.85fr;
-                    gap: 40px;
-                    align-items: center;
+                    display: block;
+                    max-width: 560px;
                 }
                 .budget-invite-kicker {
                     margin: 0 0 10px;
-                    font-size: 0.78rem;
-                    font-weight: 600;
-                    letter-spacing: 0.06em;
-                    color: var(--text-light);
+                    font-size: 0.72rem;
+                    font-weight: 500;
+                    letter-spacing: 0.18em;
+                    color: var(--primary-color);
                 }
                 .budget-invite-copy h2 {
                     margin: 0 0 12px;
                     font-family: var(--font-display);
                     font-size: clamp(1.55rem, 2.8vw, 2.1rem);
-                    font-weight: 500;
-                    color: var(--text-dark);
+                    font-weight: 700;
+                    color: var(--charcoal);
                     line-height: 1.25;
                 }
                 .budget-invite-lead {
@@ -545,70 +335,16 @@ export default function HomePage() {
                     color: #fff;
                     text-decoration: none;
                     padding: 13px 22px;
-                    border-radius: 6px;
+                    border-radius: 4px;
                     font-weight: 600;
                     font-size: 0.92rem;
                     transition: background 0.2s, transform 0.2s;
                 }
                 .budget-invite-cta:hover {
-                    background: #1a1a1a;
+                    background: var(--primary-color);
                     transform: translateY(-1px);
                 }
                 .budget-invite-cta i { font-size: 0.8rem; opacity: 0.85; }
-                .budget-invite-preview {
-                    justify-self: stretch;
-                    padding: 28px 26px;
-                    border: 1px solid rgba(0, 0, 0, 0.08);
-                    border-radius: 14px;
-                    background: rgba(255, 255, 255, 0.72);
-                    text-align: right;
-                }
-                .budget-preview-label {
-                    display: block;
-                    font-size: 0.78rem;
-                    color: var(--text-light);
-                    margin-bottom: 8px;
-                }
-                .budget-preview-amount {
-                    display: block;
-                    font-family: var(--font-display);
-                    font-size: clamp(2rem, 3.5vw, 2.6rem);
-                    font-weight: 600;
-                    color: var(--text-dark);
-                    line-height: 1;
-                    margin-bottom: 18px;
-                }
-                .budget-preview-track {
-                    position: relative;
-                    height: 4px;
-                    border-radius: 999px;
-                    background: rgba(0, 0, 0, 0.08);
-                    margin-bottom: 18px;
-                }
-                .budget-preview-fill {
-                    width: 62%;
-                    height: 100%;
-                    border-radius: inherit;
-                    background: var(--primary-color);
-                }
-                .budget-preview-thumb {
-                    position: absolute;
-                    top: 50%;
-                    right: 38%;
-                    width: 14px;
-                    height: 14px;
-                    border-radius: 50%;
-                    background: #fff;
-                    border: 2px solid var(--primary-color);
-                    transform: translate(50%, -50%);
-                    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-                }
-                .budget-preview-cats {
-                    margin: 0;
-                    font-size: 0.85rem;
-                    color: var(--text-light);
-                    letter-spacing: 0.02em;
-                }
 
                 .categories-section { padding: 72px 0; background: var(--white); }
                 .section-header { text-align: right; margin-bottom: 36px; }
@@ -823,28 +559,12 @@ export default function HomePage() {
                 .c-form button:hover { background: #000; }
 
                 @media (max-width: 900px) {
-                    .hero-premium {
-                        min-height: 0;
-                        padding: 110px 0 56px;
-                        text-align: center;
-                        align-items: flex-end;
-                    }
-                    .hero-card {
-                        margin: 0 auto;
-                        text-align: center;
-                    }
-                    .hero-lead { margin-left: auto; margin-right: auto; }
-                    .hero-btns { justify-content: center; }
-                    .stats-grid { grid-template-columns: 1fr 1fr; gap: 20px 16px; }
-                    .stat-item { text-align: center; }
                     .budget-invite { padding: 44px 0; }
                     .budget-invite-inner {
-                        grid-template-columns: 1fr;
-                        gap: 24px;
+                        max-width: 100%;
                         text-align: center;
                     }
                     .budget-invite-lead { margin-left: auto; margin-right: auto; }
-                    .budget-invite-preview { text-align: center; }
                     .contact-card { grid-template-columns: 1fr; padding: 32px 20px; gap: 28px; }
                     .c-text, .p-text, .section-header { text-align: center; }
                     .c-perks { justify-content: center; }
@@ -853,9 +573,6 @@ export default function HomePage() {
 
                 @media (max-width: 768px) {
                     .container { padding: 0 16px; }
-                    .stats-bar { padding: 22px 0; }
-                    .stat-num { font-size: 1.05rem; }
-                    .stat-label { font-size: 0.75rem; }
                     .budget-invite { padding: 36px 0; }
                     .budget-invite-cta {
                         width: 100%;
@@ -866,23 +583,12 @@ export default function HomePage() {
                     .categories-section { padding: 48px 0; }
                     .categories-visual-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
                     .cat-card-visual { height: 140px; }
-                    .hero-brand { margin-bottom: 12px; }
-                    .hero-card h1 { font-size: 1.55rem; }
-                    .hero-lead { font-size: 0.95rem; margin-bottom: 24px; }
-                    .btn-hero-primary, .btn-hero-ghost {
-                        width: 100%;
-                        max-width: 300px;
-                        min-height: 48px;
-                        justify-content: center;
-                    }
-                    .hero-btns { flex-direction: column; width: 100%; align-items: center; }
                     .personal-banner-section { padding-bottom: 48px; }
                     .p-banner { padding: 24px 18px; border-radius: 14px; }
                     .contact-section { padding: 48px 0 64px; }
                 }
 
                 @media (max-width: 480px) {
-                    .hero-premium { padding: 100px 0 44px; }
                     .contact-card { padding: 24px 16px; }
                     .cat-card-visual { height: 128px; }
                 }

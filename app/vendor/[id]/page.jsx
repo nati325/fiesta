@@ -345,7 +345,7 @@ export default function VendorDetailPage() {
                             aria-pressed={liked}
                         >
                             <i className={liked ? 'fas fa-heart' : 'far fa-heart'} style={{ color: liked ? '#e11d48' : undefined, marginLeft: 6 }}></i>
-                            {liked ? 'אהבתי' : 'שמירה במועדפים'}
+                            {liked ? 'הסר ממועדפים' : 'אהבתי'}
                         </button>
                     </div>
                 </motion.div>

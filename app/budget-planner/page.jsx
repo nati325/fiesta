@@ -212,15 +212,22 @@ function BudgetPlannerContent() {
             <section className="planner-hero">
                 <div className="container">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="hero-content"
+                        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                        className="planner-hero-content"
                     >
-                        <span className="badge">חכם, פשוט, חסכוני</span>
+                        <Link href="/" className="planner-back">
+                            <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                            חזרה לדף הבית
+                        </Link>
+                        <p className="planner-kicker">כלי תכנון של Fiesta</p>
                         <h1>
-                            מתכנן התקציב של <span className="gold-text">Fiesta</span>
+                            מתכנן התקציב
                         </h1>
-                        <p>שילובים מספקים אמיתיים עם מחירים אמיתיים — בתוך התקציב שלכם.</p>
+                        <p className="planner-lead">
+                            שילובים מספקים אמיתיים עם מחירים אמיתיים — בתוך המסגרת שלכם.
+                        </p>
                     </motion.div>
                 </div>
             </section>
@@ -439,42 +446,249 @@ function BudgetPlannerContent() {
             </div>
 
             <style jsx>{`
-                .planner-page { min-height: 100vh; background: var(--off-white); padding-bottom: 80px; }
+                .planner-page {
+                    min-height: 100vh;
+                    background: #faf9f7;
+                    padding-bottom: 80px;
+                }
                 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-                .planner-hero { background: var(--charcoal); padding: 72px 0 100px; color: white; text-align: center; position: relative; }
-                .hero-content h1 { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 12px 0; font-weight: 500; }
-                .gold-text { color: #fff; }
-                .badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); padding: 6px 12px; border-radius: 6px; font-weight: 500; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.15); }
-                .main-content { margin-top: -60px; position: relative; z-index: 10; }
+
+                .planner-hero {
+                    background:
+                        radial-gradient(ellipse 70% 80% at 50% 0%, rgba(143, 115, 68, 0.08) 0%, transparent 65%),
+                        #faf9f7;
+                    padding: 36px 0 28px;
+                    color: var(--charcoal);
+                    text-align: center;
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                }
+                .planner-hero-content {
+                    max-width: 560px;
+                    margin: 0 auto;
+                }
+                .planner-back {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 18px;
+                    color: var(--text-light);
+                    text-decoration: none;
+                    font-size: 0.86rem;
+                    font-weight: 500;
+                    transition: color 0.2s;
+                }
+                .planner-back:hover { color: var(--charcoal); }
+                .planner-kicker {
+                    margin: 0 0 10px;
+                    font-size: 0.72rem;
+                    font-weight: 500;
+                    letter-spacing: 0.18em;
+                    color: var(--primary-color);
+                }
+                .planner-hero-content h1 {
+                    font-family: var(--font-display);
+                    font-size: clamp(2rem, 4.5vw, 3rem);
+                    margin: 0 0 12px;
+                    font-weight: 700;
+                    color: var(--charcoal);
+                    line-height: 1.15;
+                }
+                .planner-lead {
+                    margin: 0 auto;
+                    max-width: 420px;
+                    color: var(--text-light);
+                    font-size: 1rem;
+                    line-height: 1.6;
+                }
+
+                .main-content {
+                    margin-top: 28px;
+                    position: relative;
+                    z-index: 2;
+                }
                 .planner-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
-                .glass-card { background: white; border-radius: 16px; padding: 28px; border: 1px solid var(--border-color); position: sticky; top: 100px; }
-                .section-title { font-weight: 600; margin-bottom: 22px; display: flex; align-items: center; gap: 10px; color: var(--text-dark); font-family: var(--font-main); font-size: 1.05rem; }
+                .glass-card {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 28px;
+                    border: 1px solid var(--border-color);
+                    position: sticky;
+                    top: 88px;
+                    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.04);
+                }
+                .section-title {
+                    font-weight: 600;
+                    margin-bottom: 22px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: var(--text-dark);
+                    font-family: var(--font-main);
+                    font-size: 1.05rem;
+                }
                 .input-group { margin-bottom: 22px; }
-                .input-group label { display: block; font-weight: 600; margin-bottom: 10px; color: var(--text-light); font-size: 0.9rem; }
+                .input-group label {
+                    display: block;
+                    font-weight: 600;
+                    margin-bottom: 10px;
+                    color: var(--text-light);
+                    font-size: 0.9rem;
+                }
                 .budget-slider { width: 100%; accent-color: var(--primary-color); cursor: pointer; }
-                .budget-display { text-align: center; margin-top: 10px; background: var(--off-white); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); }
-                .budget-display .amount { font-size: 1.5rem; font-weight: 600; color: var(--text-dark); font-family: var(--font-display); }
-                .guests-input { display: flex; align-items: center; gap: 10px; background: var(--off-white); padding: 5px; border-radius: 10px; }
-                .guests-input button { width: 36px; height: 36px; border: 1px solid var(--border-color); background: white; border-radius: 8px; font-weight: 600; cursor: pointer; }
-                .guests-input input { flex: 1; background: none; border: none; text-align: center; font-weight: 600; font-size: 1.05rem; }
+                .budget-display {
+                    text-align: center;
+                    margin-top: 10px;
+                    background: var(--off-white);
+                    padding: 12px;
+                    border-radius: 10px;
+                    border: 1px solid var(--border-color);
+                }
+                .budget-display .amount {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: var(--text-dark);
+                    font-family: var(--font-display);
+                }
+                .guests-input {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: var(--off-white);
+                    padding: 5px;
+                    border-radius: 10px;
+                }
+                .guests-input button {
+                    width: 36px;
+                    height: 36px;
+                    border: 1px solid var(--border-color);
+                    background: white;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                }
+                .guests-input input {
+                    flex: 1;
+                    background: none;
+                    border: none;
+                    text-align: center;
+                    font-weight: 600;
+                    font-size: 1.05rem;
+                }
                 .category-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-                .chip { padding: 8px; border: 1px solid #e5e2dc; background: white; border-radius: 8px; font-size: 0.8rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: border-color 0.2s, background 0.2s, color 0.2s; }
-                .chip.active { background: var(--charcoal); color: white; border-color: var(--charcoal); }
-                .generate-btn { width: 100%; padding: 14px; background: var(--charcoal); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-top: 10px; font-family: inherit; }
-                .generate-btn:hover:not(:disabled) { background: #000; }
+                .chip {
+                    padding: 8px;
+                    border: 1px solid #e5e2dc;
+                    background: white;
+                    border-radius: 8px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    transition: border-color 0.2s, background 0.2s, color 0.2s;
+                    font-family: inherit;
+                }
+                .chip.active {
+                    background: var(--charcoal);
+                    color: white;
+                    border-color: var(--charcoal);
+                }
+                .generate-btn {
+                    width: 100%;
+                    padding: 14px;
+                    background: var(--charcoal);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                    margin-top: 10px;
+                    font-family: inherit;
+                }
+                .generate-btn:hover:not(:disabled) { background: var(--primary-color); }
                 .generate-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-                .empty-results { background: white; border-radius: 16px; padding: 64px 28px; text-align: center; border: 1px solid var(--border-color); }
-                .illustration { font-size: 3rem; color: #e5e2dc; margin-bottom: 20px; }
-                .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-                .results-header h3 { font-size: 1.25rem; font-weight: 500; margin: 0; font-family: var(--font-display); }
-                .combo-card { background: white; border-radius: 14px; padding: 22px; margin-bottom: 16px; border: 1px solid var(--border-color); position: relative; }
-                .combo-badge { position: absolute; top: -10px; right: 16px; background: var(--charcoal); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
-                .combo-main { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e5e2dc; padding-bottom: 14px; margin-bottom: 14px; }
+                .empty-results {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 64px 28px;
+                    text-align: center;
+                    border: 1px solid var(--border-color);
+                }
+                .illustration { font-size: 2.6rem; color: #d8d2c8; margin-bottom: 20px; }
+                .empty-results h3 {
+                    font-family: var(--font-display);
+                    font-weight: 500;
+                    margin: 0 0 8px;
+                    color: var(--charcoal);
+                }
+                .empty-results p { color: var(--text-light); margin: 0; }
+                .results-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                .results-header h3 {
+                    font-size: 1.25rem;
+                    font-weight: 500;
+                    margin: 0;
+                    font-family: var(--font-display);
+                }
+                .combo-card {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 22px;
+                    margin-bottom: 16px;
+                    border: 1px solid var(--border-color);
+                    position: relative;
+                }
+                .combo-badge {
+                    position: absolute;
+                    top: -10px;
+                    right: 16px;
+                    background: var(--charcoal);
+                    color: white;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    font-size: 0.72rem;
+                    font-weight: 600;
+                }
+                .combo-main {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 1px dashed #e5e2dc;
+                    padding-bottom: 14px;
+                    margin-bottom: 14px;
+                }
                 .combo-total .label { display: block; font-size: 0.8rem; color: var(--text-light); margin-bottom: 2px; }
-                .combo-total .value { font-size: 1.6rem; font-weight: 600; color: var(--text-dark); font-family: var(--font-display); }
-                .combo-saving { background: var(--off-white); color: var(--text-dark); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: 1px solid var(--border-color); }
+                .combo-total .value {
+                    font-size: 1.6rem;
+                    font-weight: 600;
+                    color: var(--text-dark);
+                    font-family: var(--font-display);
+                }
+                .combo-saving {
+                    background: var(--off-white);
+                    color: var(--text-dark);
+                    padding: 6px 12px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    border: 1px solid var(--border-color);
+                }
                 .combo-items { display: flex; flex-direction: column; gap: 10px; }
-                .combo-item { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 10px; background: var(--off-white); }
+                .combo-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 8px;
+                    border-radius: 10px;
+                    background: var(--off-white);
+                }
                 .item-img { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; }
                 .item-img img { width: 100%; height: 100%; object-fit: cover; }
                 .item-info { flex: 1; text-align: right; }
@@ -482,22 +696,49 @@ function BudgetPlannerContent() {
                 .item-info p { font-size: 0.75rem; color: var(--text-light); margin: 1px 0 0; }
                 .item-price { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; }
                 .combo-actions { margin-top: 16px; }
-                .details-btn { display: block; text-align: center; text-decoration: none; width: 100%; padding: 12px; background: var(--off-white); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; font-family: inherit; color: inherit; box-sizing: border-box; }
-                .details-btn:hover { background: var(--charcoal); color: white; border-color: var(--charcoal); }
-                .back-link { background: none; border: none; color: var(--text-dark); font-weight: 600; cursor: pointer; text-decoration: underline; }
+                .details-btn {
+                    display: block;
+                    text-align: center;
+                    text-decoration: none;
+                    width: 100%;
+                    padding: 12px;
+                    background: var(--off-white);
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s, color 0.2s, border-color 0.2s;
+                    font-family: inherit;
+                    color: inherit;
+                    box-sizing: border-box;
+                }
+                .details-btn:hover {
+                    background: var(--charcoal);
+                    color: white;
+                    border-color: var(--charcoal);
+                }
+                .back-link {
+                    background: none;
+                    border: none;
+                    color: var(--text-dark);
+                    font-weight: 600;
+                    cursor: pointer;
+                    text-decoration: underline;
+                    font-family: inherit;
+                }
                 .desktop-hide { display: none; }
 
                 @media (max-width: 900px) {
                     .planner-page { padding-bottom: 24px; }
-                    .planner-hero { padding: 72px 0 80px; }
-                    .hero-content h1 { font-size: 1.7rem; padding: 0 12px; }
+                    .planner-hero { padding: 24px 0 20px; }
+                    .planner-hero-content h1 { font-size: 1.75rem; }
                     .planner-grid { grid-template-columns: 1fr; }
-                    .glass-card { position: relative; top: 0; border-radius: 14px; padding: 20px 16px; }
+                    .glass-card { position: relative; top: 0; border-radius: 12px; padding: 20px 16px; }
                     .desktop-hide { display: block; }
                     .results-header h3 { font-size: 1.1rem; }
                     .combo-main { flex-direction: column; align-items: flex-start; gap: 10px; }
                     .combo-saving { width: 100%; text-align: center; }
-                    .main-content { margin-top: -40px; }
+                    .main-content { margin-top: 18px; }
                     .container { padding: 0 14px; }
                     .chip { min-height: 44px; justify-content: center; padding: 10px 8px; }
                     .generate-btn { min-height: 52px; }

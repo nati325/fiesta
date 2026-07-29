@@ -49,6 +49,17 @@ export const AuthProvider = ({ children }) => {
     }, [validateSession]);
 
     const login = async (username, password) => {
+        let favorites = [];
+        try {
+            const saved = localStorage.getItem('fiesta_favorites');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) favorites = parsed.map(String);
+            }
+        } catch {
+            /* ignore */
+        }
+
         const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -56,6 +67,7 @@ export const AuthProvider = ({ children }) => {
             body: JSON.stringify({
                 username: username || '',
                 password,
+                favorites,
             }),
         });
         const data = await res.json();
@@ -70,11 +82,22 @@ export const AuthProvider = ({ children }) => {
     const unlockAdmin = async (password) => login('', password);
 
     const register = async (name, username, password) => {
+        let favorites = [];
+        try {
+            const saved = localStorage.getItem('fiesta_favorites');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) favorites = parsed.map(String);
+            }
+        } catch {
+            /* ignore */
+        }
+
         const res = await fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ name, username, password }),
+            body: JSON.stringify({ name, username, password, favorites }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.message);

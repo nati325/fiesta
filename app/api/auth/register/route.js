@@ -17,6 +17,9 @@ export async function POST(request) {
     const name = String(body?.name || '').trim();
     const username = String(body?.username || '').trim().toLowerCase();
     const password = body?.password;
+    const clientFavorites = [
+      ...new Set((body?.favorites || []).map((id) => String(id)).filter(Boolean)),
+    ];
 
     if (!username || !password) {
       return NextResponse.json(
@@ -69,6 +72,7 @@ export async function POST(request) {
       username,
       password: hashedPassword,
       isAdmin: false,
+      favorites: clientFavorites,
     });
 
     const token = jwt.sign(
@@ -93,7 +97,9 @@ export async function POST(request) {
           email: newUser.email,
           name: newUser.name,
           isAdmin: newUser.isAdmin,
-          favorites: [],
+          favorites: Array.isArray(newUser.favorites)
+            ? newUser.favorites.map(String)
+            : [],
         },
       },
       { status: 201 }

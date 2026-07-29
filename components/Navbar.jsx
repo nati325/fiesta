@@ -58,14 +58,17 @@ const Navbar = () => {
                         gap: 10px;
                         background: var(--off-white);
                         border: 1px solid var(--border-color);
-                        padding: 10px 18px;
+                        padding: 8px 14px;
                         border-radius: 8px;
                         cursor: pointer;
                         transition: border-color 0.2s;
                         color: var(--text-light);
                         font-weight: 500;
-                        margin: 0 20px;
-                        font-size: 0.9rem;
+                        margin: 0;
+                        font-size: 0.85rem;
+                        flex: 0 1 220px;
+                        min-width: 0;
+                        max-width: 240px;
                     }
                     .nav-search-trigger:hover {
                         border-color: var(--primary-color);
@@ -75,8 +78,14 @@ const Navbar = () => {
                         color: var(--text-dark);
                         font-size: 0.95rem;
                         opacity: 0.7;
+                        flex-shrink: 0;
                     }
-                    @media (max-width: 900px) {
+                    .nav-search-trigger span {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    @media (max-width: 1100px) {
                         .nav-search-trigger { display: none; }
                         .tagline { display: none; }
                     }

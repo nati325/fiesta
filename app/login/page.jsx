@@ -167,11 +167,22 @@ export default function LoginPage() {
                 .auth-back i { margin-left: 8px; }
                 .auth-brand {
                     font-family: var(--font-display);
-                    font-size: 1.6rem;
+                    font-size: 1.85rem;
                     font-weight: 700;
                     text-align: center;
                     margin-bottom: 8px;
-                    color: var(--text-dark);
+                    letter-spacing: 0.02em;
+                    background: linear-gradient(
+                        165deg,
+                        #2a2218 0%,
+                        #5c4a2e 35%,
+                        #8f7344 62%,
+                        #c4a574 100%
+                    );
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                    -webkit-text-fill-color: transparent;
                 }
                 .auth-card :global(h2) {
                     text-align: center;

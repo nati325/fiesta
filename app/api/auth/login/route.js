@@ -25,12 +25,17 @@ function publicUser(user) {
   };
 }
 
+function uniqIds(list) {
+  return [...new Set((list || []).map((id) => String(id)).filter(Boolean))];
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
     const password = body?.password;
     const usernameRaw = body?.username ?? body?.email ?? '';
     const username = String(usernameRaw || '').trim().toLowerCase();
+    const clientFavorites = uniqIds(body?.favorites);
 
     if (!password) {
       return NextResponse.json({ message: 'נא להזין סיסמה' }, { status: 400 });
@@ -83,6 +88,12 @@ export async function POST(request) {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return NextResponse.json({ message: 'שם משתמש או סיסמה שגויים' }, { status: 401 });
+    }
+
+    // Merge localStorage favorites from client into server profile (union)
+    if (clientFavorites.length > 0) {
+      user.favorites = uniqIds([...(user.favorites || []), ...clientFavorites]);
+      await user.save();
     }
 
     const token = jwt.sign(
