@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useVendors } from '@/context/VendorContext';
 import AdminNav from '@/components/admin/AdminNav';
 import FileUploadField from '@/components/admin/FileUploadField';
+import VendorProductsManager from '@/components/admin/VendorProductsManager';
 import { VENDOR_CATEGORIES } from '@/lib/vendorCategories';
 import {
   QUICK_VENDOR_DEFAULTS,
@@ -31,6 +32,7 @@ function vendorToForm(vendor) {
     discount: vendor.discount ?? '',
     discountType: vendor.discountType || 'percent',
     commissionAmount: vendor.commissionAmount ?? '',
+    commissionPercent: vendor.commissionPercent ?? '',
     agreementSigned: Boolean(vendor.agreementSigned),
     agreementImage: vendor.agreementImage || '',
     googleReviewsLink: vendor.googleReviewsLink || '',
@@ -40,6 +42,7 @@ function vendorToForm(vendor) {
     instagramLink: vendor.instagramLink || '',
     portfolio: Array.isArray(vendor.portfolio) ? vendor.portfolio : [],
     products: Array.isArray(vendor.products) ? vendor.products : [],
+    mainProductId: vendor.mainProductId || '',
     videos: Array.isArray(vendor.videos) ? vendor.videos : [],
   };
 }
@@ -289,6 +292,15 @@ export default function EditVendorPage() {
               />
             </div>
             <div className="crm-input-group">
+              <label>עמלת Fiesta (%)</label>
+              <input
+                type="number"
+                value={form.commissionPercent}
+                onChange={(e) => setForm({ ...form, commissionPercent: e.target.value })}
+                placeholder="אחוז מהמחירון"
+              />
+            </div>
+            <div className="crm-input-group">
               <label>עמלת Fiesta (₪)</label>
               <input
                 type="number"
@@ -297,6 +309,14 @@ export default function EditVendorPage() {
               />
             </div>
           </div>
+
+          <VendorProductsManager
+            products={form.products}
+            discountPercent={form.discount}
+            commissionPercent={form.commissionPercent}
+            discountIsPercent={form.discountType === 'percent'}
+            onChange={(products) => setForm((prev) => ({ ...prev, products }))}
+          />
 
           <div className="vendor-files-row">
             <FileUploadField

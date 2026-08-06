@@ -11,11 +11,14 @@
     "clean-vendors:dry": "node scripts/clean-vendor-content.js --dry-run --limit 5",
     "test-gemini": "node scripts/test-gemini-key.js",
     "test-gemini:models": "node scripts/test-gemini-key.js --list-models",
-    "clean-vendors:scan": "node scripts/clean-vendor-content.js --scan --force --limit 100"
+    "clean-vendors:scan": "node scripts/clean-vendor-content.js --scan --force --limit 100",
+    "check-pricing": "node scripts/check-pricing-sync.mjs",
+    "verify-projection": "node scripts/verify-public-projection.mjs",
+    "migrate-images": "node scripts/migrate-vendor-images-to-mongo.mjs",
+    "migrate-images:dry": "node scripts/migrate-vendor-images-to-mongo.mjs --dry-run"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.10.0",
     "framer-motion": "^10.18.0",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.3",

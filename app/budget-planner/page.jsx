@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import VendorCardImage from '@/components/VendorCardImage';
 import { resolveVendorImage } from '@/lib/vendorImage';
-import { parsePrice, parsePriceRange, hasValidPrice } from '@/lib/vendorPrice';
+import { parsePrice, parsePriceRange, hasValidPrice, getPackages } from '@/lib/vendorPrice';
 
 /** Must match real vendor.type slugs in DB / site */
 const CATEGORIES = [
@@ -59,14 +59,12 @@ function buildVendorOptions(vendor, guests) {
         });
     };
 
-    // Prefer real products (priced packages)
-    if (Array.isArray(vendor.products) && vendor.products.length > 0) {
-        const main = vendor.products.find((p) => p.id === vendor.mainProductId);
-        const list = main ? [main, ...vendor.products.filter((p) => p !== main)] : vendor.products;
-        list.forEach((p) => {
-            if (!hasValidPrice(p.price)) return;
-            push(p.name || p.title || 'חבילה', p.price, p.image);
-        });
+    // Real packages only — add-ons are priced as extras, not as a budget line.
+    const packages = getPackages(vendor);
+    if (packages.length > 0) {
+        [...packages]
+            .sort((a, b) => (parsePrice(a.price) ?? Infinity) - (parsePrice(b.price) ?? Infinity))
+            .forEach((p) => push(p.name || p.title || 'חבילה', p.price, p.image));
     }
 
     // Fallback: vendor-level price (not gallery portfolio photos)

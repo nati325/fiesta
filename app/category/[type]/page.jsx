@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { resolveVendorImage } from '@/lib/vendorImage';
 import VendorCardImage from '@/components/VendorCardImage';
 import { EditChip } from '@/components/SiteEditBar';
-import { getVendorDisplayPrice, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
+import { getVendorDisplayPrice, getCheapestPackage, getPackages, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
 
 function sortPriceValue(vendor) {
     const info = getVendorDisplayPrice(vendor);
@@ -149,11 +149,13 @@ export default function CategoryPage() {
                     ) : (
                         <div className="vendor-cards-grid">
                             {vendors.map((v, i) => {
-                                const mainProduct = v.products?.find(p => p.id === v.mainProductId) || (v.products && v.products.length > 0 ? v.products[0] : null);
+                                const cheapest = getCheapestPackage(v);
+                                const packageCount = getPackages(v).length;
 
-                                const displayImage = resolveVendorImage(mainProduct?.image || v.image, '');
+                                // Same package the card prices, so picture and price agree.
+                                const displayImage = resolveVendorImage(cheapest?.image || v.image, '');
                                 const priceInfo = getVendorDisplayPrice(v);
-                                const displayName = mainProduct?.name ? `${v.name} - ${mainProduct.name}` : v.name;
+                                const displayName = v.name;
                                 const showDiscountBadge =
                                     v.discount != null &&
                                     String(v.discount).trim() !== '' &&
@@ -225,8 +227,12 @@ export default function CategoryPage() {
                                                         {priceInfo.originalDisplay && (
                                                             <span className="vendor-card-old">{priceInfo.originalDisplay}</span>
                                                         )}
+                                                        {priceInfo.isFrom && <span className="vendor-card-from">החל מ־</span>}
                                                         <span className="vendor-card-price">{priceInfo.display}</span>
                                                     </div>
+                                                    {packageCount > 1 && (
+                                                        <span className="vendor-card-packages">{packageCount} חבילות</span>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className="vendor-card-price-row">
@@ -501,6 +507,21 @@ export default function CategoryPage() {
                     font-size: 1.1rem;
                     font-weight: 700;
                     color: var(--text-dark);
+                }
+                .vendor-card-from {
+                    font-size: 0.78rem;
+                    color: var(--text-light);
+                    font-weight: 500;
+                }
+                .vendor-card-packages {
+                    background: var(--off-white);
+                    color: var(--text-light);
+                    font-size: 0.72rem;
+                    font-weight: 600;
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                    border: 1px solid var(--border-color);
+                    white-space: nowrap;
                 }
                 .vendor-card-save {
                     background: var(--off-white);

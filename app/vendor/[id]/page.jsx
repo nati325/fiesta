@@ -9,7 +9,67 @@ import Link from 'next/link';
 import { resolveVendorImage, resolvePortfolioImage } from '@/lib/vendorImage';
 import VendorNoImage from '@/components/VendorNoImage';
 import { EditChip } from '@/components/SiteEditBar';
-import { formatPrice, getVendorDisplayPrice, getSavings, hasValidPrice } from '@/lib/vendorPrice';
+import { formatPrice, getVendorDisplayPrice, getSavings, hasValidPrice, getPackages, getAddons, getCheapestPackage } from '@/lib/vendorPrice';
+
+function ServiceRow({ item, isAddon = false, isFeatured = false }) {
+    const itemPrice = formatPrice(item.price);
+    const itemSavings = getSavings(item.originalPrice, item.price);
+    const itemOrig = itemSavings != null ? formatPrice(item.originalPrice) : null;
+    const image = resolvePortfolioImage(item, '');
+
+    return (
+        <div
+            style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                background: 'white', padding: '12px', borderRadius: '12px',
+                border: '1px solid var(--border-color)'
+            }}
+        >
+            <div style={{ width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                {image ? (
+                    <img
+                        src={image}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        alt={item.title || item.name}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                ) : (
+                    <VendorNoImage compact />
+                )}
+                {isFeatured && (
+                    <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--charcoal)', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderBottomLeftRadius: '6px', fontWeight: 600 }}>
+                        מחיר פתיחה
+                    </div>
+                )}
+            </div>
+            <div style={{ flex: 1, textAlign: 'right' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-dark)', margin: '0 0 4px 0', fontFamily: 'var(--font-main)' }}>
+                    {item.title || item.name || 'שירות מותאם אישית'}
+                </h3>
+                {item.description && (
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-light)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
+                        {item.description}
+                    </p>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {itemOrig && (
+                            <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>{itemOrig}</span>
+                        )}
+                        <span style={{ color: 'var(--text-dark)', fontWeight: 700, fontSize: '1.05rem' }}>
+                            {isAddon ? `+${itemPrice}` : itemPrice}
+                        </span>
+                    </div>
+                    {itemSavings != null && (
+                        <span style={{ background: 'var(--off-white)', color: 'var(--text-dark)', fontSize: '0.7rem', fontWeight: 600, padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+                            חיסכון ₪{itemSavings.toLocaleString('he-IL')}
+                        </span>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function VendorDetailPage() {
     const params = useParams();
@@ -84,8 +144,8 @@ export default function VendorDetailPage() {
             urls.push(resolved);
         };
 
-        const mainProduct = vendor.products?.find((p) => p.id === vendor.mainProductId);
-        if (mainProduct?.image) push(mainProduct.image);
+        const headline = getCheapestPackage(vendor);
+        if (headline?.image) push(headline.image);
         if (vendor.image) push(vendor.image);
         (vendor.products || []).forEach((p) => push(p?.image));
         (vendor.portfolio || []).forEach((item) => {
@@ -121,6 +181,14 @@ export default function VendorDetailPage() {
     })();
 
     const priceInfo = getVendorDisplayPrice(vendor);
+    const addons = getAddons(vendor);
+    const productPackages = getPackages(vendor);
+    const headlinePackage = getCheapestPackage(vendor);
+    // Vendors onboarded before packages existed only have priced portfolio items.
+    const packages = productPackages.length || addons.length
+        ? productPackages
+        : (vendor.portfolio || []).filter((item) => hasValidPrice(item.price));
+
     const liked = isFavorite(vendor.id);
     const waUrl = `https://wa.me/972535378985?text=${encodeURIComponent(
         `היי, הגעתי מ־Fiesta לגבי ${vendor.name} ואשמח לדבר עם נציג`
@@ -375,70 +443,42 @@ export default function VendorDetailPage() {
 
                 {/* Portfolio / Services section */}
                 <div className="vendor-sections">
-                    {/* Services & Prices (Conditional) */}
-                    {((vendor.portfolio && vendor.portfolio.some(item => hasValidPrice(item.price))) || (vendor.products && vendor.products.some(p => hasValidPrice(p.price)))) && (
+                    {/* Packages & add-ons (Conditional) */}
+                    {(packages.length > 0 || addons.length > 0) && (
                         <div className="vendor-services-block">
-                            <div className="vendor-section-head">
-                                <h2>שירותים ומחירים</h2>
-                                <div className="vendor-section-line"></div>
-                            </div>
-                            
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
-                                {(vendor.products && vendor.products.length > 0
-                                    ? vendor.products.filter((p) => hasValidPrice(p.price))
-                                    : (vendor.portfolio || []).filter(item => hasValidPrice(item.price))
-                                ).map((item, i) => {
-                                    const itemPrice = formatPrice(item.price);
-                                    const itemSavings = getSavings(item.originalPrice, item.price);
-                                    const itemOrig = itemSavings != null ? formatPrice(item.originalPrice) : null;
-                                    return (
-                                    <div 
-                                        key={i} 
-                                        style={{ 
-                                            display: 'flex', alignItems: 'center', gap: '14px',
-                                            background: 'white', padding: '12px', borderRadius: '12px',
-                                            border: '1px solid var(--border-color)'
-                                        }}
-                                    >
-                                        <div style={{ width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-                                            {resolvePortfolioImage(item, '') ? (
-                                                <img 
-                                                    src={resolvePortfolioImage(item, '')} 
-                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                                    alt={item.title || item.name} 
-                                                    onError={(e) => { e.target.style.display = 'none'; }}
-                                                />
-                                            ) : (
-                                                <VendorNoImage compact />
-                                            )}
-                                            {vendor.mainProductId === item.id && (
-                                                <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--charcoal)', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderBottomLeftRadius: '6px', fontWeight: 600 }}>
-                                                    ראשי
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div style={{ flex: 1, textAlign: 'right' }}>
-                                            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-dark)', margin: '0 0 4px 0', fontFamily: 'var(--font-main)' }}>{item.title || item.name || 'שירות מותאם אישית'}</h3>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                    {itemOrig && (
-                                                        <span style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'line-through' }}>{itemOrig}</span>
-                                                    )}
-                                                    <span style={{ color: 'var(--text-dark)', fontWeight: 700, fontSize: '1.05rem' }}>
-                                                        {itemPrice}
-                                                    </span>
-                                                </div>
-                                                {itemSavings != null && (
-                                                    <span style={{ background: 'var(--off-white)', color: 'var(--text-dark)', fontSize: '0.7rem', fontWeight: 600, padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                                                        חיסכון ₪{itemSavings.toLocaleString('he-IL')}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
+                            {packages.length > 0 && (
+                                <>
+                                    <div className="vendor-section-head">
+                                        <h2>{addons.length > 0 ? 'חבילות ומחירים' : 'שירותים ומחירים'}</h2>
+                                        <div className="vendor-section-line"></div>
                                     </div>
-                                    );
-                                })}
-                            </div>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+                                        {packages.map((item, i) => (
+                                            <ServiceRow
+                                                key={item.id || i}
+                                                item={item}
+                                                isFeatured={packages.length > 1 && item === headlinePackage}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {addons.length > 0 && (
+                                <>
+                                    <div className="vendor-section-head" style={{ marginTop: '26px' }}>
+                                        <h2>תוספות</h2>
+                                        <div className="vendor-section-line"></div>
+                                    </div>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+                                        {addons.map((item, i) => (
+                                            <ServiceRow key={item.id || i} item={item} isAddon />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 
