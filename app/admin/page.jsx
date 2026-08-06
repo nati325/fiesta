@@ -318,12 +318,19 @@ function AdminPageInner() {
         setAgreementUploading(true);
         try {
             const data = await uploadVendorFile(file, 'document');
+            const agreementImage = data.url;
             setVendorForm(prev => ({
                 ...prev,
-                agreementImage: data.url,
+                agreementImage,
                 agreementSigned: true
             }));
             setAgreementFileName(data.fileName || file.name);
+            if (editingVendor?.id) {
+                await updateVendor(editingVendor.id, {
+                    agreementImage,
+                    agreementSigned: true,
+                });
+            }
         } catch (err) {
             alert(err.message || 'שגיאה בהעלאת הקובץ');
         } finally {

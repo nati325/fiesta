@@ -18,6 +18,7 @@ export default function FileUploadField({
   const isImagePreview =
     previewUrl &&
     (/^data:image\//.test(previewUrl) ||
+      /^\/api\/image\/[a-f0-9]{64}$/i.test(previewUrl) ||
       /\.(jpg|jpeg|png|webp|gif|heic)(\?|$)/i.test(previewUrl) ||
       (/cloudinary\.com/i.test(previewUrl) && !/\.(pdf|doc|docx)(\?|$)/i.test(previewUrl)));
 

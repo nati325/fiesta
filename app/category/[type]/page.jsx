@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { resolveVendorImage } from '@/lib/vendorImage';
 import VendorCardImage from '@/components/VendorCardImage';
 import { EditChip } from '@/components/SiteEditBar';
-import { getVendorDisplayPrice, getCheapestPackage, getPackages, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
+import { getVendorDisplayPrice, getVendorDiscountBadge, getCheapestPackage, getPackages, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
 
 function sortPriceValue(vendor) {
     const info = getVendorDisplayPrice(vendor);
@@ -156,10 +156,7 @@ export default function CategoryPage() {
                                 const displayImage = resolveVendorImage(cheapest?.image || v.image, '');
                                 const priceInfo = getVendorDisplayPrice(v);
                                 const displayName = v.name;
-                                const showDiscountBadge =
-                                    v.discount != null &&
-                                    String(v.discount).trim() !== '' &&
-                                    String(v.discount) !== '0';
+                                const discountBadge = getVendorDiscountBadge(v);
                                 const hasRating = v.googleRating != null && String(v.googleRating).trim() !== '' && Number(v.googleRating) > 0;
 
                                 return (
@@ -175,9 +172,9 @@ export default function CategoryPage() {
                                             <VendorCardImage src={displayImage} alt={displayName} />
 
                                             <div className="vendor-card-top">
-                                                {showDiscountBadge && (
+                                                {discountBadge && (
                                                     <span className="vendor-card-badge">
-                                                        {v.discountType === 'amount' ? '₪' : ''}{v.discount}{v.discountType === 'amount' ? '' : '%'} הנחה
+                                                        {discountBadge.type === 'amount' ? '₪' : ''}{discountBadge.value}{discountBadge.type === 'amount' ? '' : '%'} הנחה
                                                     </span>
                                                 )}
                                                 <div className="vendor-card-top-actions">

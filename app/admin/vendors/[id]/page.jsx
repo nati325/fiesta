@@ -121,12 +121,21 @@ export default function EditVendorPage() {
     setAgreementUploading(true);
     try {
       const data = await uploadVendorFile(file, 'document');
+      const agreementImage = data.url;
       setForm((prev) => ({
         ...prev,
-        agreementImage: data.url,
+        agreementImage,
         agreementSigned: true,
       }));
       setAgreementFileName(data.fileName || file.name);
+      // Persist immediately — otherwise the admin list still shows "חסר קובץ"
+      // until the user remembers to hit Save on the whole form.
+      if (vendor?.id) {
+        await updateVendor(vendor.id, {
+          agreementImage,
+          agreementSigned: true,
+        });
+      }
     } catch (err) {
       alert(err.message || 'שגיאה בהעלאת הקובץ');
     } finally {
@@ -377,9 +386,19 @@ export default function EditVendorPage() {
                   </a>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       setForm((prev) => ({ ...prev, agreementImage: '', agreementSigned: false }));
                       setAgreementFileName('');
+                      if (vendor?.id) {
+                        try {
+                          await updateVendor(vendor.id, {
+                            agreementImage: '',
+                            agreementSigned: false,
+                          });
+                        } catch {
+                          // updateVendor already alerts
+                        }
+                      }
                     }}
                     style={{
                       background: 'none',
