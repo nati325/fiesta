@@ -10,6 +10,7 @@ import { resolveVendorImage } from '@/lib/vendorImage';
 import VendorCardImage from '@/components/VendorCardImage';
 import { EditChip } from '@/components/SiteEditBar';
 import { getVendorDisplayPrice, getVendorDiscountBadge, getCheapestPackage, getPackages, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
+import { formatVendorRegions } from '@/lib/vendorRegion';
 
 function sortPriceValue(vendor) {
     const info = getVendorDisplayPrice(vendor);
@@ -206,10 +207,10 @@ export default function CategoryPage() {
                                             <h3 className="vendor-card-title">{displayName}</h3>
 
                                             <div className="vendor-card-meta">
-                                                {(v.location || v.region) ? (
+                                                {(v.location || formatVendorRegions(v)) ? (
                                                     <span className="vendor-card-loc">
                                                         <i className="fas fa-map-marker-alt"></i>
-                                                        {v.location || v.region}
+                                                        {v.location || formatVendorRegions(v)}
                                                     </span>
                                                 ) : null}
                                                 {hasRating && (

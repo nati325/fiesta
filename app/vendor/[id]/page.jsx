@@ -10,6 +10,7 @@ import { resolveVendorImage, resolvePortfolioImage } from '@/lib/vendorImage';
 import VendorNoImage from '@/components/VendorNoImage';
 import { EditChip } from '@/components/SiteEditBar';
 import { formatPrice, getVendorDisplayPrice, getSavings, hasValidPrice, getPackages, getAddons, getCheapestPackage } from '@/lib/vendorPrice';
+import { formatVendorRegions } from '@/lib/vendorRegion';
 
 function ServiceRow({ item, isAddon = false, isFeatured = false }) {
     const itemPrice = formatPrice(item.price);
@@ -259,15 +260,15 @@ export default function VendorDetailPage() {
                     </div>
                     
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: 'var(--text-light)', marginBottom: '20px', fontWeight: 500, fontSize: '0.95rem' }}>
-                        {(vendor.region || vendor.location) ? (
+                        {(formatVendorRegions(vendor) || vendor.location) ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <i className="fas fa-map-marker-alt"></i>
-                                <span>{vendor.region || vendor.location}</span>
+                                <span>{formatVendorRegions(vendor) || vendor.location}</span>
                             </div>
                         ) : null}
                         {vendor.googleRating != null && String(vendor.googleRating).trim() !== '' && Number(vendor.googleRating) > 0 && Number(vendor.googleReviewsCount) > 0 && (
                             <>
-                                {(vendor.region || vendor.location) ? (
+                                {(formatVendorRegions(vendor) || vendor.location) ? (
                                     <div style={{ width: '1px', height: '14px', background: '#e5e2dc' }}></div>
                                 ) : null}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-color)' }}>

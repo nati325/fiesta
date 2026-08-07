@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { getCategoryLabel } from '@/lib/vendorCategories';
 import { getVendorDisplayPrice } from '@/lib/vendorPrice';
 import { resolveVendorImage } from '@/lib/vendorImage';
+import { vendorMatchesArea, formatVendorRegions } from '@/lib/vendorRegion';
 
 export default function SearchModal({ isOpen, onClose }) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -91,9 +92,7 @@ export default function SearchModal({ isOpen, onClose }) {
                     type.includes(q) ||
                     desc.includes(q);
                 if (!matchesQuery) return false;
-                if (searchArea === 'כל הארץ') return true;
-                const region = (v.region || '').trim();
-                return !region || region === 'כל הארץ' || region.includes(searchArea);
+                return vendorMatchesArea(v, searchArea);
             })
             .slice(0, 8);
     }, [searchQuery, searchArea, vendors]);
@@ -218,7 +217,7 @@ export default function SearchModal({ isOpen, onClose }) {
                                                                 <strong>{v.name}</strong>
                                                                 <small>
                                                                     {getCategoryLabel(v.type)}
-                                                                    {v.region ? ` · ${v.region}` : ''}
+                                                                    {formatVendorRegions(v) ? ` · ${formatVendorRegions(v)}` : ''}
                                                                     {price ? ` · ${price}` : ''}
                                                                 </small>
                                                             </span>
@@ -596,7 +595,7 @@ export default function SearchModal({ isOpen, onClose }) {
 
                         @media (max-width: 768px) {
                             .search-modal-container {
-                                padding: 20px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+                                padding: 20px 16px calc(40px + env(safe-area-inset-bottom, 0px));
                             }
                             .search-modal-header { margin-bottom: 40px; }
                             .search-input-box {

@@ -9,6 +9,7 @@ import AdminNav from '@/components/admin/AdminNav';
 import FileUploadField from '@/components/admin/FileUploadField';
 import VendorProductsManager from '@/components/admin/VendorProductsManager';
 import { VENDOR_CATEGORIES } from '@/lib/vendorCategories';
+import { VENDOR_REGIONS } from '@/lib/vendorRegion';
 import {
   QUICK_VENDOR_DEFAULTS,
   DOCUMENT_ACCEPT,
@@ -20,6 +21,10 @@ import {
 function vendorToForm(vendor) {
   const types = [...new Set(
     [vendor.type, ...(Array.isArray(vendor.types) ? vendor.types : [])]
+      .filter(Boolean)
+  )];
+  const regions = [...new Set(
+    [vendor.region, ...(Array.isArray(vendor.regions) ? vendor.regions : [])]
       .filter(Boolean)
   )];
   const agreementImages = [
@@ -38,7 +43,8 @@ function vendorToForm(vendor) {
     type: types[0] || vendor.type || 'design',
     types: types.length ? types : [vendor.type || 'design'],
     contact: vendor.contact || '',
-    region: vendor.region || '',
+    region: regions[0] || vendor.region || '',
+    regions,
     description: vendor.description || '',
     image: vendor.image || '',
     originalPrice: vendor.originalPrice ?? '',
@@ -176,6 +182,15 @@ export default function EditVendorPage() {
     });
   };
 
+  const toggleAdminRegion = (slug) => {
+    setForm((prev) => {
+      const current = [...new Set([prev.region, ...(prev.regions || [])].filter(Boolean))];
+      const has = current.includes(slug);
+      let next = has ? current.filter((r) => r !== slug) : [...current, slug];
+      return { ...prev, regions: next, region: next[0] || '' };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form?.name?.trim()) {
@@ -294,12 +309,34 @@ export default function EditVendorPage() {
                 required={form.type === 'venue'}
               />
             </div>
-            <div className="crm-input-group">
-              <label>אזור</label>
-              <input
-                value={form.region}
-                onChange={(e) => setForm({ ...form, region: e.target.value })}
-              />
+          </div>
+
+          <div className="crm-input-group" style={{ marginBottom: '14px' }}>
+            <label>אזורים</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+              {VENDOR_REGIONS.map((r) => {
+                const selected = [...new Set([form.region, ...(form.regions || [])].filter(Boolean))];
+                const on = selected.includes(r);
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => toggleAdminRegion(r)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '999px',
+                      border: on ? '1.5px solid #0f766e' : '1px solid #cbd5e1',
+                      background: on ? '#ccfbf1' : 'white',
+                      fontWeight: 700,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {on ? '✓ ' : ''}{r}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

@@ -8,6 +8,7 @@ import { resolveVendorImage } from '@/lib/vendorImage';
 import VendorCardImage from '@/components/VendorCardImage';
 import { getVendorDisplayPrice } from '@/lib/vendorPrice';
 import { getCategoryLabel } from '@/lib/vendorCategories';
+import { vendorMatchesArea, formatVendorRegions } from '@/lib/vendorRegion';
 
 function SearchResultsContent() {
     const searchParams = useSearchParams();
@@ -63,7 +64,7 @@ function SearchResultsContent() {
                     const matchesDescription = v.description?.toLowerCase().includes(q);
                     const matchesQuery = matchesName || matchesType || matchesMappedType || matchesDescription;
 
-                    const matchesArea = area === 'כל הארץ' || !v.region || v.region === area || v.region === 'כל הארץ';
+                    const matchesArea = vendorMatchesArea(v, area);
                     return matchesQuery && matchesArea;
                 });
                 setVendors(filtered);
@@ -111,8 +112,8 @@ function SearchResultsContent() {
                                     </div>
                                     <div className="card-info">
                                         <h3>{v.name}</h3>
-                                        {v.region ? (
-                                            <div className="location"><i className="fas fa-map-marker-alt"></i> {v.region}</div>
+                                        {formatVendorRegions(v) ? (
+                                            <div className="location"><i className="fas fa-map-marker-alt"></i> {formatVendorRegions(v)}</div>
                                         ) : null}
                                         {priceInfo.display ? (
                                             <div className="price-row">

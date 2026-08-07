@@ -32,45 +32,47 @@ export default function MobileNav() {
 
     return (
         <>
-            <nav className="mobile-nav-wrapper" aria-label="ניווט תחתון">
-                <div className="mobile-nav-container">
-                    {navItems.map((item) => {
-                        const isActive = isItemActive(item);
+            {/* Hide the pill while SearchModal is open so it never covers modal content */}
+            {!searchOpen && (
+                <nav className="mobile-nav-wrapper" aria-label="ניווט תחתון">
+                    <div className="mobile-nav-container">
+                        {navItems.map((item) => {
+                            const isActive = isItemActive(item);
 
-                        if (item.action === 'search') {
+                            if (item.action === 'search') {
+                                return (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+                                        onClick={() => setSearchOpen(true)}
+                                        aria-label={item.label}
+                                    >
+                                        <i className={item.icon} aria-hidden />
+                                        {isActive && (
+                                            <motion.div layoutId="mobile-nav-indicator" className="nav-indicator" />
+                                        )}
+                                    </button>
+                                );
+                            }
+
                             return (
-                                <button
+                                <Link
                                     key={item.id}
-                                    type="button"
+                                    href={item.path}
                                     className={`mobile-nav-item ${isActive ? 'active' : ''}`}
-                                    onClick={() => setSearchOpen(true)}
-                                    aria-label="חיפוש ספקים"
+                                    aria-label={item.label}
                                 >
-                                    <i className={item.icon}></i>
-                                    <span>{item.label}</span>
+                                    <i className={item.icon} aria-hidden />
                                     {isActive && (
                                         <motion.div layoutId="mobile-nav-indicator" className="nav-indicator" />
                                     )}
-                                </button>
+                                </Link>
                             );
-                        }
-
-                        return (
-                            <Link
-                                key={item.id}
-                                href={item.path}
-                                className={`mobile-nav-item ${isActive ? 'active' : ''}`}
-                            >
-                                <i className={item.icon}></i>
-                                <span>{item.label}</span>
-                                {isActive && (
-                                    <motion.div layoutId="mobile-nav-indicator" className="nav-indicator" />
-                                )}
-                            </Link>
-                        );
-                    })}
-                </div>
-            </nav>
+                        })}
+                    </div>
+                </nav>
+            )}
 
             <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
@@ -79,7 +81,6 @@ export default function MobileNav() {
                     display: none;
                     position: fixed;
                     z-index: 1000;
-                    /* Floating pill — inset so it doesn't cover full-bleed content */
                     left: 50%;
                     transform: translateX(-50%);
                     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
@@ -91,7 +92,7 @@ export default function MobileNav() {
                     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
                     border: 1px solid rgba(0, 0, 0, 0.06);
                     border-radius: 18px;
-                    padding: 6px 6px;
+                    padding: 4px 6px;
                 }
 
                 .mobile-nav-container {
@@ -105,17 +106,13 @@ export default function MobileNav() {
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 2px;
                     color: #888;
                     text-decoration: none;
-                    font-size: 0.68rem;
-                    font-weight: 600;
-                    font-family: var(--font-main);
                     position: relative;
-                    padding: 8px 6px 6px;
-                    min-height: 48px;
-                    min-width: 0;
-                    transition: color 0.2s;
+                    padding: 10px 6px;
+                    min-height: 44px;
+                    min-width: 44px;
+                    transition: color 0.2s, background 0.2s;
                     flex: 1;
                     background: none;
                     border: none;
@@ -125,7 +122,7 @@ export default function MobileNav() {
                 }
 
                 .mobile-nav-item i {
-                    font-size: 1.1rem;
+                    font-size: 1.2rem;
                     line-height: 1;
                 }
 

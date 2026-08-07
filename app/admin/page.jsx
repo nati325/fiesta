@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getAdminHeaders } from '@/lib/getAdminHeaders';
 import { VENDOR_CATEGORIES, getCategoryLabel } from '@/lib/vendorCategories';
+import { formatVendorRegions } from '@/lib/vendorRegion';
 import AdminNav from '@/components/admin/AdminNav';
 import FileUploadField from '@/components/admin/FileUploadField';
 import {
@@ -817,7 +818,7 @@ function AdminPageInner() {
                                         <td style={{ fontWeight: 600, color: '#4a90e2' }}>
                                             {v.contact || 'לא הוזן'}
                                         </td>
-                                        <td>{v.region}</td>
+                                        <td>{formatVendorRegions(v)}</td>
                                         <td>
                                             {!v.price || String(v.price) === '0' ? (
                                                 <div style={{ fontWeight: 600, color: '#c0392b' }}>חסר מחיר</div>
@@ -906,7 +907,7 @@ function AdminPageInner() {
                                     </div>
                                 </div>
                                 <div className="crm-mobile-card-meta">
-                                    {v.region ? <span>{v.region}</span> : null}
+                                    {formatVendorRegions(v) ? <span>{formatVendorRegions(v)}</span> : null}
                                     <span>{v.contact || 'לא הוזן טלפון'}</span>
                                     {!v.price || String(v.price) === '0' ? (
                                         <span className="warn">חסר מחיר</span>

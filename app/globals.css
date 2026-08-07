@@ -423,7 +423,7 @@ body:not(.admin-area) img {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + var(--mobile-nav-height, 0px) + 16px);
 }
 
 .mobile-nav-header {
@@ -1619,9 +1619,9 @@ body:not(.admin-area) img {
 
 @media (max-width: 768px) {
     :root {
-        /* Pill ~62px + 10px inset from bottom + breathing room so content isn't covered */
-        --mobile-nav-height: 62px;
-        --mobile-bottom-gap: 14px;
+        /* Icons-only pill ~48px + inset + extra scroll room so content clears the bar */
+        --mobile-nav-height: 48px;
+        --mobile-bottom-gap: 32px;
         --mobile-chrome-clearance: calc(
             var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
         );
@@ -1645,7 +1645,7 @@ body:not(.admin-area) img {
     }
 
     .footer {
-        padding-bottom: calc(var(--mobile-chrome-clearance) + 12px);
+        padding-bottom: calc(var(--mobile-chrome-clearance) + 20px);
     }
 
     .mobile-menu-btn {
@@ -2520,8 +2520,8 @@ body.studio-mode .app > main {
 @media (max-width: 768px) {
     :root {
         --section-padding: 60px 0;
-        --mobile-nav-height: 62px;
-        --mobile-bottom-gap: 14px;
+        --mobile-nav-height: 48px;
+        --mobile-bottom-gap: 32px;
         --mobile-chrome-clearance: calc(
             var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
         );
