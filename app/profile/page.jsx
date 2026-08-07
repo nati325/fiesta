@@ -130,7 +130,7 @@ export default function ProfilePage() {
                             {v.name}
                           </button>
                           <div className="cart-row">
-                            <span className="cart-price">{price.display || 'לתיאום מחיר'}</span>
+                            {price.display ? <span className="cart-price">{price.display}</span> : <span />}
                             <button
                               type="button"
                               className="cart-remove"
@@ -319,8 +319,9 @@ export default function ProfilePage() {
           background: #fff1f2;
           color: #e11d48;
           border-radius: 8px;
-          padding: 6px 10px;
-          font-size: 0.8rem;
+          padding: 10px 14px;
+          min-height: 44px;
+          font-size: 0.85rem;
           font-weight: 700;
           cursor: pointer;
           font-family: inherit;
@@ -331,9 +332,22 @@ export default function ProfilePage() {
         @media (max-width: 640px) {
           .profile-page {
             padding-top: 90px;
+            padding-bottom: calc(var(--mobile-chrome-clearance, 100px) + 24px);
           }
           .profile-cart {
             padding: 16px;
+          }
+          .profile-actions {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 10px;
+          }
+          .profile-actions a,
+          .profile-actions button {
+            width: 100%;
+            justify-content: center;
+            min-height: 48px;
           }
         }
       `}</style>

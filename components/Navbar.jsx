@@ -19,14 +19,29 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [mobileMenuOpen]);
+
     if (pathname?.startsWith('/admin')) {
         return null;
     }
     if (pathname === '/design-invitation' || pathname?.startsWith('/design-invitation/')) {
         return null;
     }
+    if (pathname === '/rsvp' || pathname?.startsWith('/rsvp/')) {
+        return null;
+    }
 
     const isActive = (path) => pathname === path ? 'active' : '';
+    const closeMobileMenu = () => setMobileMenuOpen(false);
 
     return (
         <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
@@ -38,9 +53,9 @@ const Navbar = () => {
                     </Link>
                 </div>
 
-                <div className="nav-search-trigger" onClick={() => setSearchModalOpen(true)}>
+                <div className="nav-search-trigger" onClick={() => setSearchModalOpen(true)} role="button" tabIndex={0} aria-label="חיפוש ספקים">
                     <i className="fas fa-search"></i>
-                    <span>חפשו ספק...</span>
+                    <span className="nav-search-label">חפשו ספק...</span>
                 </div>
 
                 <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
@@ -69,6 +84,8 @@ const Navbar = () => {
                         flex: 0 1 220px;
                         min-width: 0;
                         max-width: 240px;
+                        min-height: 44px;
+                        box-sizing: border-box;
                     }
                     .nav-search-trigger:hover {
                         border-color: var(--primary-color);
@@ -86,7 +103,19 @@ const Navbar = () => {
                         white-space: nowrap;
                     }
                     @media (max-width: 1100px) {
-                        .nav-search-trigger { display: none; }
+                        .nav-search-trigger {
+                            display: flex;
+                            flex: 0 0 auto;
+                            width: 44px;
+                            max-width: 44px;
+                            min-width: 44px;
+                            padding: 0;
+                            justify-content: center;
+                            border-radius: 50%;
+                            margin-inline-start: auto;
+                            margin-inline-end: 8px;
+                        }
+                        .nav-search-label { display: none; }
                         .tagline { display: none; }
                     }
                 `}</style>
@@ -220,99 +249,110 @@ const Navbar = () => {
                     </ul>
                 </nav>
 
-                <div className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <div className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} role="button" tabIndex={0} aria-label={mobileMenuOpen ? 'סגור תפריט' : 'פתח תפריט'} aria-expanded={mobileMenuOpen}>
                     <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
                 </div>
             </div>
 
-            <div className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`}>
+            {mobileMenuOpen && (
+                <button
+                    type="button"
+                    className="mobile-nav-overlay"
+                    aria-label="סגור תפריט"
+                    onClick={closeMobileMenu}
+                />
+            )}
+
+            <div className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`} aria-hidden={!mobileMenuOpen}>
                 <div className="mobile-nav-header">
                     <div className="logo">
                         <h1>Fiesta</h1>
                     </div>
-                    <div className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)}>
+                    <div className="mobile-menu-btn" onClick={closeMobileMenu} role="button" tabIndex={0} aria-label="סגור תפריט">
                         <i className="fas fa-times"></i>
                     </div>
                 </div>
 
-                <div className="mobile-main-links">
-                    <div onClick={() => { setSearchModalOpen(true); setMobileMenuOpen(false); }} style={{ 
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        background: 'var(--off-white)',
-                        fontSize: '1.2rem',
-                        fontWeight: '600'
-                    }}>
-                        <i className="fas fa-search" style={{ color: 'var(--primary-color)' }}></i>
-                        <span>חיפוש ספקים ואנשי מקצוע לאירוע</span>
+                <div className="mobile-nav-scroll">
+                    <div className="mobile-main-links">
+                        <div onClick={() => { setSearchModalOpen(true); closeMobileMenu(); }} style={{ 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            background: 'var(--off-white)',
+                            fontSize: '1.2rem',
+                            fontWeight: '600'
+                        }}>
+                            <i className="fas fa-search" style={{ color: 'var(--primary-color)' }}></i>
+                            <span>חיפוש ספקים ואנשי מקצוע לאירוע</span>
+                        </div>
+                        <Link href="/" onClick={closeMobileMenu}><i className="fas fa-home"></i> דף הבית</Link>
+                        <Link href="/design-invitation" onClick={closeMobileMenu}>
+                            <i className="fas fa-envelope-open-text"></i> עיצוב הזמנות
+                        </Link>
+                        <Link href="/budget-planner" onClick={closeMobileMenu}>
+                            <i className="fas fa-calculator"></i> מחשבון תקציב
+                        </Link>
+                        <Link href="/guest-rsvp" onClick={closeMobileMenu}>
+                            <i className="fas fa-clipboard-check"></i> אישורי הגעה
+                        </Link>
+                        <Link href="/table-seating" onClick={closeMobileMenu}>
+                            <i className="fas fa-chair"></i> סידור שולחנות
+                        </Link>
+                        {user?.isAdmin && (
+                            <Link href="/admin" onClick={closeMobileMenu}><i className="fas fa-shield-halved"></i> ניהול</Link>
+                        )}
                     </div>
-                    <Link href="/" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-home"></i> דף הבית</Link>
-                    <Link href="/design-invitation" onClick={() => setMobileMenuOpen(false)}>
-                        <i className="fas fa-envelope-open-text"></i> עיצוב הזמנות
-                    </Link>
-                    <Link href="/budget-planner" onClick={() => setMobileMenuOpen(false)}>
-                        <i className="fas fa-calculator"></i> מחשבון תקציב
-                    </Link>
-                    <Link href="/guest-rsvp" onClick={() => setMobileMenuOpen(false)}>
-                        <i className="fas fa-clipboard-check"></i> אישורי הגעה
-                    </Link>
-                    <Link href="/table-seating" onClick={() => setMobileMenuOpen(false)}>
-                        <i className="fas fa-chair"></i> סידור שולחנות
-                    </Link>
-                    {user?.isAdmin && (
-                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-shield-halved"></i> ניהול</Link>
-                    )}
-                </div>
 
-                <div className="mobile-category-title">הספקים שלנו:</div>
-                <div className="mobile-nav-groups">
-                    <div className="mobile-group">
-                        <h5><i className="fas fa-star"></i> מרכז האירוע</h5>
-                        <div className="mobile-links">
-                            <Link href="/category/dj" onClick={() => setMobileMenuOpen(false)}>DJ</Link>
-                            <Link href="/category/photographer" onClick={() => setMobileMenuOpen(false)}>צלמים</Link>
-                            <Link href="/category/alcohol" onClick={() => setMobileMenuOpen(false)}>אלכוהול</Link>
-                            <Link href="/category/catering" onClick={() => setMobileMenuOpen(false)}>קייטרינג</Link>
-                            <Link href="/category/venue" onClick={() => setMobileMenuOpen(false)}>אולמות</Link>
+                    <div className="mobile-category-title">הספקים שלנו:</div>
+                    <div className="mobile-nav-groups">
+                        <div className="mobile-group">
+                            <h5><i className="fas fa-star"></i> מרכז האירוע</h5>
+                            <div className="mobile-links">
+                                <Link href="/category/dj" onClick={closeMobileMenu}>DJ</Link>
+                                <Link href="/category/photographer" onClick={closeMobileMenu}>צלמים</Link>
+                                <Link href="/category/alcohol" onClick={closeMobileMenu}>אלכוהול</Link>
+                                <Link href="/category/catering" onClick={closeMobileMenu}>קייטרינג</Link>
+                                <Link href="/category/venue" onClick={closeMobileMenu}>אולמות</Link>
+                            </div>
+                        </div>
+                        <div className="mobile-group">
+                            <h5><i className="fas fa-user-tie"></i> חתן וכלה</h5>
+                            <div className="mobile-links">
+                                <Link href="/category/dresses" onClick={closeMobileMenu}>שמלות</Link>
+                                <Link href="/category/suits" onClick={closeMobileMenu}>חליפות</Link>
+                                <Link href="/category/hair" onClick={closeMobileMenu}>שיער</Link>
+                                <Link href="/category/makeup" onClick={closeMobileMenu}>איפור</Link>
+                                <Link href="/category/rings" onClick={closeMobileMenu}>טבעות</Link>
+                            </div>
+                        </div>
+                        <div className="mobile-group">
+                            <h5><i className="fas fa-calendar-check"></i> תכנון ולוגיסטיקה</h5>
+                            <div className="mobile-links">
+                                <Link href="/category/event-production" onClick={closeMobileMenu}>הפקה</Link>
+                                <Link href="/category/invitations" onClick={closeMobileMenu}>הזמנות</Link>
+                                <Link href="/category/transportation" onClick={closeMobileMenu}>הסעות</Link>
+                                <Link href="/category/equipment-rental" onClick={closeMobileMenu}>ציוד</Link>
+                            </div>
                         </div>
                     </div>
-                    <div className="mobile-group">
-                        <h5><i className="fas fa-user-tie"></i> חתן וכלה</h5>
-                        <div className="mobile-links">
-                            <Link href="/category/dresses" onClick={() => setMobileMenuOpen(false)}>שמלות</Link>
-                            <Link href="/category/suits" onClick={() => setMobileMenuOpen(false)}>חליפות</Link>
-                            <Link href="/category/hair" onClick={() => setMobileMenuOpen(false)}>שיער</Link>
-                            <Link href="/category/makeup" onClick={() => setMobileMenuOpen(false)}>איפור</Link>
-                            <Link href="/category/rings" onClick={() => setMobileMenuOpen(false)}>טבעות</Link>
-                        </div>
-                    </div>
-                    <div className="mobile-group">
-                        <h5><i className="fas fa-calendar-check"></i> תכנון ולוגיסטיקה</h5>
-                        <div className="mobile-links">
-                            <Link href="/category/event-production" onClick={() => setMobileMenuOpen(false)}>הפקה</Link>
-                            <Link href="/category/invitations" onClick={() => setMobileMenuOpen(false)}>הזמנות</Link>
-                            <Link href="/category/transportation" onClick={() => setMobileMenuOpen(false)}>הסעות</Link>
-                            <Link href="/category/equipment-rental" onClick={() => setMobileMenuOpen(false)}>ציוד</Link>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="mobile-auth-footer">
-                    {!user ? (
-                        <div className="mobile-auth-btns">
-                            <Link href="/login" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>התחבר</Link>
-                            <Link href="/register" className="btn btn-outline" onClick={() => setMobileMenuOpen(false)}>הירשם</Link>
-                        </div>
-                    ) : (
-                        <div className="mobile-user-info">
-                            <span>מחובר כ: <strong>{user.name}</strong></span>
-                            <button className="btn btn-text" style={{ color: 'red' }} onClick={() => { logout(); setMobileMenuOpen(false); }}>התנתק</button>
-                        </div>
-                    )}
+                    <div className="mobile-auth-footer">
+                        {!user ? (
+                            <div className="mobile-auth-btns">
+                                <Link href="/login" className="btn btn-primary" onClick={closeMobileMenu}>התחבר</Link>
+                                <Link href="/register" className="btn btn-outline" onClick={closeMobileMenu}>הירשם</Link>
+                            </div>
+                        ) : (
+                            <div className="mobile-user-info">
+                                <span>מחובר כ: <strong>{user.name}</strong></span>
+                                <button type="button" className="btn btn-text" style={{ color: 'red' }} onClick={() => { logout(); closeMobileMenu(); }}>התנתק</button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </header>

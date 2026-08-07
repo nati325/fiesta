@@ -25,7 +25,7 @@ const EMPTY_VENDOR_FORM = {
     contact: '',
     description: '',
     image: '',
-    region: 'מרכז',
+    region: '',
     eventTypes: ['חתונה'],
     originalPrice: '',
     price: '',
@@ -380,9 +380,9 @@ function AdminPageInner() {
                 user={user}
                 onLogout={handleLogout}
                 tabs={[
-                    { id: 'vendors', label: 'ניהול ספקים', onClick: () => setActiveTab('vendors'), active: activeTab === 'vendors' },
-                    { id: 'customers', label: 'ניהול לקוחות', onClick: () => setActiveTab('customers'), active: activeTab === 'customers' },
-                    { id: 'stats', label: 'ביצועים וסטטיסטיקה', onClick: () => setActiveTab('stats'), active: activeTab === 'stats' },
+                    { id: 'vendors', label: 'ניהול ספקים', shortLabel: 'ספקים', onClick: () => setActiveTab('vendors'), active: activeTab === 'vendors' },
+                    { id: 'customers', label: 'ניהול לקוחות', shortLabel: 'לקוחות', onClick: () => setActiveTab('customers'), active: activeTab === 'customers' },
+                    { id: 'stats', label: 'ביצועים וסטטיסטיקה', shortLabel: 'סטטיסטיקה', onClick: () => setActiveTab('stats'), active: activeTab === 'stats' },
                 ]}
             />
 
@@ -764,7 +764,7 @@ function AdminPageInner() {
                             <input placeholder="חיפוש ספק לפי שם..." value={vendorSearch} onChange={e => setVendorSearch(e.target.value)} />
                         </div>
                     </div>
-                    <div className="crm-table-container">
+                    <div className="crm-table-container crm-desktop-only">
                         <table className="crm-table">
                             <thead>
                                 <tr>
@@ -890,6 +890,55 @@ function AdminPageInner() {
                             </tbody>
                         </table>
                     </div>
+
+                    <div className="crm-mobile-cards crm-mobile-only">
+                        {filteredVendors.map((v) => (
+                            <article key={v.id} className="crm-mobile-card">
+                                <div className="crm-mobile-card-header">
+                                    {v.image ? (
+                                        <img src={v.image} alt="" className="crm-mobile-card-thumb" />
+                                    ) : (
+                                        <div className="crm-mobile-card-thumb placeholder"><i className="fas fa-store" /></div>
+                                    )}
+                                    <div className="crm-mobile-card-title-wrap">
+                                        <div className="crm-mobile-card-title">{v.name}</div>
+                                        <span className="crm-badge crm-badge-info">{getCategoryLabel(v.type)}</span>
+                                    </div>
+                                </div>
+                                <div className="crm-mobile-card-meta">
+                                    {v.region ? <span>{v.region}</span> : null}
+                                    <span>{v.contact || 'לא הוזן טלפון'}</span>
+                                    {!v.price || String(v.price) === '0' ? (
+                                        <span className="warn">חסר מחיר</span>
+                                    ) : (
+                                        <span className="price">₪{v.price}</span>
+                                    )}
+                                    {v.agreementImage ? (
+                                        <span className="crm-badge crm-badge-success">הסכם חתום</span>
+                                    ) : (
+                                        <span className="crm-badge crm-badge-warning">ממתין לחוזה</span>
+                                    )}
+                                    {v.adminNotes && (
+                                        <span className="crm-mobile-card-note"><i className="fas fa-sticky-note" /> הערה</span>
+                                    )}
+                                </div>
+                                <div className="crm-mobile-card-actions">
+                                    <Link href={`/admin/vendors/${v.id}`} className="crm-mobile-action primary">
+                                        <i className="fas fa-pen" /> עריכה
+                                    </Link>
+                                    <button type="button" className="crm-mobile-action" onClick={() => sendVendorAvailabilityCheck(v)} title="בדוק זמינות">
+                                        <i className="far fa-calendar-check" />
+                                    </button>
+                                    <button type="button" className="crm-mobile-action" onClick={() => sendVendorDealSummary(v)} title="סיכום סגירה">
+                                        <i className="fas fa-file-invoice-dollar" />
+                                    </button>
+                                    <button type="button" className="crm-mobile-action danger" onClick={() => handleDeleteVendor(v.id, v.name)} title="מחק">
+                                        <i className="fas fa-trash" />
+                                    </button>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
                 </div>
             </motion.div>
                     )}
@@ -981,68 +1030,113 @@ function AdminPageInner() {
 
                     <div className="crm-card">
                         <h3>רשימת לידים</h3>
-                        <div className="crm-table-container" style={{ marginTop: '20px' }}>
-                            <table className="crm-table">
-                                <thead>
-                                    <tr>
-                                        <th>שם הלקוח</th>
-                                        <th>טלפון</th>
-                                        <th>סטטוס</th>
-                                        <th>פגישה</th>
-                                        <th style={{ textAlign: 'left' }}>פעולות</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {customers.map(c => (
-                                        <tr key={c.id}>
-                                            <td style={{ fontWeight: 700, color: '#1a1a1a' }}>{c.name}</td>
-                                            <td>
-                                                <a href={`tel:${c.phone}`} style={{ color: '#4a90e2' }}>{c.phone}</a>
-                                            </td>
-                                            <td>
-                                                <span className={`crm-badge ${c.status === 'ממתין לפגישה' ? 'crm-badge-warning' : c.status?.startsWith('סגר') ? 'crm-badge-success' : 'crm-badge-info'}`}>
-                                                    {c.status}
-                                                </span>
-                                                {c.closedWithTitle && (
-                                                    <div style={{ marginTop: '4px' }}>
-                                                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e7e34' }}>
-                                                            <i className="fas fa-check-circle"></i> {c.closedWithTitle}
-                                                        </div>
-                                                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2ecc71', background: '#eafaf1', display: 'inline-block', padding: '2px 8px', borderRadius: '4px', marginTop: '2px' }}>
-                                                            + ₪{vendors.find(v => String(v.id) === String(c.closedWithId))?.commissionAmount || 0}
-                                                        </div>
+                    <div className="crm-table-container crm-desktop-only" style={{ marginTop: '20px' }}>
+                        <table className="crm-table">
+                            <thead>
+                                <tr>
+                                    <th>שם הלקוח</th>
+                                    <th>טלפון</th>
+                                    <th>סטטוס</th>
+                                    <th>פגישה</th>
+                                    <th style={{ textAlign: 'left' }}>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {customers.map(c => (
+                                    <tr key={c.id}>
+                                        <td style={{ fontWeight: 700, color: '#1a1a1a' }}>{c.name}</td>
+                                        <td>
+                                            <a href={`tel:${c.phone}`} style={{ color: '#4a90e2' }}>{c.phone}</a>
+                                        </td>
+                                        <td>
+                                            <span className={`crm-badge ${c.status === 'ממתין לפגישה' ? 'crm-badge-warning' : c.status?.startsWith('סגר') ? 'crm-badge-success' : 'crm-badge-info'}`}>
+                                                {c.status}
+                                            </span>
+                                            {c.closedWithTitle && (
+                                                <div style={{ marginTop: '4px' }}>
+                                                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e7e34' }}>
+                                                        <i className="fas fa-check-circle"></i> {c.closedWithTitle}
                                                     </div>
-                                                )}
-                                            </td>
-                                            <td>
-                                                {c.meetingDate ? (
-                                                    <div style={{ fontSize: '0.85rem' }}>
-                                                        <div style={{ fontWeight: 600 }}>{new Date(c.meetingDate).toLocaleDateString('he-IL')}</div>
-                                                        <div style={{ fontSize: '0.75rem', color: getMeetingCountdown(c.meetingDate)?.color, fontWeight: 700 }}>
-                                                            {getMeetingCountdown(c.meetingDate)?.text}
-                                                        </div>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2ecc71', background: '#eafaf1', display: 'inline-block', padding: '2px 8px', borderRadius: '4px', marginTop: '2px' }}>
+                                                        + ₪{vendors.find(v => String(v.id) === String(c.closedWithId))?.commissionAmount || 0}
                                                     </div>
-                                                ) : '-'}
-                                            </td>
-                                            <td>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                                    {c.eventId && (
-                                                        <Link href={`/admin/rsvp?event=${c.eventId}`} className="btn-icon" style={{ color: '#9b59b6' }} title="ניהול RSVP">
-                                                            <i className="fas fa-envelope-open-text"></i>
-                                                        </Link>
-                                                    )}
-                                                    <a href={getWhatsAppMsg(c)} target="_blank" rel="noopener noreferrer" className="btn-icon" style={{ color: '#2ecc71' }} title="שלח ווטסאפ">
-                                                        <i className="fab fa-whatsapp"></i>
-                                                    </a>
-                                                    <button title="עריכה" onClick={() => { setEditingCustomer(c); setCustomerForm(c); }} className="btn-icon"><i className="fas fa-edit"></i></button>
-                                                    <button title="מחיקה" onClick={() => handleDeleteCustomer(c.id, c.name)} className="btn-icon" style={{ color: '#e74c3c' }}><i className="fas fa-trash"></i></button>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {c.meetingDate ? (
+                                                <div style={{ fontSize: '0.85rem' }}>
+                                                    <div style={{ fontWeight: 600 }}>{new Date(c.meetingDate).toLocaleDateString('he-IL')}</div>
+                                                    <div style={{ fontSize: '0.75rem', color: getMeetingCountdown(c.meetingDate)?.color, fontWeight: 700 }}>
+                                                        {getMeetingCountdown(c.meetingDate)?.text}
+                                                    </div>
+                                                </div>
+                                            ) : '-'}
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                {c.eventId && (
+                                                    <Link href={`/admin/rsvp?event=${c.eventId}`} className="btn-icon" style={{ color: '#9b59b6' }} title="ניהול RSVP">
+                                                        <i className="fas fa-envelope-open-text"></i>
+                                                    </Link>
+                                                )}
+                                                <a href={getWhatsAppMsg(c)} target="_blank" rel="noopener noreferrer" className="btn-icon" style={{ color: '#2ecc71' }} title="שלח ווטסאפ">
+                                                    <i className="fab fa-whatsapp"></i>
+                                                </a>
+                                                <button title="עריכה" onClick={() => { setEditingCustomer(c); setCustomerForm(c); }} className="btn-icon"><i className="fas fa-edit"></i></button>
+                                                <button title="מחיקה" onClick={() => handleDeleteCustomer(c.id, c.name)} className="btn-icon" style={{ color: '#e74c3c' }}><i className="fas fa-trash"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="crm-mobile-cards crm-mobile-only">
+                        {customers.map((c) => {
+                            const countdown = c.meetingDate ? getMeetingCountdown(c.meetingDate) : null;
+                            return (
+                                <article key={c.id} className="crm-mobile-card">
+                                    <div className="crm-mobile-card-header">
+                                        <div className="crm-mobile-card-title">{c.name}</div>
+                                        <span className={`crm-badge ${c.status === 'ממתין לפגישה' ? 'crm-badge-warning' : c.status?.startsWith('סגר') ? 'crm-badge-success' : 'crm-badge-info'}`}>
+                                            {c.status}
+                                        </span>
+                                    </div>
+                                    <div className="crm-mobile-card-meta">
+                                        <a href={`tel:${c.phone}`}>{c.phone}</a>
+                                        {c.meetingDate && (
+                                            <span style={{ color: countdown?.color }}>
+                                                {new Date(c.meetingDate).toLocaleDateString('he-IL')} · {countdown?.text}
+                                            </span>
+                                        )}
+                                        {c.closedWithTitle && (
+                                            <span className="crm-mobile-card-note success">
+                                                <i className="fas fa-check-circle" /> {c.closedWithTitle}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="crm-mobile-card-actions">
+                                        {c.eventId && (
+                                            <Link href={`/admin/rsvp?event=${c.eventId}`} className="crm-mobile-action" title="RSVP">
+                                                <i className="fas fa-envelope-open-text" />
+                                            </Link>
+                                        )}
+                                        <a href={getWhatsAppMsg(c)} target="_blank" rel="noopener noreferrer" className="crm-mobile-action whatsapp" title="ווטסאפ">
+                                            <i className="fab fa-whatsapp" />
+                                        </a>
+                                        <button type="button" className="crm-mobile-action edit" onClick={() => { setEditingCustomer(c); setCustomerForm(c); }}>
+                                            <i className="fas fa-edit" /> עריכה
+                                        </button>
+                                        <button type="button" className="crm-mobile-action danger" onClick={() => handleDeleteCustomer(c.id, c.name)} title="מחק">
+                                            <i className="fas fa-trash" />
+                                        </button>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
                     </div>
                 </motion.div>
             )}

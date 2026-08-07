@@ -25,6 +25,11 @@ function RSVPContent() {
     const [eventLoading, setEventLoading] = useState(true);
 
     useEffect(() => {
+        document.body.classList.add('studio-mode');
+        return () => document.body.classList.remove('studio-mode');
+    }, []);
+
+    useEffect(() => {
         if (searchParams.get('shuttle') === '1') {
             setHasShuttleSetting(true);
         }
@@ -410,17 +415,17 @@ function RSVPContent() {
                     outline: none; border-color: var(--primary); background: white;
                 }
 
-                .number-stepper { display: flex; align-items: center; gap: 20px; background: #f8f9fa; width: fit-content; padding: 5px; border-radius: 12px; }
-                .number-stepper button { width: 35px; height: 35px; border-radius: 10px; border: none; background: white; font-weight: 900; cursor: pointer; transition: 0.2s; }
+                .number-stepper { display: flex; align-items: center; gap: 16px; background: #f8f9fa; width: fit-content; padding: 6px; border-radius: 12px; }
+                .number-stepper button { width: 44px; height: 44px; border-radius: 10px; border: none; background: white; font-weight: 900; cursor: pointer; transition: 0.2s; }
                 .number-stepper.mini { gap: 10px; }
-                .number-stepper.mini button { width: 30px; height: 30px; font-size: 0.8rem; }
-                .number-stepper.mini span { font-size: 1rem; min-width: 20px; }
+                .number-stepper.mini button { width: 44px; height: 44px; font-size: 0.9rem; }
+                .number-stepper.mini span { font-size: 1rem; min-width: 24px; text-align: center; }
                 
                 .dietary-options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
 
-                .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; }
+                .checkbox-container { display: flex; align-items: center; gap: 12px; cursor: pointer; font-weight: 700; min-height: 44px; }
                 .checkbox-container input { display: none; }
-                .checkmark { width: 20px; height: 20px; border: 2px solid #ddd; border-radius: 6px; display: inline-block; position: relative; transition: 0.2s; }
+                .checkmark { width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 6px; display: inline-block; position: relative; transition: 0.2s; flex-shrink: 0; }
                 .checkbox-container input:checked + .checkmark { background: var(--primary); border-color: var(--primary); }
                 .checkmark:after { content: '✔'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.7rem; opacity: 0; }
                 .checkbox-container input:checked + .checkmark:after { opacity: 1; }
@@ -449,7 +454,7 @@ function RSVPContent() {
                 @media (max-width: 480px) {
                     .rsvp-root { padding: 16px !important; }
                     .glass-card { padding: 28px 16px; border-radius: 24px; }
-                    .couple-names { font-size: 2rem !important; }
+                    .couple-names { font-size: 2rem; }
                     .success-actions { grid-template-columns: 1fr; }
                     .success-card p { font-size: 1.05rem; }
                 }

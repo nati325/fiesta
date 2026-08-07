@@ -46,14 +46,16 @@ function buildVendorOptions(vendor, guests) {
     const push = (title, priceRaw, image) => {
         const price = plannerUnitPrice(priceRaw, guests);
         if (price == null || price <= 0) return;
-        const key = `${vendor.id}|${title}|${price}`;
+        const label = (title || '').trim() || (vendor.name || '').trim();
+        if (!label) return;
+        const key = `${vendor.id}|${label}|${price}`;
         if (seen.has(key)) return;
         seen.add(key);
         options.push({
             vendorId: String(vendor.id),
             vendorName: vendor.name,
             vendorImage: vendor.image,
-            title: title || 'חבילת Fiesta',
+            title: label,
             price,
             image: image || vendor.image || '',
         });
@@ -64,12 +66,12 @@ function buildVendorOptions(vendor, guests) {
     if (packages.length > 0) {
         [...packages]
             .sort((a, b) => (parsePrice(a.price) ?? Infinity) - (parsePrice(b.price) ?? Infinity))
-            .forEach((p) => push(p.name || p.title || 'חבילה', p.price, p.image));
+            .forEach((p) => push(p.name || p.title || '', p.price, p.image));
     }
 
-    // Fallback: vendor-level price (not gallery portfolio photos)
+    // Fallback: vendor-level price with vendor name (no invented package title)
     if (options.length === 0 && hasValidPrice(vendor.price)) {
-        push('חבילת Fiesta', vendor.price, vendor.image);
+        push(vendor.name || '', vendor.price, vendor.image);
     }
 
     // Only portfolio rows that actually have a real price (rare legacy)
@@ -77,7 +79,7 @@ function buildVendorOptions(vendor, guests) {
         vendor.portfolio.forEach((item) => {
             if (!item || typeof item === 'string') return;
             if (!hasValidPrice(item.price)) return;
-            push(item.title || item.name || 'חבילה', item.price, item.image);
+            push(item.title || item.name || '', item.price, item.image);
         });
     }
 
@@ -233,7 +235,7 @@ function BudgetPlannerContent() {
             <div className="container main-content">
                 <div className="planner-grid">
                     <div className="planner-sidebar">
-                        <div className="glass-card">
+                        <div className={`glass-card ${activeTab === 'results' ? 'mobile-hide-on-results' : ''}`}>
                             <h3 className="section-title">
                                 <i className="fas fa-sliders-h"></i> הגדרות האירוע
                             </h3>
@@ -727,11 +729,12 @@ function BudgetPlannerContent() {
                 .desktop-hide { display: none; }
 
                 @media (max-width: 900px) {
-                    .planner-page { padding-bottom: 24px; }
+                    .planner-page { padding-bottom: calc(var(--mobile-chrome-clearance, 88px) + 16px); }
                     .planner-hero { padding: 24px 0 20px; }
                     .planner-hero-content h1 { font-size: 1.75rem; }
                     .planner-grid { grid-template-columns: 1fr; }
                     .glass-card { position: relative; top: 0; border-radius: 12px; padding: 20px 16px; }
+                    .glass-card.mobile-hide-on-results { display: none; }
                     .desktop-hide { display: block; }
                     .results-header h3 { font-size: 1.1rem; }
                     .combo-main { flex-direction: column; align-items: flex-start; gap: 10px; }

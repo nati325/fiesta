@@ -44,7 +44,7 @@ function ServiceRow({ item, isAddon = false, isFeatured = false }) {
             </div>
             <div style={{ flex: 1, textAlign: 'right' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-dark)', margin: '0 0 4px 0', fontFamily: 'var(--font-main)' }}>
-                    {item.title || item.name || 'שירות מותאם אישית'}
+                    {item.title || item.name || ''}
                 </h3>
                 {item.description && (
                     <p style={{ fontSize: '0.82rem', color: 'var(--text-light)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
@@ -132,7 +132,7 @@ export default function VendorDetailPage() {
         'personal-training': 'כושר ואימון',
     };
 
-    const categoryLabel = categoryLabels[vendor.type] || 'ספק מובחר';
+    const categoryLabel = categoryLabels[vendor.type] || vendor.type || '';
 
     // Unique real images only — no category/stock defaults
     const collectVendorImages = () => {
@@ -259,13 +259,17 @@ export default function VendorDetailPage() {
                     </div>
                     
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', color: 'var(--text-light)', marginBottom: '20px', fontWeight: 500, fontSize: '0.95rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className="fas fa-map-marker-alt"></i>
-                            <span>{vendor.region || vendor.location || 'כל הארץ'}</span>
-                        </div>
-                        {vendor.googleRating != null && String(vendor.googleRating).trim() !== '' && Number(vendor.googleRating) > 0 && (
+                        {(vendor.region || vendor.location) ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <i className="fas fa-map-marker-alt"></i>
+                                <span>{vendor.region || vendor.location}</span>
+                            </div>
+                        ) : null}
+                        {vendor.googleRating != null && String(vendor.googleRating).trim() !== '' && Number(vendor.googleRating) > 0 && Number(vendor.googleReviewsCount) > 0 && (
                             <>
-                                <div style={{ width: '1px', height: '14px', background: '#e5e2dc' }}></div>
+                                {(vendor.region || vendor.location) ? (
+                                    <div style={{ width: '1px', height: '14px', background: '#e5e2dc' }}></div>
+                                ) : null}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-color)' }}>
                                     <i className="fas fa-star"></i>
                                     <span style={{ color: 'var(--text-dark)' }}>
@@ -300,11 +304,7 @@ export default function VendorDetailPage() {
                                 </div>
                             )}
                         </div>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
-                            <span style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-dark)' }}>לתיאום מחיר</span>
-                        </div>
-                    )}
+                    ) : null}
 
                     {vendor.description ? (
                         <div style={{ maxWidth: '680px', margin: '0 auto 40px' }}>
@@ -326,7 +326,9 @@ export default function VendorDetailPage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 {vendor.reviews.map((review, idx) => {
                                     if (!review?.text) return null;
-                                    const stars = Math.max(0, Math.min(5, Math.round(Number(review.rating) || 5)));
+                                    const rawRating = Number(review.rating);
+                                    const hasStars = Number.isFinite(rawRating) && rawRating > 0;
+                                    const stars = hasStars ? Math.max(1, Math.min(5, Math.round(rawRating))) : 0;
                                     return (
                                         <div
                                             key={idx}
@@ -339,14 +341,20 @@ export default function VendorDetailPage() {
                                             }}
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '8px' }}>
-                                                <span style={{ fontWeight: 600, color: 'var(--text-dark)', fontSize: '0.95rem' }}>
-                                                    {review.reviewer || 'לקוח'}
-                                                </span>
-                                                <div style={{ color: 'var(--primary-color)', display: 'flex', gap: '2px', fontSize: '0.75rem' }}>
-                                                    {[...Array(stars)].map((_, i) => (
-                                                        <i key={i} className="fas fa-star"></i>
-                                                    ))}
-                                                </div>
+                                                {review.reviewer ? (
+                                                    <span style={{ fontWeight: 600, color: 'var(--text-dark)', fontSize: '0.95rem' }}>
+                                                        {review.reviewer}
+                                                    </span>
+                                                ) : (
+                                                    <span />
+                                                )}
+                                                {hasStars && (
+                                                    <div style={{ color: 'var(--primary-color)', display: 'flex', gap: '2px', fontSize: '0.75rem' }} aria-label={`דירוג ${stars} מתוך 5`}>
+                                                        {[...Array(stars)].map((_, i) => (
+                                                            <i key={i} className="fas fa-star"></i>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                             <p style={{ margin: 0, color: 'var(--text-light)', lineHeight: 1.65, fontSize: '0.95rem' }}>
                                                 {review.text}
@@ -559,7 +567,7 @@ export default function VendorDetailPage() {
                 .vendor-page {
                     min-height: 100vh;
                     background: var(--white);
-                    padding-bottom: 24px;
+                    padding-bottom: calc(var(--mobile-chrome-clearance, 24px) + 8px);
                 }
                 .vendor-hero {
                     height: 38vh;
@@ -584,13 +592,13 @@ export default function VendorDetailPage() {
                 }
                 .vendor-back-btn {
                     position: absolute;
-                    top: 20px;
+                    top: calc(12px + env(safe-area-inset-top, 0px));
                     right: 20px;
                     z-index: 10;
                     color: white;
                     background: rgba(0,0,0,0.35);
-                    width: 40px;
-                    height: 40px;
+                    width: 44px;
+                    height: 44px;
                     border-radius: 8px;
                     border: 1px solid rgba(255,255,255,0.15);
                     cursor: pointer;
@@ -800,7 +808,7 @@ export default function VendorDetailPage() {
                 }
                 .vendor-lightbox-close {
                     position: absolute;
-                    top: 16px;
+                    top: calc(16px + env(safe-area-inset-top, 0px));
                     left: 16px;
                     width: 44px;
                     height: 44px;

@@ -111,13 +111,17 @@ function SearchResultsContent() {
                                     </div>
                                     <div className="card-info">
                                         <h3>{v.name}</h3>
-                                        <div className="location"><i className="fas fa-map-marker-alt"></i> {v.region || 'כל הארץ'}</div>
-                                        <div className="price-row">
-                                            <span className="price">{priceInfo.display || 'לתיאום מחיר'}</span>
-                                            {priceInfo.originalDisplay && (
-                                                <span className="old-price">{priceInfo.originalDisplay}</span>
-                                            )}
-                                        </div>
+                                        {v.region ? (
+                                            <div className="location"><i className="fas fa-map-marker-alt"></i> {v.region}</div>
+                                        ) : null}
+                                        {priceInfo.display ? (
+                                            <div className="price-row">
+                                                <span className="price">{priceInfo.display}</span>
+                                                {priceInfo.originalDisplay && (
+                                                    <span className="old-price">{priceInfo.originalDisplay}</span>
+                                                )}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </Link>
                             </motion.div>
@@ -259,6 +263,7 @@ function SearchResultsContent() {
                 @media (max-width: 768px) {
                     .search-results-page {
                         padding-top: 88px;
+                        padding-bottom: calc(var(--mobile-chrome-clearance, 88px) + 16px);
                     }
                     .results-header {
                         padding: 28px 0;
@@ -273,7 +278,7 @@ function SearchResultsContent() {
                     .vendors-grid {
                         grid-template-columns: 1fr;
                         gap: 14px;
-                        padding-bottom: 24px;
+                        padding-bottom: 8px;
                     }
                     .card-image { height: 180px; }
                     .card-info { padding: 16px; }

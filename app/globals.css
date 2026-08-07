@@ -378,6 +378,18 @@ body:not(.admin-area) img {
     cursor: pointer;
 }
 
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1990;
+    background: rgba(20, 18, 16, 0.45);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
 .mobile-nav {
     position: fixed;
     top: 0;
@@ -385,19 +397,33 @@ body:not(.admin-area) img {
     width: 85%;
     max-width: 400px;
     height: 100vh;
+    height: 100dvh;
     background: white;
-    padding: 20px;
+    padding: 20px 20px 0;
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    gap: 0;
+    transition: right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     z-index: 2000;
-    overflow-y: auto;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .mobile-nav.open {
     right: 0;
+}
+
+.mobile-nav-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
 .mobile-nav-header {
@@ -405,7 +431,15 @@ body:not(.admin-area) img {
     justify-content: space-between;
     align-items: center;
     padding-bottom: 20px;
+    margin-bottom: 16px;
     border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+    .mobile-nav-overlay {
+        display: block;
+    }
 }
 
 .mobile-main-links {
@@ -470,9 +504,10 @@ body:not(.admin-area) img {
 }
 
 .mobile-auth-footer {
-    margin-top: auto;
+    margin-top: 8px;
     padding-top: 20px;
     border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
 }
 
 .mobile-auth-btns {
@@ -1102,7 +1137,7 @@ body:not(.admin-area) img {
 
 @media (max-width: 768px) {
     .footer {
-        padding: 28px 0 calc(20px + var(--safe-bottom));
+        padding: 28px 0 calc(var(--mobile-chrome-clearance, 72px) + 12px);
     }
 
     .footer-free-msg {
@@ -1112,8 +1147,12 @@ body:not(.admin-area) img {
     }
 
     .footer-admin-link a {
-        font-size: 0.65rem;
-        opacity: 0.35;
+        font-size: 0.8rem;
+        opacity: 0.7;
+        padding: 10px 14px;
+        display: inline-block;
+        min-height: 44px;
+        line-height: 24px;
     }
 }
 
@@ -1513,44 +1552,44 @@ body:not(.admin-area) img {
     overflow-x: hidden;
 }
 
-/* Global Responsive Typography */
+/* Global Responsive Typography — no !important so page styles can win */
 @media (max-width: 768px) {
     h1 {
-        font-size: 2.5rem !important;
+        font-size: 2.2rem;
     }
 
     h2 {
-        font-size: 2rem !important;
+        font-size: 1.8rem;
     }
 
     h3 {
-        font-size: 1.5rem !important;
+        font-size: 1.4rem;
     }
 
     .hero h1 {
-        font-size: 2.2rem !important;
+        font-size: 2.2rem;
     }
 
     .hero h2 {
-        font-size: 1.4rem !important;
+        font-size: 1.4rem;
     }
 }
 
 @media (max-width: 480px) {
     h1 {
-        font-size: 2rem !important;
+        font-size: 1.85rem;
     }
 
     h2 {
-        font-size: 1.8rem !important;
+        font-size: 1.55rem;
     }
 
     .hero h1 {
-        font-size: 1.8rem !important;
+        font-size: 1.8rem;
     }
 
     .hero h2 {
-        font-size: 1.2rem !important;
+        font-size: 1.2rem;
     }
 }
 
@@ -1579,8 +1618,18 @@ body:not(.admin-area) img {
 }
 
 @media (max-width: 768px) {
+    :root {
+        /* Pill ~62px + 10px inset from bottom + breathing room so content isn't covered */
+        --mobile-nav-height: 62px;
+        --mobile-bottom-gap: 14px;
+        --mobile-chrome-clearance: calc(
+            var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
+        );
+    }
+
     .whatsapp-float-compact {
-        bottom: calc(16px + var(--safe-bottom));
+        /* Sit above the bottom nav pill, never over content */
+        bottom: calc(var(--mobile-chrome-clearance) + 8px);
         right: 12px;
         width: 54px;
         height: 54px;
@@ -1592,11 +1641,19 @@ body:not(.admin-area) img {
     }
 
     .app > main {
-        padding-bottom: 72px;
+        padding-bottom: var(--mobile-chrome-clearance);
     }
 
     .footer {
-        padding-bottom: calc(72px + var(--safe-bottom));
+        padding-bottom: calc(var(--mobile-chrome-clearance) + 12px);
+    }
+
+    .mobile-menu-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: none;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -1792,6 +1849,20 @@ body.studio-mode .app > main {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+}
+
+.crm-nav-desktop-links {
+    display: contents;
+}
+
+.crm-nav-more {
+    display: none;
+    position: relative;
+}
+
+.crm-tab-label-short {
+    display: none;
 }
 
 .crm-logo {
@@ -2449,14 +2520,17 @@ body.studio-mode .app > main {
 @media (max-width: 768px) {
     :root {
         --section-padding: 60px 0;
-        --mobile-nav-height: 0px;
-        --mobile-bottom-gap: 0px;
+        --mobile-nav-height: 62px;
+        --mobile-bottom-gap: 14px;
+        --mobile-chrome-clearance: calc(
+            var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
+        );
     }
 
-    /* Typography */
-    h1 { font-size: 2.2rem !important; }
-    h2 { font-size: 1.8rem !important; }
-    h3 { font-size: 1.4rem !important; }
+    /* Typography — soft defaults, pages can override */
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.4rem; }
     
     /* Global Spacing */
     .container {
@@ -2465,64 +2539,76 @@ body.studio-mode .app > main {
 
     /* Buttons - Compact & Comfortable */
     .btn {
-        padding: 10px 20px !important;
-        font-size: 0.95rem !important;
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        min-height: 44px;
     }
 
     /* Navbar Mobile Fixes */
     .header-container {
-        padding: 10px 15px !important;
+        padding: 10px 15px;
     }
     
     .logo h1 {
-        font-size: 1.3rem !important;
+        font-size: 1.3rem;
+    }
+
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
+    /* Inputs — prevent iOS zoom */
+    input,
+    select,
+    textarea {
+        font-size: 16px;
     }
 
     /* Hero Section Mobile */
     .hero {
-        height: 40vh !important;
-        min-height: 320px !important;
+        height: 40vh;
+        min-height: 320px;
     }
 
     .hero-content {
-        padding: 0 10px !important;
+        padding: 0 10px;
     }
 
     /* Search Bar Mobile (Integrated) */
     .premium-search-bar {
-        flex-direction: column !important;
-        border-radius: 20px !important;
-        padding: 15px !important;
-        gap: 10px !important;
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 15px;
+        gap: 10px;
     }
 
     .search-field {
-        width: 100% !important;
-        padding: 12px 10px !important;
-        border: 1px solid #f0f0f0 !important;
-        border-radius: 12px !important;
+        width: 100%;
+        padding: 12px 10px;
+        border: 1px solid #f0f0f0;
+        border-radius: 12px;
     }
 
     .search-divider {
-        display: none !important;
+        display: none;
     }
 
     .premium-search-btn-luxury {
-        width: 100% !important;
-        margin: 10px 0 0 0 !important;
-        border-radius: 12px !important;
-        padding: 15px !important;
+        width: 100%;
+        margin: 10px 0 0 0;
+        border-radius: 12px;
+        padding: 15px;
     }
 
     /* Category Grid - 2 Columns on Mobile */
     .services-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-        padding: 10px 5px !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px 5px;
     }
 
     .premium-service-card {
-        height: 160px !important;
+        height: 160px;
         border-radius: 16px !important;
     }
 
@@ -2557,19 +2643,19 @@ body.studio-mode .app > main {
 
 @media (max-width: 480px) {
     /* Even smaller adjustments for small phones */
-    h1 { font-size: 1.8rem !important; }
+    h1 { font-size: 1.8rem; }
     
     .services-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
     }
     
     .premium-service-card {
-        height: 140px !important;
+        height: 140px;
     }
     
     .premium-service-card h3 {
-        font-size: 0.9rem !important;
+        font-size: 0.9rem;
     }
 }
 
@@ -2619,29 +2705,82 @@ body.studio-mode .app > main {
     }
 
     body.admin-mode .crm-nav-container {
-        flex-direction: column;
-        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "logo user"
+            "links links";
+        align-items: center;
         gap: 12px;
         padding: 0 14px;
     }
 
-    body.admin-mode .crm-nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
+    body.admin-mode .crm-logo {
+        grid-area: logo;
+    }
+
+    body.admin-mode .crm-user {
+        grid-area: user;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
         gap: 8px;
+        font-size: 0.78rem;
+        flex-shrink: 0;
+    }
+
+    body.admin-mode .crm-nav-links {
+        grid-area: links;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: stretch;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
     }
 
     body.admin-mode .crm-nav-links button,
     body.admin-mode .crm-nav-links .nav-btn-special {
-        padding: 8px 12px;
+        padding: 10px 12px;
         font-size: 0.78rem;
+        white-space: nowrap;
+        flex: 1 1 auto;
+        min-height: 44px;
+        justify-content: center;
     }
 
-    body.admin-mode .crm-user {
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        font-size: 0.8rem;
+    body.admin-mode .crm-tab-label-full {
+        display: none;
+    }
+
+    body.admin-mode .crm-tab-label-short {
+        display: inline;
+    }
+
+    body.admin-mode .crm-nav-desktop-links {
+        display: none;
+    }
+
+    body.admin-mode .crm-nav-more {
+        display: block;
+        flex: 0 0 auto;
+    }
+
+    body.admin-mode .crm-nav-more-btn {
+        width: 100%;
+    }
+
+    body.admin-mode .crm-nav-more-menu {
+        left: auto;
+        right: 0;
+        width: min(240px, 70vw);
+    }
+
+    body.admin-mode .crm-user-greeting {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     body.admin-mode .crm-main {
@@ -2729,6 +2868,15 @@ body.studio-mode .app > main {
     body.admin-mode .vendor-advanced-panel div[style*="repeat(3, 1fr)"] {
         grid-template-columns: 1fr 1fr !important;
     }
+
+    body.admin-mode .crm-desktop-only {
+        display: none !important;
+    }
+
+    body.admin-mode .crm-mobile-only,
+    body.admin-mode .crm-mobile-cards {
+        display: flex !important;
+    }
 }
 
 /* Larger save CTA on vendor edit / quick-add (desktop + mobile) */
@@ -2806,6 +2954,198 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     color: #111;
     border-color: var(--primary-color);
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+}
+
+/* Desktop/mobile visibility helpers for CRM lists */
+.crm-mobile-only {
+    display: none;
+}
+
+.crm-desktop-only {
+    display: block;
+}
+
+.crm-mobile-cards {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.crm-mobile-card {
+    background: #fff;
+    border: 1px solid #e8edf2;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.crm-mobile-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.crm-mobile-card-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #f1f5f9;
+}
+
+.crm-mobile-card-thumb.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.crm-mobile-card-title-wrap {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.crm-mobile-card-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #1a1a1a;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.crm-mobile-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 12px;
+}
+
+.crm-mobile-card-meta a {
+    color: #4a90e2;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.crm-mobile-card-meta .price {
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+.crm-mobile-card-meta .warn {
+    font-weight: 700;
+    color: #c0392b;
+}
+
+.crm-mobile-card-note {
+    font-size: 0.75rem;
+    color: #856404;
+    background: #fff9e6;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.crm-mobile-card-note.success {
+    color: #1e7e34;
+    background: #eafaf1;
+}
+
+.crm-mobile-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.crm-mobile-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: var(--font-main);
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.crm-mobile-action.primary {
+    flex: 1;
+    background: #16a34a;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.28);
+}
+
+.crm-mobile-action.edit {
+    flex: 1;
+    background: #2ecc71;
+    color: #fff;
+}
+
+.crm-mobile-action.whatsapp {
+    background: #e8f8ef;
+    color: #25d366;
+}
+
+.crm-mobile-action.danger {
+    background: #fdecea;
+    color: #e74c3c;
+}
+
+.crm-nav-more-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    min-width: 200px;
+    background: #1a1a1a;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 14px;
+    padding: 8px;
+    z-index: 1100;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crm-nav-more-menu a {
+    display: block;
+    padding: 12px 14px;
+    min-height: 44px;
+    border-radius: 10px;
+    color: #e0e0e0;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+.crm-nav-more-menu a:hover,
+.crm-nav-more-menu a.active {
+    background: var(--primary-color);
+    color: #111;
 }
 
 /* ===== Fiesta homepage hero (premium floral stage) ===== */
@@ -3135,7 +3475,7 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
         --flower-w: clamp(148px, 40vw, 198px);
         --flower-out: 10%;
         --content-side: calc(var(--flower-w) * 0.58 + 8px);
-        min-height: min(88vh, 720px);
+        min-height: min(62vh, 520px);
         height: auto !important;
         align-items: flex-start;
     }
@@ -3150,7 +3490,7 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
     .fiesta-hero__content {
         max-width: calc(100% - (2 * var(--content-side)));
-        padding: 40px 6px 96px;
+        padding: 36px 6px 56px;
     }
 
     .fiesta-hero__brand {
@@ -3194,7 +3534,7 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
         text-align: center;
         min-height: 52px;
         padding: 12px 8px;
-        font-size: clamp(0.74rem, 3vw, 0.86rem);
+        font-size: clamp(0.86rem, 3.2vw, 0.95rem);
         font-weight: 600;
         letter-spacing: 0;
         line-height: 1.25;
@@ -3209,7 +3549,21 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     }
 
     .fiesta-hero__scroll {
-        bottom: 18px;
+        bottom: 14px;
+    }
+}
+
+@media (max-width: 380px) {
+    .fiesta-hero__actions {
+        flex-direction: column;
+        width: 100%;
+        margin-inline: 0;
+        gap: 10px;
+    }
+
+    .fiesta-hero__btn-primary,
+    .fiesta-hero__btn-secondary {
+        font-size: 0.92rem;
     }
 }
 
@@ -3358,18 +3712,18 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
 @media (max-width: 900px) {
     .budget-invite {
-        margin-top: 40px;
-        padding: 72px 0;
+        margin-top: 24px;
+        padding: 64px 0;
     }
 }
 
 @media (max-width: 768px) {
     .budget-invite {
-        margin-top: 32px;
-        padding: 56px 0;
+        margin-top: 0;
+        padding: 40px 0;
     }
 
-    .budget-invite__coin:nth-child(n + 14) {
+    .budget-invite__coin:nth-child(n + 7) {
         display: none;
     }
 

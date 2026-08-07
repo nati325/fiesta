@@ -7,8 +7,9 @@ import PackagesCarousel from '@/components/PackagesCarousel';
 import Hero3D from '@/components/Hero3D';
 import BudgetInvite from '@/components/BudgetInvite';
 import { useAuth } from '@/context/AuthContext';
-import { resolveHomepageVendorImage } from '@/lib/vendorImage';
+import { resolveHomepageVendorImage, hasRealImage } from '@/lib/vendorImage';
 import { getVendorDisplayPrice } from '@/lib/vendorPrice';
+import VendorNoImage from '@/components/VendorNoImage';
 
 const SUPPLIER_GROUPS = [
     {
@@ -211,15 +212,23 @@ export default function HomePage() {
                                 <p>הכי מתאימים, הכי משתלמים</p>
                             </div>
                             <div className="p-items">
-                                {vendors.filter(matchesEventPreference).slice(0, 4).map(v => (
+                                {vendors.filter(matchesEventPreference).slice(0, 4).map(v => {
+                                    const img = resolveHomepageVendorImage(v.image);
+                                    const price = getVendorDisplayPrice(v).display;
+                                    return (
                                     <Link href={`/vendor/${v.id}`} key={v.id} className="p-item">
-                                        <img src={resolveHomepageVendorImage(v.image, CATEGORY_IMAGES[v.type])} alt={v.name} />
+                                        {hasRealImage(img) ? (
+                                            <img src={img} alt={v.name} />
+                                        ) : (
+                                            <div className="p-item-no-img"><VendorNoImage compact label="אין תמונה" /></div>
+                                        )}
                                         <div className="p-info">
                                             <strong>{v.name}</strong>
-                                            <span>{getVendorDisplayPrice(v).display || 'לתיאום מחיר'}</span>
+                                            {price ? <span>{price}</span> : null}
                                         </div>
                                     </Link>
-                                ))}
+                                    );
+                                })}
                                 {vendors.filter(matchesEventPreference).length === 0 && (
                                     <p style={{ color: 'rgba(255,255,255,0.75)', margin: 0, fontSize: '0.95rem' }}>
                                         עדיין אין ספקים מסומנים לסוג אירוע זה — דפדפו בקטגוריות למטה.
@@ -435,6 +444,13 @@ export default function HomePage() {
                 }
                 .p-item:hover { background: rgba(255,255,255,0.1); }
                 .p-item img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
+                .p-item-no-img {
+                    width: 48px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+                }
+                .p-item-no-img :global(.vendor-no-image) { min-height: 48px; padding: 4px; gap: 2px; }
+                .p-item-no-img :global(.vendor-no-image i) { font-size: 0.85rem; }
+                .p-item-no-img :global(.vendor-no-image span) { font-size: 0.55rem; }
+                .p-item-no-img :global(.vendor-no-image small) { display: none; }
                 .p-info { display: flex; flex-direction: column; text-align: right; }
                 .p-info strong { font-size: 0.88rem; font-weight: 600; }
                 .p-info span { color: var(--primary-color); font-weight: 600; font-size: 0.82rem; }
@@ -507,7 +523,18 @@ export default function HomePage() {
                     .cat-card-visual { height: 140px; }
                     .personal-banner-section { padding-bottom: 48px; }
                     .p-banner { padding: 24px 18px; border-radius: 14px; }
-                    .contact-section { padding: 48px 0 64px; }
+                    .contact-section { padding: 48px 0 calc(var(--mobile-chrome-clearance, 64px) + 24px); }
+                    .c-perks {
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    .p-items {
+                        scroll-snap-type: x mandatory;
+                        -webkit-overflow-scrolling: touch;
+                        padding-bottom: 4px;
+                    }
+                    .p-item { scroll-snap-align: start; flex-shrink: 0; }
                 }
 
                 @media (max-width: 480px) {

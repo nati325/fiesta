@@ -1892,8 +1892,8 @@ export default function DesignInvitationPage() {
                     flex-shrink: 0;
                 }
                 .back {
-                    width: 36px;
-                    height: 36px;
+                    width: 44px;
+                    height: 44px;
                     border-radius: 8px;
                     background: #f7f6f4;
                     border: 1px solid rgba(0,0,0,0.08);
@@ -1939,7 +1939,7 @@ export default function DesignInvitationPage() {
                 .dock-nav {
                     flex-shrink: 0;
                     min-width: 64px;
-                    height: 40px;
+                    height: 44px;
                     padding: 0 12px;
                     border-radius: 12px;
                     border: 1px solid #e5e2dc;

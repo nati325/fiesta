@@ -157,7 +157,7 @@ export default function CategoryPage() {
                                 const priceInfo = getVendorDisplayPrice(v);
                                 const displayName = v.name;
                                 const discountBadge = getVendorDiscountBadge(v);
-                                const hasRating = v.googleRating != null && String(v.googleRating).trim() !== '' && Number(v.googleRating) > 0;
+                                const hasRating = v.googleRating != null && String(v.googleRating).trim() !== '' && Number(v.googleRating) > 0 && Number(v.googleReviewsCount) > 0;
 
                                 return (
                                     <motion.article
@@ -206,10 +206,12 @@ export default function CategoryPage() {
                                             <h3 className="vendor-card-title">{displayName}</h3>
 
                                             <div className="vendor-card-meta">
-                                                <span className="vendor-card-loc">
-                                                    <i className="fas fa-map-marker-alt"></i>
-                                                    {v.location || v.region || 'כל הארץ'}
-                                                </span>
+                                                {(v.location || v.region) ? (
+                                                    <span className="vendor-card-loc">
+                                                        <i className="fas fa-map-marker-alt"></i>
+                                                        {v.location || v.region}
+                                                    </span>
+                                                ) : null}
                                                 {hasRating && (
                                                     <span className="vendor-card-rating">
                                                         <i className="fas fa-star"></i>
@@ -231,11 +233,7 @@ export default function CategoryPage() {
                                                         <span className="vendor-card-packages">{packageCount} חבילות</span>
                                                     )}
                                                 </div>
-                                            ) : (
-                                                <div className="vendor-card-price-row">
-                                                    <span className="vendor-card-price" style={{ fontSize: '0.95rem' }}>לתיאום מחיר</span>
-                                                </div>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </motion.article>
                                 );
@@ -249,7 +247,7 @@ export default function CategoryPage() {
                 .category-page {
                     min-height: 100vh;
                     background: var(--white);
-                    padding-bottom: 24px;
+                    padding-bottom: calc(var(--mobile-chrome-clearance, 24px) + 8px);
                 }
                 .category-hero {
                     height: 32vh;
@@ -298,13 +296,13 @@ export default function CategoryPage() {
                 }
                 .category-back-btn {
                     position: absolute;
-                    top: 16px;
+                    top: calc(12px + env(safe-area-inset-top, 0px));
                     left: 20px;
                     z-index: 10;
                     color: white;
                     background: rgba(0,0,0,0.35);
-                    width: 40px;
-                    height: 40px;
+                    width: 44px;
+                    height: 44px;
                     border-radius: 8px;
                     border: 1px solid rgba(255,255,255,0.15);
                     cursor: pointer;
@@ -351,7 +349,7 @@ export default function CategoryPage() {
                     white-space: nowrap;
                     transition: border-color 0.2s, background 0.2s, color 0.2s;
                     font-family: inherit;
-                    min-height: 40px;
+                    min-height: 44px;
                     flex-shrink: 0;
                 }
                 .category-sort-chip.active {
@@ -424,8 +422,8 @@ export default function CategoryPage() {
                 .vendor-card-fav {
                     background: white;
                     border: none;
-                    width: 36px;
-                    height: 36px;
+                    width: 44px;
+                    height: 44px;
                     border-radius: 8px;
                     display: flex;
                     align-items: center;

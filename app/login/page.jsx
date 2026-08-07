@@ -226,8 +226,14 @@ export default function LoginPage() {
                     text-underline-offset: 3px;
                 }
                 @media (max-width: 480px) {
-                    .auth-page { padding: 88px 12px 32px; }
+                    .auth-page { padding: 88px 12px calc(32px + env(safe-area-inset-bottom, 0px)); }
                     .auth-card { padding: 28px 18px 24px; }
+                    .auth-page input,
+                    .auth-page select,
+                    .auth-page textarea {
+                        font-size: 16px;
+                        min-height: 48px;
+                    }
                 }
             `}</style>
         </div>
