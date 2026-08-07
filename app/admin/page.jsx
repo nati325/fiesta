@@ -1222,7 +1222,7 @@ function AdminPageInner() {
                                 <div style={{ marginTop: '10px' }}>
                                     <h4 style={{ marginBottom: '10px', fontSize: '1rem' }}>פילוח לפי קטגוריות</h4>
                                     {VENDOR_CATEGORIES.map(cat => {
-                                        const catVendors = vendors.filter(v => v.type === cat.value);
+                                        const catVendors = vendors.filter(v => v.type === cat.value || (Array.isArray(v.types) && v.types.includes(cat.value)));
                                         const catRevenue = customers.filter(c => c.status?.startsWith('סגר')).reduce((acc, curr) => {
                                             const v = catVendors.find(vend => String(vend.id) === String(curr.closedWithId));
                                             return acc + (v ? (Number(v.commissionAmount) || 0) : 0);

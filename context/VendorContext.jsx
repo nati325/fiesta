@@ -152,7 +152,9 @@ export const VendorProvider = ({ children }) => {
             });
     };
 
-    const getVendorsByType = (type) => vendors.filter(v => v.type === type);
+    const vendorHasType = (v, type) =>
+        v?.type === type || (Array.isArray(v?.types) && v.types.includes(type));
+    const getVendorsByType = (type) => vendors.filter((v) => vendorHasType(v, type));
 
     const persistFavorites = useCallback((next) => {
         const list = uniq(next);

@@ -59,7 +59,7 @@ function SearchResultsContent() {
                     if (!q) return false;
                     const matchesName = v.name?.toLowerCase().includes(q);
                     const matchesType = v.type?.toLowerCase().includes(q);
-                    const matchesMappedType = mappedType && v.type === mappedType;
+                    const matchesMappedType = mappedType && (v.type === mappedType || (Array.isArray(v.types) && v.types.includes(mappedType)));
                     const matchesDescription = v.description?.toLowerCase().includes(q);
                     const matchesQuery = matchesName || matchesType || matchesMappedType || matchesDescription;
 

@@ -116,7 +116,7 @@ function BudgetPlannerContent() {
         selectedCategories.forEach((catId) => {
             const packages = [];
             realVendors
-                .filter((v) => v.type === catId)
+                .filter((v) => v.type === catId || (Array.isArray(v.types) && v.types.includes(catId)))
                 .forEach((vendor) => {
                     packages.push(...buildVendorOptions(vendor, guests));
                 });
