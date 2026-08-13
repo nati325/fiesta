@@ -42,9 +42,10 @@ const Navbar = () => {
 
     const isActive = (path) => pathname === path ? 'active' : '';
     const closeMobileMenu = () => setMobileMenuOpen(false);
+    const overHero = pathname === '/' && !isScrolled;
 
     return (
-        <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
+        <header className={`header ${isScrolled ? 'scrolled' : ''}${overHero ? ' header--over-hero' : ''}`}>
             <div className="header-container">
                 <div className="header-brand-row">
                     <Link href="/" className="logo" style={{ textDecoration: 'none' }}>
@@ -76,7 +77,7 @@ const Navbar = () => {
                         padding: 8px 14px;
                         border-radius: 8px;
                         cursor: pointer;
-                        transition: border-color 0.2s;
+                        transition: border-color 0.2s, background 0.25s ease, color 0.25s ease;
                         color: var(--text-light);
                         font-weight: 500;
                         margin: 0;
@@ -86,6 +87,17 @@ const Navbar = () => {
                         max-width: 240px;
                         min-height: 44px;
                         box-sizing: border-box;
+                    }
+                    :global(.header--over-hero) .nav-search-trigger {
+                        background: rgba(255, 252, 247, 0.42);
+                        border-color: rgba(143, 115, 68, 0.28);
+                        backdrop-filter: blur(10px);
+                        -webkit-backdrop-filter: blur(10px);
+                        color: #6b5834;
+                    }
+                    :global(.header--over-hero) .nav-search-trigger i {
+                        color: #8f7344;
+                        opacity: 0.9;
                     }
                     .nav-search-trigger:hover {
                         border-color: var(--primary-color);

@@ -32,26 +32,38 @@ export default function MobileNav() {
 
     return (
         <>
-            {/* Hide the pill while SearchModal is open so it never covers modal content */}
+            {/* Hide the bar while SearchModal is open so it never covers modal content */}
             {!searchOpen && (
                 <nav className="mobile-nav-wrapper" aria-label="ניווט תחתון">
                     <div className="mobile-nav-container">
                         {navItems.map((item) => {
                             const isActive = isItemActive(item);
+                            const className = `mobile-nav-item${isActive ? ' active' : ''}`;
+
+                            const inner = (
+                                <>
+                                    {isActive && (
+                                        <motion.span
+                                            layoutId="mobile-nav-pill"
+                                            className="nav-pill"
+                                            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                                        />
+                                    )}
+                                    <i className={item.icon} aria-hidden />
+                                </>
+                            );
 
                             if (item.action === 'search') {
                                 return (
                                     <button
                                         key={item.id}
                                         type="button"
-                                        className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+                                        className={className}
                                         onClick={() => setSearchOpen(true)}
                                         aria-label={item.label}
+                                        aria-current={isActive ? 'page' : undefined}
                                     >
-                                        <i className={item.icon} aria-hidden />
-                                        {isActive && (
-                                            <motion.div layoutId="mobile-nav-indicator" className="nav-indicator" />
-                                        )}
+                                        {inner}
                                     </button>
                                 );
                             }
@@ -60,13 +72,11 @@ export default function MobileNav() {
                                 <Link
                                     key={item.id}
                                     href={item.path}
-                                    className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+                                    className={className}
                                     aria-label={item.label}
+                                    aria-current={isActive ? 'page' : undefined}
                                 >
-                                    <i className={item.icon} aria-hidden />
-                                    {isActive && (
-                                        <motion.div layoutId="mobile-nav-indicator" className="nav-indicator" />
-                                    )}
+                                    {inner}
                                 </Link>
                             );
                         })}
@@ -83,56 +93,79 @@ export default function MobileNav() {
                     z-index: 1000;
                     left: 50%;
                     transform: translateX(-50%);
-                    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-                    width: calc(100% - 24px);
-                    max-width: 420px;
-                    background: rgba(255, 255, 255, 0.94);
-                    backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px);
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    border-radius: 18px;
-                    padding: 4px 6px;
+                    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+                    width: min(360px, calc(100% - 28px));
+                    background: rgba(255, 255, 255, 0.9);
+                    backdrop-filter: blur(18px) saturate(1.15);
+                    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+                    border: 1px solid rgba(143, 115, 68, 0.16);
+                    border-radius: 22px;
+                    box-shadow:
+                        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+                        0 10px 28px rgba(20, 20, 20, 0.1),
+                        0 2px 8px rgba(20, 20, 20, 0.04);
+                    padding: 6px;
+                    box-sizing: border-box;
                 }
 
                 .mobile-nav-container {
-                    display: flex;
-                    justify-content: space-around;
-                    align-items: center;
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    align-items: stretch;
+                    gap: 4px;
+                    width: 100%;
                 }
 
                 .mobile-nav-item {
+                    position: relative;
                     display: flex;
-                    flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    color: #888;
-                    text-decoration: none;
-                    position: relative;
-                    padding: 10px 6px;
-                    min-height: 44px;
-                    min-width: 44px;
-                    transition: color 0.2s, background 0.2s;
-                    flex: 1;
-                    background: none;
+                    height: 44px;
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
                     border: none;
+                    border-radius: 16px;
+                    background: transparent;
+                    color: #8a8a8a;
+                    text-decoration: none;
                     cursor: pointer;
+                    font: inherit;
+                    appearance: none;
+                    -webkit-appearance: none;
                     -webkit-tap-highlight-color: transparent;
-                    border-radius: 14px;
+                    transition: color 0.2s ease;
+                    z-index: 0;
                 }
 
-                .mobile-nav-item i {
-                    font-size: 1.2rem;
+                .mobile-nav-item :global(.nav-pill) {
+                    position: absolute;
+                    inset: 0;
+                    border-radius: 16px;
+                    background: rgba(143, 115, 68, 0.12);
+                    z-index: -1;
+                }
+
+                .mobile-nav-item :global(i) {
+                    position: relative;
+                    font-size: 1.15rem;
                     line-height: 1;
+                    width: 1.15rem;
+                    text-align: center;
+                    transition: transform 0.2s ease;
                 }
 
                 .mobile-nav-item.active {
-                    color: var(--primary-color);
-                    background: rgba(143, 115, 68, 0.08);
+                    color: var(--primary-color, #8F7344);
                 }
 
-                .nav-indicator {
-                    display: none;
+                .mobile-nav-item.active :global(i) {
+                    transform: translateY(-0.5px);
+                }
+
+                .mobile-nav-item:active {
+                    color: var(--primary-hover, #6F5834);
                 }
 
                 @media (max-width: 768px) {

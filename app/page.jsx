@@ -7,9 +7,6 @@ import PackagesCarousel from '@/components/PackagesCarousel';
 import Hero3D from '@/components/Hero3D';
 import BudgetInvite from '@/components/BudgetInvite';
 import { useAuth } from '@/context/AuthContext';
-import { resolveHomepageVendorImage, hasRealImage } from '@/lib/vendorImage';
-import { getVendorDisplayPrice } from '@/lib/vendorPrice';
-import VendorNoImage from '@/components/VendorNoImage';
 
 const SUPPLIER_GROUPS = [
     {
@@ -119,19 +116,6 @@ export default function HomePage() {
         setContactData({ name: '', phone: '' });
     };
 
-    const matchesEventPreference = (v) => {
-        if (!eventPreference) return true;
-        if (v.eventTypes?.includes(eventPreference)) return true;
-        if (v.eventTypes?.includes('מתאים לכל האירועים')) return true;
-        if (eventPreference === 'בר מצווה' || eventPreference === 'בת מצווה') {
-            return v.eventTypes?.includes('בר מצווה') || v.eventTypes?.includes('בת מצווה');
-        }
-        if (eventPreference === 'ברית' || eventPreference === 'בריתה') {
-            return v.eventTypes?.includes('ברית') || v.eventTypes?.includes('בריתה');
-        }
-        return false;
-    };
-
     // Calculate counts per category
     const categoryCounts = useMemo(() => {
         const counts = {};
@@ -201,44 +185,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-
-            {/* 5. Personalized Banner */}
-            {eventPreference && (
-                <section className="personal-banner-section">
-                    <div className="container">
-                        <div className="p-banner">
-                            <div className="p-text">
-                                <h3>נבחרת הספקים ל{eventPreference} שלכם</h3>
-                                <p>הכי מתאימים, הכי משתלמים</p>
-                            </div>
-                            <div className="p-items">
-                                {vendors.filter(matchesEventPreference).slice(0, 4).map(v => {
-                                    const img = resolveHomepageVendorImage(v.image);
-                                    const price = getVendorDisplayPrice(v).display;
-                                    return (
-                                    <Link href={`/vendor/${v.id}`} key={v.id} className="p-item">
-                                        {hasRealImage(img) ? (
-                                            <img src={img} alt={v.name} />
-                                        ) : (
-                                            <div className="p-item-no-img"><VendorNoImage compact label="אין תמונה" /></div>
-                                        )}
-                                        <div className="p-info">
-                                            <strong>{v.name}</strong>
-                                            {price ? <span>{price}</span> : null}
-                                        </div>
-                                    </Link>
-                                    );
-                                })}
-                                {vendors.filter(matchesEventPreference).length === 0 && (
-                                    <p style={{ color: 'rgba(255,255,255,0.75)', margin: 0, fontSize: '0.95rem' }}>
-                                        עדיין אין ספקים מסומנים לסוג אירוע זה — דפדפו בקטגוריות למטה.
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            )}
 
             {/* Articles — only when API returns real items */}
             {articles.length > 0 && (
@@ -410,51 +356,6 @@ export default function HomePage() {
                     overflow: hidden;
                 }
 
-                .personal-banner-section { padding-bottom: 72px; }
-                .p-banner {
-                    background: var(--charcoal);
-                    border-radius: var(--radius-lg);
-                    padding: 32px;
-                    display: flex;
-                    align-items: center;
-                    gap: 32px;
-                    color: #fff;
-                }
-                .p-text { flex: 1; text-align: right; }
-                .p-text h3 {
-                    font-size: 1.45rem;
-                    font-weight: 500;
-                    margin-bottom: 8px;
-                    color: #fff;
-                }
-                .p-text p { color: rgba(255,255,255,0.65); margin: 0; font-size: 0.95rem; }
-                .p-items { flex: 2; display: flex; gap: 12px; overflow-x: auto; }
-                .p-item {
-                    min-width: 200px;
-                    background: rgba(255,255,255,0.06);
-                    border: 1px solid rgba(255,255,255,0.08);
-                    padding: 10px;
-                    border-radius: var(--radius-md);
-                    text-decoration: none;
-                    color: #fff;
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    transition: background 0.2s;
-                }
-                .p-item:hover { background: rgba(255,255,255,0.1); }
-                .p-item img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
-                .p-item-no-img {
-                    width: 48px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
-                }
-                .p-item-no-img :global(.vendor-no-image) { min-height: 48px; padding: 4px; gap: 2px; }
-                .p-item-no-img :global(.vendor-no-image i) { font-size: 0.85rem; }
-                .p-item-no-img :global(.vendor-no-image span) { font-size: 0.55rem; }
-                .p-item-no-img :global(.vendor-no-image small) { display: none; }
-                .p-info { display: flex; flex-direction: column; text-align: right; }
-                .p-info strong { font-size: 0.88rem; font-weight: 600; }
-                .p-info span { color: var(--primary-color); font-weight: 600; font-size: 0.82rem; }
-
                 .contact-section { padding: 72px 0 96px; background: var(--off-white); }
                 .contact-card {
                     background: var(--white);
@@ -511,9 +412,8 @@ export default function HomePage() {
 
                 @media (max-width: 900px) {
                     .contact-card { grid-template-columns: 1fr; padding: 32px 20px; gap: 28px; }
-                    .c-text, .p-text, .section-header { text-align: center; }
+                    .c-text, .section-header { text-align: center; }
                     .c-perks { justify-content: center; }
-                    .p-banner { flex-direction: column; text-align: center; }
                 }
 
                 @media (max-width: 768px) {
@@ -521,20 +421,12 @@ export default function HomePage() {
                     .categories-section { padding: 48px 0; }
                     .categories-visual-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
                     .cat-card-visual { height: 140px; }
-                    .personal-banner-section { padding-bottom: 48px; }
-                    .p-banner { padding: 24px 18px; border-radius: 14px; }
                     .contact-section { padding: 48px 0 calc(var(--mobile-chrome-clearance, 64px) + 24px); }
                     .c-perks {
                         flex-direction: column;
                         align-items: center;
                         gap: 10px;
                     }
-                    .p-items {
-                        scroll-snap-type: x mandatory;
-                        -webkit-overflow-scrolling: touch;
-                        padding-bottom: 4px;
-                    }
-                    .p-item { scroll-snap-align: start; flex-shrink: 0; }
                 }
 
                 @media (max-width: 480px) {

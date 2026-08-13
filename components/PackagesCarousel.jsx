@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getVendorDisplayPrice, getPackages } from '@/lib/vendorPrice';
@@ -34,7 +34,6 @@ export default function PackagesCarousel() {
     const [slides, setSlides] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
-    const [direction, setDirection] = useState(1);
 
     useEffect(() => {
         fetch('/api/vendors')
@@ -48,7 +47,6 @@ export default function PackagesCarousel() {
     useEffect(() => {
         if (slides.length <= 1 || isPaused) return;
         const interval = setInterval(() => {
-            setDirection(-1);
             setCurrentIndex((prev) => (prev + 1) % slides.length);
         }, 6000);
         return () => clearInterval(interval);
@@ -56,29 +54,13 @@ export default function PackagesCarousel() {
 
     const current = slides[currentIndex];
 
-    const easeSoft = [0.22, 1, 0.36, 1];
-    const slideVariants = useMemo(
-        () => ({
-            enter: (dir) => ({ x: dir > 0 ? 48 : -48, opacity: 0 }),
-            center: { x: 0, opacity: 1 },
-            exit: (dir) => ({ x: dir > 0 ? -48 : 48, opacity: 0 }),
-        }),
-        []
-    );
-    const slideTransition = {
-        x: { duration: 0.85, ease: easeSoft },
-        opacity: { duration: 0.75, ease: 'easeInOut' },
-    };
-
     if (!slides.length || !current) return null;
 
     const slideFromRight = () => {
-        setDirection(1);
         setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
     };
 
     const slideFromLeft = () => {
-        setDirection(-1);
         setCurrentIndex((prev) => (prev + 1) % slides.length);
     };
 
@@ -122,24 +104,21 @@ export default function PackagesCarousel() {
                     position: 'relative',
                     width: '100%',
                     overflow: 'hidden',
-                    minHeight: '420px',
-                    height: 'auto',
+                    height: '480px',
                 }}
             >
-                <AnimatePresence initial={false} custom={direction}>
+                <AnimatePresence initial={false} mode="wait">
                     <motion.div
                         key={current.id}
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={slideTransition}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeInOut' }}
                         style={{
+                            position: 'absolute',
+                            inset: 0,
                             width: '100%',
-                            minHeight: '420px',
                             height: '100%',
-                            position: 'relative',
                         }}
                         className="featured-slide"
                     >
@@ -150,7 +129,6 @@ export default function PackagesCarousel() {
                             style={{
                                 width: '100%',
                                 height: '100%',
-                                minHeight: '420px',
                                 objectFit: 'cover',
                                 position: 'absolute',
                                 inset: 0,
@@ -167,10 +145,7 @@ export default function PackagesCarousel() {
                             }}
                         />
 
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+                        <div
                             style={{
                                 position: 'absolute',
                                 top: '28px',
@@ -186,7 +161,7 @@ export default function PackagesCarousel() {
                             }}
                         >
                             {current.typeLabel}
-                        </motion.div>
+                        </div>
 
                         <div
                             className="featured-content"
@@ -354,10 +329,7 @@ export default function PackagesCarousel() {
                             <button
                                 key={s.id}
                                 type="button"
-                                onClick={() => {
-                                    setDirection(idx > currentIndex ? -1 : 1);
-                                    setCurrentIndex(idx);
-                                }}
+                                onClick={() => setCurrentIndex(idx)}
                                 style={{
                                     width: idx === currentIndex ? '28px' : '12px',
                                     height: '12px',
@@ -425,11 +397,7 @@ export default function PackagesCarousel() {
                 }
                 @media (max-width: 900px) {
                     .featured-carousel-container {
-                        min-height: 380px !important;
-                    }
-                    .featured-slide,
-                    .featured-slide img {
-                        min-height: 380px !important;
+                        height: 400px !important;
                     }
                     .featured-content {
                         padding: 15px 5vw 48px !important;
@@ -455,11 +423,7 @@ export default function PackagesCarousel() {
                 }
                 @media (max-width: 600px) {
                     .featured-carousel-container {
-                        min-height: 360px !important;
-                    }
-                    .featured-slide,
-                    .featured-slide img {
-                        min-height: 360px !important;
+                        height: 380px !important;
                     }
                     .featured-content {
                         padding: 10px 5vw 56px !important;

@@ -139,7 +139,7 @@ img {
     left: 0;
     width: 100%;
     z-index: 1000;
-    transition: all 0.4s ease;
+    transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, padding 0.35s ease;
     background: white;
     /* White background by default as requested to not overlap */
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -150,6 +150,33 @@ img {
     background: rgba(255, 255, 255, 0.98);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     padding: 6px 0;
+}
+
+/* Homepage: float chrome over the invitation hero (no white bar eating the frame) */
+body:has(.fiesta-hero) .header,
+.header.header--over-hero {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.header.header--over-hero {
+    background: transparent;
+    border-bottom-color: transparent;
+    box-shadow: none;
+}
+
+.header.header--over-hero .logo {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.header.header--over-hero .mobile-menu-btn {
+    color: #8f7344;
+    background: rgba(255, 252, 247, 0.35);
+    border-radius: 10px;
 }
 
 .header-container {
@@ -1619,8 +1646,8 @@ body:not(.admin-area) img {
 
 @media (max-width: 768px) {
     :root {
-        /* Icons-only pill ~48px + inset + extra scroll room so content clears the bar */
-        --mobile-nav-height: 48px;
+        /* Icons-only floating bar ~56px + inset + extra scroll room so content clears the bar */
+        --mobile-nav-height: 56px;
         --mobile-bottom-gap: 32px;
         --mobile-chrome-clearance: calc(
             var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
@@ -2520,7 +2547,7 @@ body.studio-mode .app > main {
 @media (max-width: 768px) {
     :root {
         --section-padding: 60px 0;
-        --mobile-nav-height: 48px;
+        --mobile-nav-height: 56px;
         --mobile-bottom-gap: 32px;
         --mobile-chrome-clearance: calc(
             var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
@@ -3148,92 +3175,132 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     color: #111;
 }
 
-/* ===== Fiesta homepage hero (premium floral stage) ===== */
+/* ===== Fiesta homepage hero — invitation arch + 3D floral sides ===== */
 .fiesta-hero {
-    --flower-w: clamp(300px, 36vw, 560px);
-    --flower-out: 0%;
-    /* Clear the dense rose edge (+ small gap), not the full transparent column */
-    --content-side: calc(var(--flower-w) * 0.5 + 12px);
+    /*
+      Stage = invitation card (centered).
+      Flowers are a full-hero layer on the screen edges (cream / corners).
+      Height follows content; bottom padding under CTAs.
+    */
+    --stage-w: min(100%, 480px);
+    --flower-w: clamp(140px, 22vw, 200px);
+    --flower-zoom: 0.98;
+    --arch-inset: 14%;
     position: relative;
-    min-height: min(88vh, 780px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     overflow: hidden;
     isolation: isolate;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     text-align: center;
     margin-bottom: 0;
     height: auto !important;
+    min-height: 0;
+    max-height: none;
+    background-color: #f3ebe0;
+}
+
+.fiesta-hero__stage {
+    position: relative;
+    z-index: 1;
+    width: var(--stage-w);
+    height: auto;
+    margin: 0 auto;
+    overflow: visible;
 }
 
 .fiesta-hero__bg {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background:
-        radial-gradient(ellipse 70% 55% at 50% 42%, rgba(143, 115, 68, 0.09) 0%, transparent 68%),
-        radial-gradient(ellipse 40% 35% at 12% 80%, rgba(216, 196, 176, 0.22) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 35% at 88% 78%, rgba(216, 196, 176, 0.18) 0%, transparent 70%),
-        #faf9f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 0;
+    background-color: transparent;
 }
 
+.fiesta-hero__bg-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: contrast(1.06) saturate(1.08) brightness(1.01);
+}
+
+/* Full hero width — not clipped to the invitation card */
 .fiesta-hero__flowers {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none;
+    overflow: visible;
 }
 
 .fiesta-hero__flower {
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 4%;
     width: var(--flower-w);
-    /* allow stack to paint; hero clips the edges */
-    overflow: visible;
-    filter: drop-shadow(0 22px 36px rgba(40, 28, 16, 0.12));
+    overflow: hidden;
+    filter: drop-shadow(0 14px 24px rgba(40, 28, 16, 0.14));
     pointer-events: none;
+    /* LTR so wide flower imgs don't get pushed off-screen in RTL pages */
+    direction: ltr;
+    /* Soft fade only — no hard side-crop that swallows blooms */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%);
 }
 
 .fiesta-hero__flower--left {
-    left: calc(-1 * var(--flower-out));
+    left: 0;
 }
 
 .fiesta-hero__flower--right {
-    right: calc(-1 * var(--flower-out));
+    right: 0;
+    left: auto;
 }
 
+/* Whole stack floats together — same pace left & right */
 .fiesta-hero__flower-stack {
-    display: flex;
-    flex-direction: column;
     width: 100%;
     will-change: transform;
 }
 
-.fiesta-hero__flower-stack img {
+.fiesta-hero__flower-tile {
+    width: 100%;
+}
+
+/* Desktop / tablet: single bloom; cascade tiles only on mobile */
+.fiesta-hero__flower-tile:not(:first-child) {
+    display: none;
+}
+
+.fiesta-hero__flower-tile img {
+    display: block;
     width: 100%;
     height: auto;
-    display: block;
+    max-height: min(58vh, 520px);
     max-width: none;
     object-fit: contain;
     user-select: none;
     -webkit-user-drag: none;
-    flex-shrink: 0;
+    filter: contrast(1.08) saturate(1.12);
+    transform: scale(var(--flower-zoom));
 }
 
-/* Keep dense floral edge visible in the side columns */
-.fiesta-hero__flower--left .fiesta-hero__flower-stack img {
+.fiesta-hero__flower--left .fiesta-hero__flower-tile img {
     object-position: top left;
+    transform-origin: left center;
 }
 
-.fiesta-hero__flower--right .fiesta-hero__flower-stack img {
+.fiesta-hero__flower--right .fiesta-hero__flower-tile img {
     object-position: top right;
-}
-
-/* Slight overlap so the doubled cascade reads as one continuous column */
-.fiesta-hero__flower-stack img + img {
-    margin-top: -12%;
+    transform-origin: right center;
 }
 
 .fiesta-hero__flower-motion {
@@ -3242,46 +3309,49 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
 @keyframes fiestaFlowerFloat {
     0%, 100% { transform: translate3d(0, 0, 0); }
-    50% { transform: translate3d(0, -18px, 0); }
+    50% { transform: translate3d(0, -8px, 0); }
 }
 
 .fiesta-hero__content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     box-sizing: border-box;
     width: 100%;
-    max-width: min(560px, calc(100% - (2 * var(--content-side))));
+    max-width: calc(100% - (2 * var(--arch-inset)));
     margin: 0 auto;
-    padding: 48px 8px 100px;
+    /* Top clearance for fixed header; bottom = 70px under the buttons */
+    padding: clamp(72px, 10vh, 96px) 10px 70px;
     text-align: center;
     color: #2a2218;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .fiesta-hero__kicker {
-    margin: 0 0 16px;
+    margin: 0 0 12px;
     font-family: var(--font-main);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 500;
-    letter-spacing: 0.28em;
-    color: var(--primary-color);
+    letter-spacing: 0.3em;
+    color: #9a7d4a;
 }
 
 .fiesta-hero__brand {
     margin: 0;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(3.4rem, 11vw, 7.2rem);
+    font-size: clamp(3.1rem, 8.5vw, 5.4rem);
     line-height: 0.92;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     direction: ltr;
     unicode-bidi: isolate;
     max-width: 100%;
     background: linear-gradient(
         168deg,
-        #1a1510 0%,
-        #3d3224 28%,
-        #8f7344 58%,
-        #b89a68 82%,
+        #3d3224 0%,
+        #8f7344 42%,
+        #c4a46a 68%,
         #8f7344 100%
     );
     -webkit-background-clip: text;
@@ -3290,256 +3360,372 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     -webkit-text-fill-color: transparent;
 }
 
-.fiesta-hero__rule {
-    width: 56px;
-    height: 1px;
-    margin: 24px auto 26px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--primary-color) 35%,
-        #b89a68 50%,
-        var(--primary-color) 65%,
-        transparent 100%
-    );
-    opacity: 0.9;
+.fiesta-hero__flourish {
+    width: 120px;
+    margin: 16px auto 20px;
+    color: #a88b55;
     transform-origin: center;
+}
+
+.fiesta-hero__flourish svg {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .fiesta-hero__lead {
     margin: 0 0 12px;
-    font-family: var(--font-display);
-    font-size: clamp(1.12rem, 2.4vw, 1.45rem);
-    font-weight: 500;
-    line-height: 1.45;
+    font-family: var(--font-main);
+    font-size: clamp(1.05rem, 2.1vw, 1.22rem);
+    font-weight: 700;
+    line-height: 1.4;
     letter-spacing: 0.01em;
-    color: #2a2218;
-    max-width: 100%;
+    color: #1f1a14;
+    max-width: 20ch;
+}
+
+.fiesta-hero__diamond {
+    width: 5px;
+    height: 5px;
+    margin: 0 auto 12px;
+    background: #b8975c;
+    transform: rotate(45deg);
 }
 
 .fiesta-hero__sub {
-    margin: 0 auto 34px;
-    max-width: 100%;
+    margin: 0 auto 26px;
+    max-width: 26ch;
     font-family: var(--font-main);
-    font-size: 0.96rem;
+    font-size: 0.9rem;
     font-weight: 400;
-    line-height: 1.7;
-    color: #7a736a;
+    line-height: 1.6;
+    color: #6e665c;
 }
 
 .fiesta-hero__actions {
     display: flex;
     gap: 10px;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     width: 100%;
-    max-width: 100%;
+    max-width: 320px;
     box-sizing: border-box;
-    padding-inline: 4px;
 }
 
 .fiesta-hero__btn-primary {
+    flex: 1 1 0;
     background: #1a1510;
     color: #fff;
-    border: none;
-    padding: 13px 28px;
-    border-radius: 4px;
+    border: 1px solid #1a1510;
+    padding: 12px 14px;
+    border-radius: 3px;
     font-weight: 600;
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-family: var(--font-main);
     cursor: pointer;
     min-height: 46px;
-    letter-spacing: 0.02em;
-    transition: background 0.25s ease, transform 0.25s ease;
+    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
 
 .fiesta-hero__btn-primary:hover {
     background: var(--primary-color);
+    border-color: var(--primary-color);
     transform: translateY(-1px);
 }
 
 .fiesta-hero__btn-secondary {
-    background: transparent;
-    color: #2a2218;
-    border: 1px solid rgba(42, 34, 24, 0.22);
-    padding: 13px 28px;
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 0.92rem;
+    flex: 1 1 0;
+    background: rgba(255, 252, 247, 0.4);
+    color: #1f1a14;
+    border: 1.5px solid rgba(168, 139, 85, 0.78);
+    padding: 12px 14px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 0.88rem;
     font-family: var(--font-main);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: 46px;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
     transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
 }
 
 .fiesta-hero__btn-secondary:hover {
     border-color: var(--primary-color);
-    background: rgba(143, 115, 68, 0.06);
+    background: rgba(143, 115, 68, 0.08);
     transform: translateY(-1px);
 }
 
-.fiesta-hero__soft {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    margin: 20px auto 0;
-    padding: 0 4px;
-    border: none;
-    background: none;
-    color: #9a9186;
-    font-size: 0.84rem;
-    font-weight: 400;
-    line-height: 1.45;
-    font-family: var(--font-main);
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: rgba(154, 145, 134, 0.45);
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+.fiesta-hero__soft,
+.fiesta-hero__scroll,
+.fiesta-hero__scroll-line,
+.fiesta-hero__rule {
+    display: none;
 }
 
-.fiesta-hero__soft:hover {
-    color: #6b635a;
-    text-decoration-color: rgba(107, 99, 90, 0.55);
-}
-
-.fiesta-hero__scroll {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    z-index: 2;
-    transform: translateX(-50%);
-    display: flex;
-    justify-content: center;
-}
-
-.fiesta-hero__scroll-line {
-    display: block;
-    width: 1px;
-    height: 36px;
-    background: linear-gradient(to bottom, rgba(143, 115, 68, 0.55), transparent);
-    animation: fiestaHeroScrollPulse 2.2s ease-in-out infinite;
-}
-
-@keyframes fiestaHeroScrollPulse {
-    0%, 100% {
-        opacity: 0.35;
-        transform: scaleY(0.85);
-        transform-origin: top;
-    }
-    50% {
-        opacity: 1;
-        transform: scaleY(1);
-        transform-origin: top;
-    }
-}
-
-@media (max-width: 1280px) {
+@media (min-width: 901px) {
     .fiesta-hero {
-        --flower-w: clamp(290px, 36vw, 520px);
-        --flower-out: 0%;
-        --content-side: calc(var(--flower-w) * 0.48 + 12px);
+        /* Narrow card → wide cream sides; flowers stay on-screen (RTL-safe via direction:ltr) */
+        --stage-w: min(34vw, 400px);
+        --flower-w: min(36vw, 520px);
+        --flower-zoom: 1.3;
+        --arch-inset: 12%;
+        overflow: hidden;
+    }
+
+    .fiesta-hero__flowers {
+        z-index: 2;
+    }
+
+    .fiesta-hero__flower {
+        top: 0;
+        overflow: hidden;
+        transform: none;
+    }
+
+    .fiesta-hero__flower--left {
+        left: 0;
+        right: auto;
+        -webkit-mask-image: linear-gradient(to right, #000 65%, transparent 100%);
+        mask-image: linear-gradient(to right, #000 65%, transparent 100%);
+    }
+
+    .fiesta-hero__flower--right {
+        right: 0;
+        left: auto;
+        -webkit-mask-image: linear-gradient(to left, #000 65%, transparent 100%);
+        mask-image: linear-gradient(to left, #000 65%, transparent 100%);
+    }
+
+    .fiesta-hero__flower-tile {
+        position: static;
+        height: auto;
+        overflow: visible;
+        margin: 0;
+    }
+
+    .fiesta-hero__flower-tile img {
+        position: static;
+        display: block;
+        width: 135%;
+        max-width: none;
+        height: auto;
+        max-height: min(88vh, 860px);
+        margin: 0;
+        object-fit: contain;
+        transform: scale(var(--flower-zoom));
+    }
+
+    .fiesta-hero__flower--left .fiesta-hero__flower-tile img {
+        object-position: top left;
+        transform-origin: top left;
+        margin-left: 0;
+    }
+
+    .fiesta-hero__flower--right .fiesta-hero__flower-tile img {
+        object-position: top right;
+        transform-origin: top right;
+        /* With direction:ltr, pull right blooms into the column */
+        margin-left: -35%;
+    }
+
+    .fiesta-hero__stage {
+        z-index: 1;
     }
 }
 
-@media (max-width: 1100px) {
+@media (min-width: 1200px) {
     .fiesta-hero {
-        --flower-w: clamp(250px, 34vw, 430px);
-        --flower-out: 0%;
-        --content-side: calc(var(--flower-w) * 0.5 + 10px);
+        --stage-w: min(32vw, 420px);
+        --flower-w: min(38vw, 560px);
+        --flower-zoom: 1.4;
+    }
+
+    .fiesta-hero__flower-tile img {
+        width: 150%;
+        max-height: min(92vh, 940px);
+    }
+
+    .fiesta-hero__flower--right .fiesta-hero__flower-tile img {
+        margin-left: -50%;
     }
 }
 
 @media (max-width: 900px) {
     .fiesta-hero {
-        --flower-w: clamp(210px, 36vw, 320px);
-        --flower-out: 0%;
-        --content-side: calc(var(--flower-w) * 0.52 + 10px);
+        --stage-w: min(100%, 400px);
+        --flower-w: clamp(130px, 28vw, 220px);
+        --flower-zoom: 1.127;
+        --arch-inset: 12%;
     }
 
-    .fiesta-hero__flower {
-        opacity: 1;
+    .fiesta-hero__bg-img {
+        object-position: center 46%;
+        filter: contrast(1.08) saturate(1.1) brightness(1.02);
     }
 }
 
 @media (max-width: 768px) {
     .fiesta-hero {
-        /* Slightly smaller than full 1.5x; nudged a bit outward */
-        --flower-w: clamp(148px, 40vw, 198px);
-        --flower-out: 10%;
-        --content-side: calc(var(--flower-w) * 0.58 + 8px);
-        min-height: min(62vh, 520px);
+        --stage-w: 100%;
+        --flower-w: 28vw;
+        --flower-zoom: 1.176;
+        --flower-scale: 1;
+        --arch-inset: 14%;
         height: auto !important;
+        min-height: 0;
+        max-height: none;
         align-items: flex-start;
+        margin-bottom: 0;
+        border-bottom: none;
+        /* Keep mobile clip — desktop overflow:visible must not leak here */
+        overflow: hidden;
     }
 
+    /* Lock mobile — never inherit desktop column scale */
     .fiesta-hero__flower {
-        opacity: 1;
+        transform: none;
     }
 
-    .fiesta-hero__flower-stack img + img {
-        margin-top: -10%;
+    /* Soft blend from cream hero into dark budget section */
+    .fiesta-hero::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 88px;
+        z-index: 5;
+        pointer-events: none;
+        background: linear-gradient(
+            to bottom,
+            rgba(243, 235, 224, 0) 0%,
+            rgba(40, 32, 24, 0.28) 42%,
+            #141210 100%
+        );
+    }
+
+    /* Continuous overlapping cascade — soft fade at top and bottom */
+    .fiesta-hero__flower {
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            #000 20%,
+            #000 80%,
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            #000 20%,
+            #000 80%,
+            transparent 100%
+        );
+    }
+
+    .fiesta-hero__flower--left {
+        left: -6%;
+    }
+
+    .fiesta-hero__flower--right {
+        right: -6%;
+    }
+
+    .fiesta-hero__flower-stack {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .fiesta-hero__flower-tile {
+        display: block;
+        flex-shrink: 0;
+        width: 100%;
+        margin-top: -34%;
+    }
+
+    .fiesta-hero__flower-tile:first-child {
+        margin-top: 0;
+    }
+
+    .fiesta-hero__flower-tile:not(:first-child) {
+        display: block;
+    }
+
+    .fiesta-hero__flower-tile img {
+        max-height: min(34vh, 260px);
+        width: 100%;
+    }
+
+    /* Background only — slight darken; flowers/content untouched */
+    .fiesta-hero__bg-img {
+        filter: contrast(1.08) saturate(1.1) brightness(0.94);
     }
 
     .fiesta-hero__content {
-        max-width: calc(100% - (2 * var(--content-side)));
-        padding: 36px 6px 56px;
+        max-width: calc(100% - (2 * var(--arch-inset)));
+        padding: clamp(72px, 10vh, 96px) 14px 70px;
+    }
+
+    .fiesta-hero__kicker {
+        font-size: 0.64rem;
+        letter-spacing: 0.26em;
+        margin-bottom: 10px;
     }
 
     .fiesta-hero__brand {
-        font-size: clamp(2.35rem, 11vw, 3.35rem);
+        font-size: clamp(2.55rem, 12.5vw, 3.35rem);
         letter-spacing: 0.045em;
     }
 
+    .fiesta-hero__flourish {
+        width: 100px;
+        margin: 12px auto 16px;
+    }
+
     .fiesta-hero__lead {
-        font-size: clamp(1.02rem, 3.8vw, 1.2rem);
+        font-size: clamp(0.98rem, 3.9vw, 1.12rem);
+        max-width: 17ch;
+    }
+
+    .fiesta-hero__diamond {
+        width: 4px;
+        height: 4px;
+        margin-bottom: 10px;
     }
 
     .fiesta-hero__sub {
-        font-size: 0.88rem;
-        margin-bottom: 24px;
-        color: #7a736a;
+        font-size: 0.82rem;
+        margin-bottom: 22px;
+        max-width: 23ch;
+        line-height: 1.55;
     }
 
     .fiesta-hero__actions {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        align-items: stretch;
-        justify-content: center;
         gap: 8px;
-        width: calc(100% + 28px);
-        max-width: none;
-        margin-inline: -14px;
-        padding-inline: 0;
-        margin-top: 4px;
+        width: 100%;
+        max-width: 100%;
     }
 
     .fiesta-hero__btn-primary,
     .fiesta-hero__btn-secondary {
         flex: 1 1 0;
-        width: 100%;
         min-width: 0;
-        max-width: 100%;
-        box-sizing: border-box;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        min-height: 52px;
-        padding: 12px 8px;
-        font-size: clamp(0.86rem, 3.2vw, 0.95rem);
-        font-weight: 600;
-        letter-spacing: 0;
-        line-height: 1.25;
+        min-height: 46px;
+        padding: 10px 6px;
+        font-size: clamp(0.8rem, 3vw, 0.88rem);
+        line-height: 1.2;
         white-space: normal;
-        border-radius: 4px;
         transform: none;
     }
 
@@ -3547,28 +3733,23 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     .fiesta-hero__btn-secondary:hover {
         transform: none;
     }
-
-    .fiesta-hero__scroll {
-        bottom: 14px;
-    }
 }
 
 @media (max-width: 380px) {
-    .fiesta-hero__actions {
-        flex-direction: column;
-        width: 100%;
-        margin-inline: 0;
-        gap: 10px;
+    .fiesta-hero {
+        --flower-w: 28%;
+        --flower-hang: -9%;
+        --arch-inset: 11%;
     }
 
     .fiesta-hero__btn-primary,
     .fiesta-hero__btn-secondary {
-        font-size: 0.92rem;
+        font-size: 0.78rem;
+        min-height: 44px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fiesta-hero__scroll-line,
     .fiesta-hero__flower-motion {
         animation: none;
     }
@@ -3720,7 +3901,23 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 @media (max-width: 768px) {
     .budget-invite {
         margin-top: 0;
-        padding: 40px 0;
+        padding: 48px 0 40px;
+    }
+
+    .budget-invite::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 56px;
+        z-index: 0;
+        pointer-events: none;
+        background: linear-gradient(
+            to bottom,
+            rgba(243, 235, 224, 0.14) 0%,
+            transparent 100%
+        );
     }
 
     .budget-invite__coin:nth-child(n + 7) {
