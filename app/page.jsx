@@ -224,8 +224,8 @@ export default function HomePage() {
                             </div>
                         </div>
                         <form onSubmit={handleContactSubmit} className="c-form">
-                            <input type="text" placeholder="שם מלא" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
-                            <input type="tel" placeholder="טלפון" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
+                            <input id="contact-name" name="name" type="text" autoComplete="name" placeholder="שם מלא" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
+                            <input id="contact-phone" name="phone" type="tel" autoComplete="tel" placeholder="טלפון" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
                             <button type="submit">שלחו לי הודעה</button>
                         </form>
                     </div>
