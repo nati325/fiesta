@@ -50,26 +50,26 @@ export default function Hero3D({ onOpenOnboarding: _onOpenOnboarding }) {
 
   return (
     <section ref={sectionRef} className="fiesta-hero" aria-label="Fiesta — הפקת אירועים">
+      <div className="fiesta-hero__bg" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="fiesta-hero__bg-img"
+          src="/images/hero/hero-bg.jpg"
+          alt=""
+          width={853}
+          height={1844}
+          decoding="async"
+          fetchPriority="high"
+          draggable={false}
+        />
+      </div>
+
       <div className="fiesta-hero__flowers" aria-hidden>
         <FlowerColumn side="left" reduce={reduce} />
         <FlowerColumn side="right" reduce={reduce} />
       </div>
 
       <div className="fiesta-hero__stage">
-        <div className="fiesta-hero__bg" aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className="fiesta-hero__bg-img"
-            src="/images/hero/hero-bg.jpg"
-            alt=""
-            width={853}
-            height={1844}
-            decoding="async"
-            fetchPriority="high"
-            draggable={false}
-          />
-        </div>
-
         <div className="fiesta-hero__content">
           <p className="fiesta-hero__kicker">הפקת אירועים</p>
 

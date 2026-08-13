@@ -3178,9 +3178,9 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 /* ===== Fiesta homepage hero — invitation arch + 3D floral sides ===== */
 .fiesta-hero {
     /*
-      Stage = invitation card (centered).
-      Flowers are a full-hero layer on the screen edges (cream / corners).
-      Height follows content; bottom padding under CTAs.
+      Stage = centered text column.
+      Photo is clipped to the card on mobile; full-bleed on desktop.
+      Flowers sit on the screen edges. Height follows content.
     */
     --stage-w: min(100%, 480px);
     --flower-w: clamp(140px, 22vw, 200px);
@@ -3212,20 +3212,26 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
 .fiesta-hero__bg {
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 50%;
     z-index: 0;
+    width: var(--stage-w);
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     border-radius: 0;
     background-color: transparent;
+    pointer-events: none;
 }
 
 .fiesta-hero__bg-img {
     display: block;
     width: 100%;
     height: 100%;
+    max-width: none;
     object-fit: cover;
     object-position: center center;
     user-select: none;
@@ -3471,12 +3477,19 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
 @media (min-width: 901px) {
     .fiesta-hero {
-        /* Narrow card → wide cream sides; flowers stay on-screen (RTL-safe via direction:ltr) */
+        /* Content stays a centered column; photo bleeds edge-to-edge */
         --stage-w: min(34vw, 400px);
         --flower-w: min(36vw, 520px);
         --flower-zoom: 1.3;
         --arch-inset: 12%;
         overflow: hidden;
+    }
+
+    .fiesta-hero__bg {
+        left: 0;
+        right: 0;
+        width: 100%;
+        transform: none;
     }
 
     .fiesta-hero__flowers {
