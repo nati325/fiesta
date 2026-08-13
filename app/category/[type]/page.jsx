@@ -6,6 +6,7 @@ import { useVendors } from '@/context/VendorContext';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { vendorHasCategory } from '@/lib/vendorCategories';
 import { resolveVendorImage } from '@/lib/vendorImage';
 import VendorCardImage from '@/components/VendorCardImage';
 import { EditChip } from '@/components/SiteEditBar';
@@ -22,39 +23,69 @@ function sortPriceValue(vendor) {
 export default function CategoryPage() {
     const params = useParams();
     const router = useRouter();
-    const type = params.type;
-    const { getVendorsByType, toggleFavorite, isFavorite, loading: vendorsLoading } = useVendors();
+    const type = Array.isArray(params.type) ? params.type[0] : params.type;
+    const { toggleFavorite, isFavorite } = useVendors();
     const { eventPreference } = useAuth();
     const [vendors, setVendors] = useState([]);
+    const [vendorsLoading, setVendorsLoading] = useState(true);
     const [sortBy, setSortBy] = useState('popularity');
+
+    const matchesEventPreference = (v) => {
+        if (!eventPreference) return true;
+        const events = Array.isArray(v.eventTypes) ? v.eventTypes : [];
+        if (events.length === 0 || events.includes('מתאים לכל האירועים')) return true;
+        if (events.includes(eventPreference)) return true;
+        if (eventPreference === 'בר/בת מצווה' || eventPreference === 'בר מצווה' || eventPreference === 'בת מצווה') {
+            return events.includes('בר מצווה') || events.includes('בת מצווה') || events.includes('בר/בת מצווה');
+        }
+        if (eventPreference === 'ברית' || eventPreference === 'בריתה') {
+            return events.includes('ברית') || events.includes('בריתה');
+        }
+        return false;
+    };
     
     useEffect(() => {
-        const allVendors = getVendorsByType(type);
-        const filtered = allVendors.filter(v => 
-            !eventPreference || 
-            v.eventTypes?.includes(eventPreference) || 
-            v.eventTypes?.includes('מתאים לכל האירועים') ||
-            // Match onboarding "בר/בת מצווה" with either DB value
-            (eventPreference === 'בר/בת מצווה' && (
-                v.eventTypes?.includes('בר מצווה') || v.eventTypes?.includes('בת מצווה')
-            ))
-        );
+        // Same source as the homepage — don't depend on VendorContext for the list.
+        let cancelled = false;
+        setVendorsLoading(true);
 
-        const sorted = [...filtered].sort((a, b) => {
-            if (sortBy === 'price-low') return sortPriceValue(a) - sortPriceValue(b);
-            if (sortBy === 'price-high') return sortPriceValue(b) - sortPriceValue(a);
-            // Popularity: real rating first, then review count, then name
-            const ra = Number(a.googleRating) || 0;
-            const rb = Number(b.googleRating) || 0;
-            if (rb !== ra) return rb - ra;
-            const ca = Number(a.googleReviewsCount) || 0;
-            const cb = Number(b.googleReviewsCount) || 0;
-            if (cb !== ca) return cb - ca;
-            return String(a.name || '').localeCompare(String(b.name || ''), 'he');
-        });
+        fetch('/api/vendors')
+            .then((res) => res.json())
+            .then((data) => {
+                if (cancelled) return;
+                const all = Array.isArray(data) ? data : [];
+                const matched = all.filter((v) => vendorHasCategory(v, type));
 
-        setVendors(sorted);
-    }, [type, getVendorsByType, eventPreference, sortBy]);
+                const sorted = [...matched].sort((a, b) => {
+                    if (eventPreference) {
+                        const am = matchesEventPreference(a) ? 1 : 0;
+                        const bm = matchesEventPreference(b) ? 1 : 0;
+                        if (bm !== am) return bm - am;
+                    }
+                    if (sortBy === 'price-low') return sortPriceValue(a) - sortPriceValue(b);
+                    if (sortBy === 'price-high') return sortPriceValue(b) - sortPriceValue(a);
+                    const ra = Number(a.googleRating) || 0;
+                    const rb = Number(b.googleRating) || 0;
+                    if (rb !== ra) return rb - ra;
+                    const ca = Number(a.googleReviewsCount) || 0;
+                    const cb = Number(b.googleReviewsCount) || 0;
+                    if (cb !== ca) return cb - ca;
+                    return String(a.name || '').localeCompare(String(b.name || ''), 'he');
+                });
+
+                setVendors(sorted);
+            })
+            .catch(() => {
+                if (!cancelled) setVendors([]);
+            })
+            .finally(() => {
+                if (!cancelled) setVendorsLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [type, eventPreference, sortBy]);
 
     const categoryData = {
         'dj': { label: 'DJ ומוזיקה', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80' },

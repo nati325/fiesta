@@ -3,6 +3,7 @@
 import { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getAdminHeaders } from '@/lib/getAdminHeaders';
+import { vendorHasCategory } from '@/lib/vendorCategories';
 
 const VendorContext = createContext();
 const FAV_KEY = 'fiesta_favorites';
@@ -82,7 +83,7 @@ export const VendorProvider = ({ children }) => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
             })
-            .then(data => setVendors(data))
+            .then(data => setVendors(Array.isArray(data) ? data : []))
             .catch(err => {
                 console.error('Error fetching vendors:', err);
             })
@@ -152,9 +153,8 @@ export const VendorProvider = ({ children }) => {
             });
     };
 
-    const vendorHasType = (v, type) =>
-        v?.type === type || (Array.isArray(v?.types) && v.types.includes(type));
-    const getVendorsByType = (type) => vendors.filter((v) => vendorHasType(v, type));
+    const getVendorsByType = (type) =>
+        Array.isArray(vendors) ? vendors.filter((v) => vendorHasCategory(v, type)) : [];
 
     const persistFavorites = useCallback((next) => {
         const list = uniq(next);
