@@ -1,25 +1,87 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import SearchModal from './SearchModal';
 
 const HIDDEN_PATHS = ['/design-invitation', '/rsvp', '/login', '/register'];
+const SHOW_AFTER_PX = 72;
+
+function NavIcon({ name }) {
+    const common = {
+        viewBox: '0 0 24 24',
+        width: 20,
+        height: 20,
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.7,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        'aria-hidden': true,
+        focusable: 'false',
+    };
+
+    if (name === 'home') {
+        return (
+            <svg {...common}>
+                <path d="M4 11.2L12 4.5l8 6.7V20a.8.8 0 0 1-.8.8h-5.2v-5.4h-4V20.8H4.8A.8.8 0 0 1 4 20v-8.8z" />
+            </svg>
+        );
+    }
+    if (name === 'search') {
+        return (
+            <svg {...common}>
+                <circle cx="11" cy="11" r="6.2" />
+                <path d="M16.2 16.2L21 21" />
+            </svg>
+        );
+    }
+    if (name === 'heart') {
+        return (
+            <svg {...common}>
+                <path d="M12 20s-7.2-4.3-7.2-9.1C4.8 8.2 6.8 6.2 9.2 6.2c1.4 0 2.5.7 2.8 1.8.3-1.1 1.4-1.8 2.8-1.8 2.4 0 4.4 2 4.4 4.7C19.2 15.7 12 20 12 20z" />
+            </svg>
+        );
+    }
+    return (
+        <svg {...common}>
+            <rect x="5" y="3.5" width="14" height="17" rx="2" />
+            <path d="M8.2 8h7.6M8.2 12h7.6M8.2 16h3.2M12.8 16h3" />
+        </svg>
+    );
+}
 
 export default function MobileNav() {
     const pathname = usePathname();
+    const router = useRouter();
     const [searchOpen, setSearchOpen] = useState(false);
+    const [revealed, setRevealed] = useState(false);
 
-    if (pathname?.startsWith('/admin')) return null;
-    if (HIDDEN_PATHS.some((p) => pathname === p || pathname?.startsWith(`${p}/`))) return null;
+    const isHiddenPage =
+        pathname?.startsWith('/admin') ||
+        HIDDEN_PATHS.some((p) => pathname === p || pathname?.startsWith(`${p}/`));
+    const isHome = pathname === '/';
+
+    useEffect(() => {
+        if (isHiddenPage) return undefined;
+        if (!isHome) {
+            setRevealed(true);
+            return undefined;
+        }
+
+        const sync = () => setRevealed(window.scrollY > SHOW_AFTER_PX);
+        sync();
+        window.addEventListener('scroll', sync, { passive: true });
+        return () => window.removeEventListener('scroll', sync);
+    }, [isHiddenPage, isHome]);
+
+    if (isHiddenPage) return null;
 
     const navItems = [
-        { id: 'home', label: 'בית', icon: 'fas fa-home', path: '/' },
-        { id: 'search', label: 'חיפוש', icon: 'fas fa-search', action: 'search' },
-        { id: 'favorites', label: 'מועדפים', icon: 'fas fa-heart', path: '/profile' },
-        { id: 'planner', label: 'מתכנן', icon: 'fas fa-calculator', path: '/budget-planner' },
+        { id: 'home', label: 'בית', icon: 'home', path: '/' },
+        { id: 'search', label: 'חיפוש', icon: 'search', action: 'search' },
+        { id: 'favorites', label: 'מועדפים', icon: 'heart', path: '/profile' },
+        { id: 'planner', label: 'מתכנן', icon: 'calc', path: '/budget-planner' },
     ];
 
     const isItemActive = (item) => {
@@ -30,54 +92,40 @@ export default function MobileNav() {
         return pathname === item.path || pathname?.startsWith(`${item.path}/`);
     };
 
+    const onItemClick = (item) => {
+        if (item.action === 'search') {
+            setSearchOpen(true);
+            return;
+        }
+        router.push(item.path);
+    };
+
     return (
         <>
-            {/* Hide the bar while SearchModal is open so it never covers modal content */}
             {!searchOpen && (
-                <nav className="mobile-nav-wrapper" aria-label="ניווט תחתון">
+                <nav
+                    className={`mobile-nav-wrapper${revealed ? ' is-revealed' : ''}`}
+                    aria-label="ניווט תחתון"
+                    aria-hidden={!revealed}
+                >
                     <div className="mobile-nav-container">
                         {navItems.map((item) => {
                             const isActive = isItemActive(item);
-                            const className = `mobile-nav-item${isActive ? ' active' : ''}`;
-
-                            const inner = (
-                                <>
-                                    {isActive && (
-                                        <motion.span
-                                            layoutId="mobile-nav-pill"
-                                            className="nav-pill"
-                                            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                                        />
-                                    )}
-                                    <i className={item.icon} aria-hidden />
-                                </>
-                            );
-
-                            if (item.action === 'search') {
-                                return (
-                                    <button
-                                        key={item.id}
-                                        type="button"
-                                        className={className}
-                                        onClick={() => setSearchOpen(true)}
-                                        aria-label={item.label}
-                                        aria-current={isActive ? 'page' : undefined}
-                                    >
-                                        {inner}
-                                    </button>
-                                );
-                            }
-
                             return (
-                                <Link
+                                <button
                                     key={item.id}
-                                    href={item.path}
-                                    className={className}
+                                    type="button"
+                                    className={`mobile-nav-item${isActive ? ' is-active' : ''}`}
+                                    onClick={() => onItemClick(item)}
                                     aria-label={item.label}
                                     aria-current={isActive ? 'page' : undefined}
+                                    tabIndex={revealed ? 0 : -1}
                                 >
-                                    {inner}
-                                </Link>
+                                    <span className="mobile-nav-icon">
+                                        <NavIcon name={item.icon} />
+                                    </span>
+                                    <span className="mobile-nav-text">{item.label}</span>
+                                </button>
                             );
                         })}
                     </div>
@@ -85,95 +133,6 @@ export default function MobileNav() {
             )}
 
             <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-
-            <style jsx>{`
-                .mobile-nav-wrapper {
-                    display: none;
-                    position: fixed;
-                    z-index: 1000;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-                    width: min(360px, calc(100% - 28px));
-                    background: rgba(255, 255, 255, 0.9);
-                    backdrop-filter: blur(18px) saturate(1.15);
-                    -webkit-backdrop-filter: blur(18px) saturate(1.15);
-                    border: 1px solid rgba(143, 115, 68, 0.16);
-                    border-radius: 22px;
-                    box-shadow:
-                        0 1px 0 rgba(255, 255, 255, 0.7) inset,
-                        0 10px 28px rgba(20, 20, 20, 0.1),
-                        0 2px 8px rgba(20, 20, 20, 0.04);
-                    padding: 6px;
-                    box-sizing: border-box;
-                }
-
-                .mobile-nav-container {
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
-                    align-items: stretch;
-                    gap: 4px;
-                    width: 100%;
-                }
-
-                .mobile-nav-item {
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 44px;
-                    width: 100%;
-                    margin: 0;
-                    padding: 0;
-                    border: none;
-                    border-radius: 16px;
-                    background: transparent;
-                    color: #8a8a8a;
-                    text-decoration: none;
-                    cursor: pointer;
-                    font: inherit;
-                    appearance: none;
-                    -webkit-appearance: none;
-                    -webkit-tap-highlight-color: transparent;
-                    transition: color 0.2s ease;
-                    z-index: 0;
-                }
-
-                .mobile-nav-item :global(.nav-pill) {
-                    position: absolute;
-                    inset: 0;
-                    border-radius: 16px;
-                    background: rgba(143, 115, 68, 0.12);
-                    z-index: -1;
-                }
-
-                .mobile-nav-item :global(i) {
-                    position: relative;
-                    font-size: 1.15rem;
-                    line-height: 1;
-                    width: 1.15rem;
-                    text-align: center;
-                    transition: transform 0.2s ease;
-                }
-
-                .mobile-nav-item.active {
-                    color: var(--primary-color, #8F7344);
-                }
-
-                .mobile-nav-item.active :global(i) {
-                    transform: translateY(-0.5px);
-                }
-
-                .mobile-nav-item:active {
-                    color: var(--primary-hover, #6F5834);
-                }
-
-                @media (max-width: 768px) {
-                    .mobile-nav-wrapper {
-                        display: block;
-                    }
-                }
-            `}</style>
         </>
     );
 }

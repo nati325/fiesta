@@ -1647,7 +1647,7 @@ body:not(.admin-area) img {
 @media (max-width: 768px) {
     :root {
         /* Icons-only floating bar ~56px + inset + extra scroll room so content clears the bar */
-        --mobile-nav-height: 56px;
+        --mobile-nav-height: 68px;
         --mobile-bottom-gap: 32px;
         --mobile-chrome-clearance: calc(
             var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
@@ -2547,7 +2547,7 @@ body.studio-mode .app > main {
 @media (max-width: 768px) {
     :root {
         --section-padding: 60px 0;
-        --mobile-nav-height: 56px;
+        --mobile-nav-height: 68px;
         --mobile-bottom-gap: 32px;
         --mobile-chrome-clearance: calc(
             var(--mobile-nav-height) + var(--mobile-bottom-gap) + 10px + var(--safe-bottom)
@@ -3192,13 +3192,32 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     justify-content: center;
     overflow: hidden;
     isolation: isolate;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: none;
     text-align: center;
     margin-bottom: 0;
     height: auto !important;
     min-height: 0;
     max-height: none;
     background-color: #f3ebe0;
+}
+
+/* Cream invitation → charcoal calculator, without covering the CTAs */
+.fiesta-hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 132px;
+    z-index: 5;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(243, 235, 224, 0) 0%,
+        rgba(55, 44, 32, 0.12) 36%,
+        rgba(20, 18, 16, 0.62) 72%,
+        #141210 100%
+    );
 }
 
 .fiesta-hero__stage {
@@ -3325,8 +3344,8 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     width: 100%;
     max-width: calc(100% - (2 * var(--arch-inset)));
     margin: 0 auto;
-    /* Top clearance for fixed header; bottom = 70px under the buttons */
-    padding: clamp(72px, 10vh, 96px) 10px 70px;
+    /* Top clearance for fixed header; extra bottom so the fade sits under the CTAs */
+    padding: clamp(72px, 10vh, 96px) 10px 108px;
     text-align: center;
     color: #2a2218;
     display: flex;
@@ -3606,22 +3625,8 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
         transform: none;
     }
 
-    /* Soft blend from cream hero into dark budget section */
     .fiesta-hero::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 88px;
-        z-index: 5;
-        pointer-events: none;
-        background: linear-gradient(
-            to bottom,
-            rgba(243, 235, 224, 0) 0%,
-            rgba(40, 32, 24, 0.28) 42%,
-            #141210 100%
-        );
+        height: 73px;
     }
 
     /* Continuous overlapping cascade — soft fade at top and bottom */
@@ -3687,13 +3692,13 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
     .fiesta-hero__content {
         max-width: calc(100% - (2 * var(--arch-inset)));
-        padding: clamp(72px, 10vh, 96px) 14px 70px;
+        padding: calc(clamp(88px, 13vh, 124px) - 10px) 14px 65px;
     }
 
     .fiesta-hero__kicker {
         font-size: 0.64rem;
         letter-spacing: 0.26em;
-        margin-bottom: 10px;
+        margin-bottom: 18px;
     }
 
     .fiesta-hero__brand {
@@ -3703,42 +3708,46 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
     .fiesta-hero__flourish {
         width: 100px;
-        margin: 12px auto 16px;
+        margin: 18px auto 26px;
     }
 
     .fiesta-hero__lead {
         font-size: clamp(0.98rem, 3.9vw, 1.12rem);
         max-width: 17ch;
+        margin-bottom: 20px;
     }
 
     .fiesta-hero__diamond {
         width: 4px;
         height: 4px;
-        margin-bottom: 10px;
+        margin-bottom: 18px;
     }
 
     .fiesta-hero__sub {
         font-size: 0.82rem;
-        margin-bottom: 22px;
+        margin-bottom: 36px;
         max-width: 23ch;
         line-height: 1.55;
     }
 
     .fiesta-hero__actions {
-        gap: 8px;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 10px;
         width: 100%;
         max-width: 100%;
     }
 
     .fiesta-hero__btn-primary,
     .fiesta-hero__btn-secondary {
-        flex: 1 1 0;
+        flex: none;
+        width: 100%;
         min-width: 0;
         min-height: 46px;
-        padding: 10px 6px;
-        font-size: clamp(0.8rem, 3vw, 0.88rem);
+        padding: 12px 14px;
+        font-size: 0.88rem;
         line-height: 1.2;
-        white-space: normal;
+        white-space: nowrap;
         transform: none;
     }
 
@@ -3772,8 +3781,8 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 .budget-invite {
     position: relative;
     overflow: hidden;
-    margin-top: 56px;
-    padding: 100px 0;
+    margin-top: 0;
+    padding: 88px 0 100px;
     background:
         radial-gradient(ellipse 55% 50% at 50% 40%, rgba(143, 115, 68, 0.22) 0%, transparent 70%),
         radial-gradient(ellipse 40% 35% at 18% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 65%),
@@ -3787,6 +3796,8 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 100%);
 }
 
 .budget-invite__coin {
@@ -3906,31 +3917,15 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
 
 @media (max-width: 900px) {
     .budget-invite {
-        margin-top: 24px;
-        padding: 64px 0;
+        margin-top: 0;
+        padding: 56px 0 64px;
     }
 }
 
 @media (max-width: 768px) {
     .budget-invite {
         margin-top: 0;
-        padding: 48px 0 40px;
-    }
-
-    .budget-invite::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        height: 56px;
-        z-index: 0;
-        pointer-events: none;
-        background: linear-gradient(
-            to bottom,
-            rgba(243, 235, 224, 0.14) 0%,
-            transparent 100%
-        );
+        padding: 40px 0 48px;
     }
 
     .budget-invite__coin:nth-child(n + 7) {
@@ -3948,5 +3943,128 @@ body.admin-mode .crm-nav-links a.nav-btn-special.active {
     .budget-invite__coin {
         animation: none;
         display: none;
+    }
+}
+
+/* —— Mobile bottom nav: locked 4-up grid, identical cells —— */
+.mobile-nav-wrapper {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    width: min(348px, calc(100% - 32px));
+    background: rgba(250, 247, 241, 0.9);
+    backdrop-filter: blur(22px) saturate(1.2);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    border: 1px solid rgba(143, 115, 68, 0.22);
+    border-radius: 18px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.65) inset,
+        0 12px 36px rgba(28, 22, 16, 0.14);
+    padding: 6px;
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(-50%, 12px, 0);
+    transition:
+        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0.5s;
+}
+
+.mobile-nav-wrapper.is-revealed {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate3d(-50%, 0, 0);
+}
+
+.mobile-nav-container {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    width: 100%;
+}
+
+.mobile-nav-item {
+    all: unset;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: 20px 16px;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    justify-items: center;
+    row-gap: 4px;
+    width: 100%;
+    height: 52px;
+    padding: 6px 2px 6px;
+    border-radius: 12px;
+    color: #8a8176;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    overflow: hidden;
+}
+
+.mobile-nav-icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.mobile-nav-text {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    height: 16px;
+    margin: 0;
+    padding: 0 2px;
+    overflow: hidden;
+    font-family: var(--font-main);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: inherit;
+    direction: rtl;
+}
+
+.mobile-nav-item.is-active {
+    color: #8f7344;
+    background: rgba(143, 115, 68, 0.08);
+}
+
+.mobile-nav-item:active {
+    color: #6f5834;
+}
+
+@media (max-width: 768px) {
+    .mobile-nav-wrapper {
+        display: block;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mobile-nav-wrapper {
+        transform: translateX(-50%);
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .mobile-nav-wrapper.is-revealed {
+        transform: translateX(-50%);
     }
 }
