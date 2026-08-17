@@ -66,10 +66,10 @@ export default function BudgetInvite() {
 
             <div className="budget-invite__container">
                 <div className="budget-invite__copy">
-                    <p className="budget-invite__kicker">כלי תכנון של Fiesta</p>
-                    <h2 id="budget-invite-title">מה נכנס בתקציב שלכם?</h2>
+                    <p className="budget-invite__kicker">מחשבון תקציב</p>
+                    <h2 id="budget-invite-title">לא יודעים איך לחלק את התקציב?</h2>
                     <p className="budget-invite__lead">
-                        הזינו סכום ובחרו קטגוריות — המחשבון ירכיב שילוב ספקים שנשאר בתוך המסגרת.
+                        המחשבון מראה איך לבנות את האירוע במסגרת הסכום שלכם — עם ספקים במחיר Fiesta.
                     </p>
                     <Link href="/budget-planner" className="budget-invite__cta">
                         פתחו את מחשבון התקציב

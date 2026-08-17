@@ -7,6 +7,7 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import TrafficTracker from '@/components/TrafficTracker';
 import SiteEditBar from '@/components/SiteEditBar';
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
 
 const heebo = Heebo({
     subsets: ['hebrew', 'latin'],
@@ -49,7 +50,7 @@ export default function RootLayout({ children }) {
                         <footer className="footer">
                             <div className="container">
                                 <div className="footer-bottom">
-                                    <p className="footer-brand" aria-label="Fiesta">Fiesta</p>
+                                    <BrandMark as="p" variant="footer" className="footer-brand" />
                                     <p className="footer-free-msg">השירות ב־Fiesta ניתן בחינם לטובת הקהילה</p>
                                     <p>&copy; {new Date().getFullYear()} Fiesta Events. כל הזכויות שמורות.</p>
                                     <p className="footer-admin-link">

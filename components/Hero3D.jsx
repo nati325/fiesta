@@ -3,6 +3,8 @@
 import { useRef } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
+import { useAuth } from '@/context/AuthContext';
 
 /** Extra tiles only show on mobile (CSS); enough to reach the hero bottom. */
 const FLOWER_COPIES = 7;
@@ -47,6 +49,9 @@ function FlowerColumn({ side, reduce }) {
 export default function Hero3D({ onOpenOnboarding: _onOpenOnboarding }) {
   const reduce = useReducedMotion();
   const sectionRef = useRef(null);
+  const { hasOnboarded, eventReady, user } = useAuth();
+  const returning = eventReady && hasOnboarded;
+  const name = user?.name ? `, ${user.name}` : '';
 
   return (
     <section ref={sectionRef} className="fiesta-hero" aria-label="Fiesta — הפקת אירועים">
@@ -73,7 +78,7 @@ export default function Hero3D({ onOpenOnboarding: _onOpenOnboarding }) {
         <div className="fiesta-hero__content">
           <p className="fiesta-hero__kicker">הפקת אירועים</p>
 
-          <h1 className="fiesta-hero__brand">Fiesta</h1>
+          <BrandMark as="h1" variant="hero" className="fiesta-hero__brand" priority />
 
           <div className="fiesta-hero__flourish" aria-hidden>
             <svg viewBox="0 0 140 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,26 +89,32 @@ export default function Hero3D({ onOpenOnboarding: _onOpenOnboarding }) {
             </svg>
           </div>
 
-          <p className="fiesta-hero__lead">אירוע החלומות שלכם, בלי פשרות.</p>
+          <p className="fiesta-hero__lead">
+            {returning
+              ? `ברוכים הבאים חזרה${name}`
+              : 'חוסכים 5%–10% על ספקים לאירוע שלכם'}
+          </p>
 
           <div className="fiesta-hero__diamond" aria-hidden />
 
           <p className="fiesta-hero__sub">
-            ספקים מובילים, מחירים בלעדיים וליווי מקצועי – בחינם.
+            {returning
+              ? 'ממשיכים מאיפה שעצרתם — האירוע, הספקים והסל כבר מחכים.'
+              : 'בוחרים ספקים, בונים סל, וסוגרים במחיר Fiesta — עם ליווי אישי בחינם.'}
           </p>
 
           <div className="fiesta-hero__actions">
-            <button
-              type="button"
+            <Link
+              href={returning ? '/my-event' : '/event-setup'}
               className="fiesta-hero__btn-primary"
-              onClick={() =>
-                document.getElementById('browse')?.scrollIntoView({ behavior: 'smooth' })
-              }
             >
-              מצאו ספק
-            </button>
-            <Link href="/budget-planner" className="fiesta-hero__btn-secondary">
-              מחשבון תקציב
+              {returning ? 'המשיכו מהנקודה האחרונה' : 'בואו נכיר את האירוע'}
+            </Link>
+            <Link
+              href={returning ? '/vendors' : '/budget-planner'}
+              className="fiesta-hero__btn-secondary"
+            >
+              {returning ? 'לכל הספקים' : 'מחשבון תקציב'}
             </Link>
           </div>
         </div>

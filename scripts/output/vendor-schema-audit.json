@@ -1,0 +1,286 @@
+{
+  "scannedAt": "2026-07-30T16:09:39.307Z",
+  "total": 20,
+  "withIssues": 13,
+  "clean": 7,
+  "byKind": {
+    "unknown_keys": 6,
+    "bad_agreement": 3,
+    "bad_portfolio_item": 2,
+    "wrong_type": 1,
+    "missing_image": 7
+  },
+  "typeCounts": {
+    "dj": 18,
+    "venue": 1,
+    "makeup": 1
+  },
+  "agentPushedCount": 6,
+  "agentPushedNames": [
+    "סיה | Sia Events מתחם אירועים, נס ציונה",
+    "אליהו ידגרוב | Dj Eliyahu Yadgarov",
+    "דיג׳י איזי | DJ EASY EASY",
+    "אקפלה",
+    "ליאור פרץ | Full Volume דיגיי לחתונה",
+    "חושן קשאני מאפרת | HOSHEN KASHANI מאפרת כלות וערב"
+  ],
+  "problemVendors": [
+    {
+      "name": "אליהו ידגרוב | Dj Eliyahu Yadgarov",
+      "type": "dj",
+      "contact": "058-4474558",
+      "agent": true,
+      "issueCount": 4,
+      "issues": [
+        "unknown_keys: contentCleanVersion, contentCleanedAt",
+        "bad_agreement: /documents/agreements/agreement_0584474558.pdf",
+        "bad_portfolio_item: index 1: bad image 0",
+        "wrong_type: reviews: expected array, got object"
+      ],
+      "hasImage": true,
+      "portfolioLen": 2,
+      "reviewsLen": -1,
+      "sampleKeys": [
+        "contentCleanVersion",
+        "contentCleanedAt"
+      ]
+    },
+    {
+      "name": "דיג׳י איזי | DJ EASY EASY",
+      "type": "dj",
+      "contact": "050-7984019",
+      "agent": true,
+      "issueCount": 3,
+      "issues": [
+        "unknown_keys: contentCleanVersion, contentCleanedAt",
+        "bad_agreement: /documents/agreements/agreement_0507984019.pdf",
+        "bad_portfolio_item: index 1: bad image 400"
+      ],
+      "hasImage": true,
+      "portfolioLen": 2,
+      "reviewsLen": 4,
+      "sampleKeys": [
+        "contentCleanVersion",
+        "contentCleanedAt"
+      ]
+    },
+    {
+      "name": "אקפלה",
+      "type": "dj",
+      "contact": "052-3586868",
+      "agent": true,
+      "issueCount": 2,
+      "issues": [
+        "unknown_keys: contentCleanVersion, contentCleanedAt",
+        "bad_agreement: /documents/agreements/agreement_0523586868.mp4"
+      ],
+      "hasImage": true,
+      "portfolioLen": 5,
+      "reviewsLen": 5,
+      "sampleKeys": [
+        "contentCleanVersion",
+        "contentCleanedAt"
+      ]
+    },
+    {
+      "name": "שרון כהן",
+      "type": "dj",
+      "contact": "0544850419",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "unknown_keys: contentCleanSkipped, contentCleanVersion, contentCleanedAt"
+      ],
+      "hasImage": true,
+      "portfolioLen": 0,
+      "reviewsLen": -1,
+      "sampleKeys": [
+        "contentCleanSkipped",
+        "contentCleanVersion",
+        "contentCleanedAt"
+      ]
+    },
+    {
+      "name": "סיה | Sia Events מתחם אירועים, נס ציונה",
+      "type": "venue",
+      "contact": "052-9709902",
+      "agent": true,
+      "issueCount": 1,
+      "issues": [
+        "unknown_keys: contentCleanVersion, contentCleanedAt"
+      ],
+      "hasImage": true,
+      "portfolioLen": 5,
+      "reviewsLen": -1,
+      "sampleKeys": [
+        "contentCleanVersion",
+        "contentCleanedAt"
+      ]
+    },
+    {
+      "name": "ליאור פרץ | Full Volume דיגיי לחתונה",
+      "type": "dj",
+      "contact": "052-3300403",
+      "agent": true,
+      "issueCount": 1,
+      "issues": [
+        "unknown_keys: contentCleanVersion, contentCleanedAt"
+      ],
+      "hasImage": true,
+      "portfolioLen": 2,
+      "reviewsLen": 5,
+      "sampleKeys": [
+        "contentCleanVersion",
+        "contentCleanedAt"
+      ]
+    },
+    {
+      "name": "ANIMA",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    },
+    {
+      "name": "SLUKI",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    },
+    {
+      "name": "HEFETZ | Michael Hefetz",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    },
+    {
+      "name": "SHAKEL | Shaked Levi",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    },
+    {
+      "name": "BAR SHAKED",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    },
+    {
+      "name": "IDAN PARTY BOY | Fribert",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    },
+    {
+      "name": "HANAN RIVO | SOLIX",
+      "type": "dj",
+      "contact": "053-3452322",
+      "agent": false,
+      "issueCount": 1,
+      "issues": [
+        "missing_image: no main image"
+      ],
+      "hasImage": false,
+      "portfolioLen": 0,
+      "reviewsLen": 0,
+      "sampleKeys": []
+    }
+  ],
+  "sampleAgentShape": {
+    "name": "סיה | Sia Events מתחם אירועים, נס ציונה",
+    "type": "venue",
+    "keys": [
+      "_id",
+      "name",
+      "type",
+      "description",
+      "contact",
+      "image",
+      "region",
+      "price",
+      "originalPrice",
+      "discount",
+      "discountType",
+      "commissionAmount",
+      "agreementSigned",
+      "agreementImage",
+      "googleReviewsLink",
+      "googleRating",
+      "googleReviewsCount",
+      "adminNotes",
+      "instagramLink",
+      "priceIncludesVat",
+      "eventTypes",
+      "videos",
+      "products",
+      "portfolio",
+      "mainProductId",
+      "createdAt",
+      "contentCleanVersion",
+      "contentCleanedAt",
+      "updatedAt"
+    ],
+    "priceType": "string",
+    "commissionType": "number",
+    "portfolioSample": [
+      {
+        "title": "תמונה 1",
+        "image": "https://res.cloudinary.com/dek0tfcbr/image/upload/v1784624269/fiesta-vendors/vendor-6a137d84d20d1a5351a3ba3f-p0.jpg"
+      },
+      {
+        "title": "תמונה 2",
+        "image": "https://res.cloudinary.com/dek0tfcbr/image/upload/v1784624271/fiesta-vendors/vendor-6a137d84d20d1a5351a3ba3f-p1.jpg"
+      }
+    ],
+    "reviewSample": [],
+    "image": "https://res.cloudinary.com/dek0tfcbr/image/upload/v1784624268/fiesta-vendors/vendor-6a137d84d20d1a53",
+    "agreement": ""
+  }
+}

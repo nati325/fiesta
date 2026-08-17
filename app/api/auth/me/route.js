@@ -25,7 +25,8 @@ export async function GET(request) {
                     username: 'admin',
                     name: 'מנהל מערכת',
                     isAdmin: true,
-                    favorites: []
+                    favorites: [],
+                    eventJourney: null,
                 }
             });
         }
@@ -44,7 +45,8 @@ export async function GET(request) {
                 email: user.email,
                 name: user.name,
                 isAdmin: user.isAdmin,
-                favorites: Array.isArray(user.favorites) ? user.favorites.map(String) : []
+                favorites: Array.isArray(user.favorites) ? user.favorites.map(String) : [],
+                eventJourney: user.eventJourney || null,
             }
         });
     } catch {

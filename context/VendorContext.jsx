@@ -7,6 +7,7 @@ import { vendorHasCategory } from '@/lib/vendorCategories';
 
 const VendorContext = createContext();
 const FAV_KEY = 'fiesta_favorites';
+const CART_KEY = 'fiesta_event_cart';
 
 export const useVendors = () => useContext(VendorContext);
 
@@ -21,20 +22,34 @@ function readLocalFavorites() {
     }
 }
 
+function readLocalCart() {
+    try {
+        const saved = localStorage.getItem(CART_KEY);
+        if (!saved) return [];
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+        return [];
+    }
+}
+
 function uniq(list) {
     return [...new Set((list || []).map(String).filter(Boolean))];
 }
 
 export const VendorProvider = ({ children }) => {
-    const { token, user } = useAuth();
+    const { token, user, journeyHydrated } = useAuth();
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
+    const [cart, setCart] = useState([]);
     const syncedUserRef = useRef(null);
+    const syncedCartUserRef = useRef(null);
     const skipNextPersist = useRef(false);
 
     useEffect(() => {
         setFavorites(readLocalFavorites());
+        setCart(readLocalCart());
     }, []);
 
     useEffect(() => {
@@ -44,6 +59,45 @@ export const VendorProvider = ({ children }) => {
         }
         localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
     }, [favorites]);
+
+    useEffect(() => {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }, [cart]);
+
+    // Cart is anonymous until sign-in; then merge it into the account so it
+    // can be restored on another device.
+    useEffect(() => {
+        const userId = user?.id ? String(user.id) : null;
+        if (!userId || !token || String(userId).startsWith('master-admin')) {
+            syncedCartUserRef.current = null;
+            return;
+        }
+        if (!journeyHydrated) return;
+        if (syncedCartUserRef.current === userId) return;
+        syncedCartUserRef.current = userId;
+
+        const remote = Array.isArray(user?.eventJourney?.cart)
+            ? user.eventJourney.cart.map(String)
+            : [];
+        const local = readLocalCart();
+        const merged = uniq([...remote, ...local]);
+        setCart(merged);
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        fetch('/api/auth/event-journey?mode=patch', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            credentials: 'include',
+            body: JSON.stringify({ cart: merged }),
+            signal: controller.signal,
+        })
+            .catch(() => {})
+            .finally(() => clearTimeout(timeout));
+    }, [user?.id, user?.eventJourney?.cart, token, journeyHydrated]);
 
     // Merge local + server favorites when user logs in / session restores
     useEffect(() => {
@@ -77,17 +131,25 @@ export const VendorProvider = ({ children }) => {
     const fetchVendors = useCallback(() => {
         setLoading(true);
         const headers = user?.isAdmin && token ? getAdminHeaders(false) : {};
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
 
-        fetch('/api/vendors', { headers })
+        fetch('/api/vendors', { headers, signal: controller.signal })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
             })
             .then(data => setVendors(Array.isArray(data) ? data : []))
             .catch(err => {
-                console.error('Error fetching vendors:', err);
+                if (err?.name !== 'AbortError') {
+                    console.error('Error fetching vendors:', err);
+                }
+                setVendors([]);
             })
-            .finally(() => setLoading(false));
+            .finally(() => {
+                clearTimeout(timeout);
+                setLoading(false);
+            });
     }, [token, user?.isAdmin]);
 
     useEffect(() => {
@@ -193,12 +255,61 @@ export const VendorProvider = ({ children }) => {
     };
 
     const isFavorite = (id) => favorites.includes(String(id));
+    const isInCart = (id) => cart.includes(String(id));
+    const toggleCart = (id) => {
+        const sid = String(id);
+        setCart((prev) => {
+            const next = prev.includes(sid) ? prev.filter((item) => item !== sid) : [...prev, sid];
+            if (token && user?.id && !String(user.id).startsWith('master-admin')) {
+                fetch('/api/auth/event-journey?mode=patch', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    credentials: 'include',
+                    body: JSON.stringify({ cart: next }),
+                }).catch(() => {});
+            }
+            return next;
+        });
+    };
+    const removeFromCart = (id) => {
+        const sid = String(id);
+        setCart((prev) => {
+            if (!prev.includes(sid)) return prev;
+            const next = prev.filter((item) => item !== sid);
+            if (token && user?.id && !String(user.id).startsWith('master-admin')) {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 8000);
+                fetch('/api/auth/event-journey?mode=patch', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    credentials: 'include',
+                    body: JSON.stringify({ cart: next }),
+                    signal: controller.signal,
+                })
+                    .catch(() => {})
+                    .finally(() => clearTimeout(timeout));
+            }
+            return next;
+        });
+    };
+    const clearCart = () => {
+        setCart([]);
+        if (token && user?.id && !String(user.id).startsWith('master-admin')) {
+            fetch('/api/auth/event-journey?mode=patch', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                credentials: 'include',
+                body: JSON.stringify({ cart: [] }),
+            }).catch(() => {});
+        }
+    };
 
     return (
         <VendorContext.Provider value={{
             vendors, loading, addVendor, deleteVendor, updateVendor,
             getVendorsByType, favorites, toggleFavorite, isFavorite,
             setFavorites: persistFavorites,
+            cart, toggleCart, isInCart, removeFromCart, clearCart,
             refreshVendors: fetchVendors
         }}>
             {children}

@@ -6,15 +6,13 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useVendors } from '@/context/VendorContext';
-import VendorCardImage from '@/components/VendorCardImage';
-import { resolveVendorImage } from '@/lib/vendorImage';
-import { getVendorDisplayPrice } from '@/lib/vendorPrice';
+import VendorCard from '@/components/VendorCard';
 
 const WA_PHONE = '972535378985';
 
 export default function ProfilePage() {
   const { user, loading: authLoading, logout } = useAuth();
-  const { vendors, favorites, toggleFavorite, loading: vendorsLoading } = useVendors();
+  const { vendors, favorites, loading: vendorsLoading } = useVendors();
   const router = useRouter();
 
   useEffect(() => {
@@ -94,57 +92,15 @@ export default function ProfilePage() {
                   <i className="far fa-heart"></i>
                   <h3>עדיין אין מועדפים</h3>
                   <p>לחצו על אהבתי בדף של ספק והוא יופיע כאן</p>
-                  <Link href="/category/dj" className="btn-primary">
+                  <Link href="/vendors" className="btn-primary">
                     לגלות ספקים
                   </Link>
                 </motion.div>
               ) : (
                 <div className="cart-grid">
-                  {favoriteVendors.map((v) => {
-                    const price = getVendorDisplayPrice(v);
-                    return (
-                      <motion.article
-                        key={v.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        className="cart-card"
-                      >
-                        <button
-                          type="button"
-                          className="cart-media"
-                          onClick={() => router.push(`/vendor/${v.id}`)}
-                        >
-                          <VendorCardImage
-                            src={resolveVendorImage(v.image, '')}
-                            alt={v.name}
-                          />
-                        </button>
-                        <div className="cart-body">
-                          <button
-                            type="button"
-                            className="cart-title"
-                            onClick={() => router.push(`/vendor/${v.id}`)}
-                          >
-                            {v.name}
-                          </button>
-                          <div className="cart-row">
-                            {price.display ? <span className="cart-price">{price.display}</span> : <span />}
-                            <button
-                              type="button"
-                              className="cart-remove"
-                              onClick={() => toggleFavorite(v.id)}
-                              aria-label="הסר ממועדפים"
-                            >
-                              <i className="fas fa-heart"></i>
-                              הסר
-                            </button>
-                          </div>
-                        </div>
-                      </motion.article>
-                    );
-                  })}
+                  {favoriteVendors.map((v, i) => (
+                    <VendorCard key={v.id} vendor={v} index={i} />
+                  ))}
                 </div>
               )}
             </AnimatePresence>
@@ -159,7 +115,7 @@ export default function ProfilePage() {
           padding: 110px 0 100px;
         }
         .profile-wrap {
-          max-width: 960px;
+          max-width: 1100px;
         }
         .profile-loading {
           text-align: center;
@@ -268,66 +224,8 @@ export default function ProfilePage() {
         }
         .cart-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-          gap: 14px;
-        }
-        .cart-card {
-          border: 1px solid #ebe7e0;
-          border-radius: 16px;
-          overflow: hidden;
-          background: #fff;
-        }
-        .cart-media {
-          display: block;
-          width: 100%;
-          height: 160px;
-          padding: 0;
-          border: none;
-          background: #f3f1ec;
-          cursor: pointer;
-          position: relative;
-        }
-        .cart-body {
-          padding: 12px 14px 14px;
-        }
-        .cart-title {
-          display: block;
-          width: 100%;
-          text-align: right;
-          border: none;
-          background: none;
-          padding: 0;
-          margin: 0 0 10px;
-          font-weight: 700;
-          font-size: 1rem;
-          color: #141414;
-          cursor: pointer;
-          font-family: inherit;
-        }
-        .cart-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 8px;
-        }
-        .cart-price {
-          font-weight: 800;
-          color: #111;
-        }
-        .cart-remove {
-          border: none;
-          background: #fff1f2;
-          color: #e11d48;
-          border-radius: 8px;
-          padding: 10px 14px;
-          min-height: 44px;
-          font-size: 0.85rem;
-          font-weight: 700;
-          cursor: pointer;
-          font-family: inherit;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 16px;
         }
         @media (max-width: 640px) {
           .profile-page {
@@ -336,6 +234,9 @@ export default function ProfilePage() {
           }
           .profile-cart {
             padding: 16px;
+          }
+          .cart-grid {
+            grid-template-columns: 1fr;
           }
           .profile-actions {
             display: flex;

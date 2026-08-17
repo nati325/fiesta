@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import BrandMark from '@/components/BrandMark';
 
 function RSVPContent() {
     const [step, setStep] = useState(1); // 1: Welcome/Names, 2: Form, 3: Thank you
@@ -318,7 +319,8 @@ function RSVPContent() {
             </main>
 
             <footer className="rsvp-footer">
-                <p>הופק באמצעות <span className="logo">Fiesta</span></p>
+                <p>הופק באמצעות</p>
+                <BrandMark variant="compact" />
             </footer>
 
             <style jsx global>{`
@@ -448,8 +450,16 @@ function RSVPContent() {
                 }
                 .btn-outline-dark:hover { background: #1a1a1a; color: white; }
 
-                .rsvp-footer { margin-top: 40px; opacity: 0.6; font-size: 0.9rem; }
-                .rsvp-footer .logo { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--primary); }
+                .rsvp-footer {
+                    margin-top: 40px;
+                    opacity: 0.85;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                }
+                .rsvp-footer p { margin: 0; }
 
                 @media (max-width: 480px) {
                     .rsvp-root { padding: 16px !important; }

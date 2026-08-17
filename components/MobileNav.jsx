@@ -43,6 +43,15 @@ function NavIcon({ name }) {
             </svg>
         );
     }
+    if (name === 'cart') {
+        return (
+            <svg {...common}>
+                <path d="M3.5 4.5h2l1.8 10.2h10.7l1.8-7.2H7" />
+                <circle cx="9" cy="19" r="1.2" />
+                <circle cx="17" cy="19" r="1.2" />
+            </svg>
+        );
+    }
     return (
         <svg {...common}>
             <rect x="5" y="3.5" width="14" height="17" rx="2" />
@@ -80,13 +89,13 @@ export default function MobileNav() {
     const navItems = [
         { id: 'home', label: 'בית', icon: 'home', path: '/' },
         { id: 'search', label: 'חיפוש', icon: 'search', action: 'search' },
-        { id: 'favorites', label: 'מועדפים', icon: 'heart', path: '/profile' },
-        { id: 'planner', label: 'מתכנן', icon: 'calc', path: '/budget-planner' },
+        { id: 'cart', label: 'סל', icon: 'cart', path: '/cart' },
+        { id: 'event', label: 'האירוע', icon: 'calc', path: '/my-event' },
     ];
 
     const isItemActive = (item) => {
         if (item.action === 'search') {
-            return searchOpen || pathname?.startsWith('/search') || pathname?.startsWith('/category');
+            return searchOpen || pathname?.startsWith('/search') || pathname?.startsWith('/category') || pathname === '/vendors';
         }
         if (item.path === '/') return pathname === '/';
         return pathname === item.path || pathname?.startsWith(`${item.path}/`);

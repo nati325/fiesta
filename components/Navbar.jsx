@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useVendors } from '@/context/VendorContext';
 import SearchModal from './SearchModal';
+import BrandMark from './BrandMark';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const { user, logout } = useAuth();
+    const { cart } = useVendors();
     const [searchModalOpen, setSearchModalOpen] = useState(false);
 
     useEffect(() => {
@@ -49,7 +52,7 @@ const Navbar = () => {
             <div className="header-container">
                 <div className="header-brand-row">
                     <Link href="/" className="logo" style={{ textDecoration: 'none' }}>
-                        <h1>Fiesta</h1>
+                        <BrandMark as="h1" variant="nav" priority />
                         <span className="tagline">הפקת אירועים</span>
                     </Link>
                 </div>
@@ -145,11 +148,19 @@ const Navbar = () => {
                                 מחשבון תקציב
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/my-event" className={isActive('/my-event')}>
+                                האירוע שלי
+                            </Link>
+                        </li>
                         <li className="dropdown">
-                            <span className="dropdown-trigger">ספקים <i className="fas fa-chevron-down"></i></span>
+                            <Link href="/vendors" className={`dropdown-trigger ${isActive('/vendors') || pathname?.startsWith('/category/') ? 'active' : ''}`}>
+                                ספקים <i className="fas fa-chevron-down"></i>
+                            </Link>
                             <div className="dropdown-menu mega-menu">
                                 <div className="mega-col">
                                     <h4>מרכז האירוע</h4>
+                                    <Link href="/vendors" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-th-large"></i> כל הקטגוריות</Link>
                                     <Link href="/category/dj" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-music"></i> DJ ומוזיקה</Link>
                                     <Link href="/category/photographer" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-camera-retro"></i> צילום אירועים</Link>
                                     <Link href="/category/alcohol" onClick={() => setMobileMenuOpen(false)}><i className="fas fa-glass-cheers"></i> אלכוהול ובר</Link>
@@ -203,6 +214,31 @@ const Navbar = () => {
                             </div>
                         </li>
                         <li><Link href="/category/venue" className={isActive('/category/venue')}>אולמות</Link></li>
+                        <li>
+                            <Link href="/cart" className={isActive('/cart')} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: 'var(--text-dark)',
+                                fontWeight: '500',
+                            }}>
+                                <i className="fas fa-cart-shopping" style={{ color: 'var(--primary-color)' }}></i>
+                                <span>סל</span>
+                                {cart.length > 0 && (
+                                    <span style={{
+                                        background: 'var(--charcoal)',
+                                        color: '#fff',
+                                        borderRadius: '999px',
+                                        minWidth: '18px',
+                                        height: '18px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '0.68rem',
+                                    }}>{cart.length}</span>
+                                )}
+                            </Link>
+                        </li>
                         <li style={{ marginLeft: '15px' }}>
                             {!user ? (
                                 <Link href="/login?next=/profile" style={{ 
@@ -278,7 +314,7 @@ const Navbar = () => {
             <div className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`} aria-hidden={!mobileMenuOpen}>
                 <div className="mobile-nav-header">
                     <div className="logo">
-                        <h1>Fiesta</h1>
+                        <BrandMark as="h1" variant="nav" />
                     </div>
                     <div className="mobile-menu-btn" onClick={closeMobileMenu} role="button" tabIndex={0} aria-label="סגור תפריט">
                         <i className="fas fa-times"></i>
@@ -307,6 +343,15 @@ const Navbar = () => {
                         </Link>
                         <Link href="/budget-planner" onClick={closeMobileMenu}>
                             <i className="fas fa-calculator"></i> מחשבון תקציב
+                        </Link>
+                        <Link href="/cart" onClick={closeMobileMenu}>
+                            <i className="fas fa-cart-shopping"></i> הסל שלי{cart.length > 0 ? ` (${cart.length})` : ''}
+                        </Link>
+                        <Link href="/my-event" onClick={closeMobileMenu}>
+                            <i className="fas fa-route"></i> האירוע שלי
+                        </Link>
+                        <Link href="/vendors" onClick={closeMobileMenu}>
+                            <i className="fas fa-store"></i> כל הספקים
                         </Link>
                         <Link href="/guest-rsvp" onClick={closeMobileMenu}>
                             <i className="fas fa-clipboard-check"></i> אישורי הגעה

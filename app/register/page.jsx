@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -41,7 +42,7 @@ export default function RegisterPage() {
                         <i className="fas fa-arrow-right"></i> חזרה
                     </Link>
                 </div>
-                <div className="auth-brand">Fiesta</div>
+                <BrandMark variant="auth" className="auth-brand" />
                 <h2>יצירת חשבון</h2>
                 <p className="auth-sub">
                     שם משתמש וסיסמה — ואתם בפנים. השימוש ב־Fiesta תמיד בחינם.
@@ -124,23 +125,9 @@ export default function RegisterPage() {
                 }
                 .auth-back i { margin-left: 8px; }
                 .auth-brand {
-                    font-family: var(--font-display);
-                    font-size: 1.85rem;
-                    font-weight: 700;
-                    text-align: center;
-                    margin-bottom: 8px;
-                    letter-spacing: 0.02em;
-                    background: linear-gradient(
-                        165deg,
-                        #2a2218 0%,
-                        #5c4a2e 35%,
-                        #8f7344 62%,
-                        #c4a574 100%
-                    );
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
-                    -webkit-text-fill-color: transparent;
+                    display: flex;
+                    justify-content: center;
+                    margin: 0 auto 10px;
                 }
                 .auth-card h2 {
                     text-align: center;

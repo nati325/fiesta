@@ -1,113 +1,62 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import PackagesCarousel from '@/components/PackagesCarousel';
 import Hero3D from '@/components/Hero3D';
+import HomeStepVisual from '@/components/HomeStepVisual';
 import BudgetInvite from '@/components/BudgetInvite';
 import { useAuth } from '@/context/AuthContext';
 
-const SUPPLIER_GROUPS = [
+const HOW_STEPS = [
     {
-        id: 'main', label: 'מרכז האירוע', icon: 'fa-star', suppliers: [
-            { type: 'dj', icon: 'fa-music', title: 'DJ ומוזיקה' },
-            { type: 'photographer', icon: 'fa-camera-retro', title: 'צילום אירועים' },
-            { type: 'alcohol', icon: 'fa-glass-cheers', title: 'אלכוהול ובר' },
-            { type: 'catering', icon: 'fa-utensils', title: 'קייטרינג' },
-            { type: 'venue', icon: 'fa-building', title: 'אולמות וגנים' },
-            { type: 'design', icon: 'fa-palette', title: 'עיצוב אירועים' }
-        ]
+        n: '01',
+        visual: 'pick',
+        title: 'בוחרים ספקים',
+        text: 'מקום, מוזיקה, צילום ועיצוב — לפי האירוע שלכם.',
+        why: 'בלי לרדוף אחרי הצעות בכל מקום.',
     },
     {
-        id: 'look', label: 'לוק חתן-כלה', icon: 'fa-user-tie', suppliers: [
-            { type: 'dresses', icon: 'fa-person-dress', title: 'שמלות כלה' },
-            { type: 'suits', icon: 'fa-user-tie', title: 'חליפות חתן' },
-            { type: 'bride-shoes', icon: 'fa-shoe-prints', title: 'נעלי כלה' },
-            { type: 'groom-shoes', icon: 'fa-shoe-prints', title: 'נעלי חתן' },
-            { type: 'hair', icon: 'fa-scissors', title: 'עיצוב שיער' },
-            { type: 'makeup', icon: 'fa-eye', title: 'איפור' },
-            { type: 'rings', icon: 'fa-ring', title: 'טבעות נישואין' }
-        ]
+        n: '02',
+        visual: 'cart',
+        title: 'מוסיפים לסל',
+        text: 'מרכזים את כל הספקים שאהבתם במקום אחד.',
+        why: 'ספקים, תקציב וסל — במערכת אחת.',
     },
     {
-        id: 'planning', label: 'ארגון ולוגיסטיקה', icon: 'fa-calendar-check', suppliers: [
-            { type: 'event-production', icon: 'fa-star', title: 'הפקת אירועים' },
-            { type: 'rsvp', icon: 'fa-check-to-slot', title: 'אישורי הגעה' },
-            { type: 'invitations', icon: 'fa-envelope-open-text', title: 'הזמנות' },
-            { type: 'transportation', icon: 'fa-bus', title: 'הסעות' },
-            { type: 'cars', icon: 'fa-car', title: 'רכבי יוקרה' },
-            { type: 'equipment-rental', icon: 'fa-chair', title: 'השכרת ציוד' }
-        ]
+        n: '03',
+        visual: 'guide',
+        title: 'מקבלים ליווי',
+        text: 'יועץ Fiesta ב־WhatsApp עוזר לסגור את הפרטים.',
+        why: 'מישהו אמיתי שעובר איתכם על האירוע.',
     },
     {
-        id: 'content', label: 'מסורת ותוכן', icon: 'fa-heart', suppliers: [
-            { type: 'rabbi', icon: 'fa-book-open', title: 'רב לחופה' },
-            { type: 'cantors', icon: 'fa-microphone-lines', title: 'חזנים ופייטנים' },
-            { type: 'singers', icon: 'fa-microphone', title: 'זמרים ולהקות' },
-            { type: 'religious-bands', icon: 'fa-guitar', title: 'להקות דתיות' },
-            { type: 'challa', icon: 'fa-bread-slice', title: 'הפרשת חלה' },
-            { type: 'attractions', icon: 'fa-wand-magic-sparkles', title: 'אטרקציות' },
-            { type: 'souvenirs', icon: 'fa-gift', title: 'מזכרות' }
-        ]
+        n: '04',
+        visual: 'piggy',
+        title: 'סוגרים במחיר Fiesta',
+        text: 'חוסכים 5%–10% וממשיכים בביטחון.',
+        why: 'הנחה אמיתית — לא מחיר מנופח.',
     },
-    {
-        id: 'extra', label: 'אירוח ופינוק', icon: 'fa-spa', suppliers: [
-            { type: 'hotels', icon: 'fa-bed', title: 'מלונות' },
-            { type: 'bachelor', icon: 'fa-glass-cheers', title: 'מסיבות רווקים' },
-            { type: 'getting-ready', icon: 'fa-house-user', title: 'התארגנות כלה' },
-            { type: 'dietitians', icon: 'fa-apple-whole', title: 'תזונה ודיאטה' },
-            { type: 'personal-training', icon: 'fa-dumbbell', title: 'כושר ואימון' }
-        ]
-    }
 ];
 
-const CATEGORY_IMAGES = {
-    'dj': 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=500&q=80',
-    'photographer': '/images/event_photographer.png',
-    'alcohol': '/images/bar_hero.png',
-    'catering': '/images/catering.jpeg',
-    'venue': '/images/venue_hero.png',
-    'design': '/images/wedding_floral_arch_1765744424651.png',
-    'dresses': '/images/wedding_dress.jpeg',
-    'suits': '/images/groom_suits.jpeg',
-    'bride-shoes': 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=500&q=80',
-    'groom-shoes': 'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=500&q=80',
-    'hair': 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=500&q=80',
-    'makeup': 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=500&q=80',
-    'rings': '/images/jewelry_hero.png',
-    'event-production': '/images/event_production.jpeg',
-    'rsvp': 'https://images.unsplash.com/photo-1512418490979-92798ccc13fb?auto=format&fit=crop&w=500&q=80',
-    'invitations': '/images/invitations_hero.png',
-    'transportation': '/images/car_hero.png',
-    'cars': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80',
-    'equipment-rental': '/images/wedding_table_detail_1765744408525.png',
-    'rabbi': '/images/rabbi.jpeg',
-    'cantors': 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&w=500&q=80',
-    'singers': '/images/entertainment_hero.png',
-    'religious-bands': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&q=80',
-    'challa': 'https://images.unsplash.com/photo-1610452399201-9a7076594d2f?auto=format&fit=crop&w=500&q=80',
-    'attractions': '/images/attractions_hero.png',
-    'souvenirs': 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=500&q=80',
-    'hotels': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80',
-    'bachelor': 'https://images.unsplash.com/photo-1514525253344-f81bcd3ce942?auto=format&fit=crop&w=500&q=80',
-    'getting-ready': '/images/wedding_lounge_1765744440712.png',
-    'dietitians': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=500&q=80',
-    'personal-training': 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=500&q=80'
-};
+const EVENT_ENTRIES = [
+    { id: 'חתונה', label: 'חתונה', icon: 'fa-ring' },
+    { id: 'בר מצווה', label: 'בר מצווה', num: '13' },
+    { id: 'בת מצווה', label: 'בת מצווה', num: '12' },
+    { id: 'ברית', label: 'ברית', icon: 'fa-baby' },
+    { id: 'אירוע עסקי', label: 'אירוע עסקי', icon: 'fa-briefcase' },
+    { id: 'יום הולדת', label: 'יום הולדת', icon: 'fa-cake-candles' },
+];
 
 export default function HomePage() {
     const [articles, setArticles] = useState([]);
-    const [vendors, setVendors] = useState([]);
     const [contactData, setContactData] = useState({ name: '', phone: '' });
-    const { user, eventPreference, setEventPreference } = useAuth();
+    const { hasOnboarded } = useAuth();
     const [showOnboarding, setShowOnboarding] = useState(false);
 
     useEffect(() => {
-        if (user && !eventPreference) setShowOnboarding(true);
         fetch('/api/articles').then(res => res.json()).then(data => setArticles(Array.isArray(data) ? data : []));
-        fetch('/api/vendors').then(res => res.json()).then(data => setVendors(Array.isArray(data) ? data : []));
-    }, [user, eventPreference]);
+    }, []);
 
     const handleContactSubmit = async (e) => {
         e.preventDefault();
@@ -116,77 +65,134 @@ export default function HomePage() {
         setContactData({ name: '', phone: '' });
     };
 
-    // Calculate counts per category
-    const categoryCounts = useMemo(() => {
-        const counts = {};
-        vendors.forEach(v => {
-            const type = v.type;
-            counts[type] = (counts[type] || 0) + 1;
-        });
-        return counts;
-    }, [vendors]);
+    // Kept only for the legacy modal markup below; the active flow is
+    // /event-setup and this modal is no longer opened.
+    const startWithEvent = () => setShowOnboarding(false);
 
     return (
         <div className="home-container">
-            {/* 1. Hero */}
-            <Hero3D onOpenOnboarding={() => setShowOnboarding(true)} />
+            <Hero3D />
 
-            {/* Budget calculator invite — first tools-carousel frame */}
-            <BudgetInvite />
+            {/* Mission + how it works — first section after hero */}
+            <section className="home-how" id="how" aria-labelledby="home-mission-title">
+                <div className="home-how__inner">
+                    <div className="home-how__mission">
+                        <p className="home-how__kicker">מה זה Fiesta</p>
+                        <h2 id="home-mission-title" className="home-how__title">
+                            פלטפורמה שנבנתה למען עם ישראל
+                        </h2>
+                        <div className="home-how__flourish" aria-hidden>
+                            <svg viewBox="0 0 140 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 9h46" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                                <path d="M86 9h46" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                                <path d="M70 2.2L73.8 9 70 15.8 66.2 9 70 2.2Z" fill="currentColor" />
+                                <path d="M62 9h6M72 9h6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                            </svg>
+                        </div>
 
-            {/* 3. Packages Carousel */}
-            <section className="carousel-section">
-                <PackagesCarousel />
-            </section>
+                        <div className="home-how__story">
+                            <p className="home-how__lead">
+                                יוקר המחיה פוגע בכולנו — גם כשמדובר באירוע משפחתי. Fiesta הוקמה
+                                כדי לתת לכם מקום אחד לתכנן חתונה, בר מצווה או כל חגיגה, בלי לשלם על דמיון.
+                            </p>
+                            <p>
+                                כל הספקים אצלנו נותנים מחיר Fiesta אמיתי. לא «הנחה» על מחיר מקורי
+                                שמישהו המציא, ולא מבצע שנראה נהדר בפרסומת ובסוף לא חסכתם כלום.
+                                המחיר הרגיל הוא מה שהספק באמת גובה — ודרכנו אתם משלמים פחות.
+                            </p>
+                        </div>
 
-            {/* 4. Browse by Category (Visual Grid) */}
-            <section id="browse" className="categories-section">
-                <div className="container">
-                    <div className="section-header">
-                        <h2>מצאו לפי קטגוריה</h2>
-                        <p>ספקים בכל תחום האירוע — ממסיבה ועד חופה</p>
+                        <aside className="home-how__gift" aria-label="מתנה ללקוחות Fiesta">
+                            <p className="home-how__gift-label">מתנה מאיתנו</p>
+                            <p className="home-how__gift-text">
+                                סגרתם איתנו אולם ועוד שני ספקים? או שיש לכם שישה ספקים ומעלה?
+                                תקבלו בוט אישורי הגעה וסידור שולחנות — בחינם.
+                                כי גם שם אנחנו רוצים לחסוך לכם כסף, זמן ועוגמת נפש.
+                            </p>
+                        </aside>
                     </div>
-                    
-                    <div className="categories-grouped">
-                        {SUPPLIER_GROUPS.map((group) => (
-                            <div key={group.id} className="cat-group-block">
-                                <div className="cat-group-header">
-                                    <i className={`fas ${group.icon}`}></i>
-                                    <h3>{group.label}</h3>
-                                </div>
-                                <div className="categories-visual-grid">
-                                    {group.suppliers.map((s) => {
-                                        const count = categoryCounts[s.type] || 0;
-                                        return (
-                                            <Link href={`/category/${s.type}`} key={s.type} className="cat-card-link">
-                                                <div className="cat-card-visual">
-                                                    <div className="cat-img-wrapper">
-                                                        <img 
-                                                            src={CATEGORY_IMAGES[s.type] || '/images/hero_wedding_bg_1765744390134.png'} 
-                                                            alt={s.title} 
-                                                            loading="lazy"
-                                                        />
-                                                        <div className="cat-overlay-premium"></div>
-                                                    </div>
-                                                    <div className="cat-info-premium">
-                                                        <div className="cat-meta">
-                                                            <i className={`fas ${s.icon}`}></i>
-                                                            {count > 0 && <span className="cat-count">{count} ספקים</span>}
-                                                        </div>
-                                                        <h3>{s.title}</h3>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        ))}
+
+                    <div className="home-how__process" id="why" aria-labelledby="home-how-title">
+                        <header className="home-how__head">
+                            <p className="home-how__kicker">איך זה עובד</p>
+                            <h3 id="home-how-title" className="home-how__process-title">
+                                ארבעה שלבים עד אירוע סגור
+                            </h3>
+                            <div className="home-how__diamond" aria-hidden />
+                            <p className="home-how__bridge">
+                                יוקר המחיה לא צריך לשבור את האירוע.
+                                ככה Fiesta מובילה אתכם — שלב אחרי שלב.
+                            </p>
+                        </header>
+
+                        <ol className="home-how__steps">
+                            {HOW_STEPS.map((step) => (
+                                <li key={step.n} className="home-how__step" aria-label={`שלב ${step.n}: ${step.title}`}>
+                                    <HomeStepVisual kind={step.visual} label={`שלב ${step.n}`} />
+                                    <h4>{step.title}</h4>
+                                    <p className="home-how__step-text">{step.text}</p>
+                                    <p className="home-how__step-why">{step.why}</p>
+                                </li>
+                            ))}
+                        </ol>
                     </div>
                 </div>
             </section>
 
-            {/* Articles — only when API returns real items */}
+            {/* Event type entry → vendors */}
+            <section className="home-events" id="events" aria-labelledby="home-events-title">
+                <div className="home-events__inner">
+                    <header className="home-events__head">
+                        <p className="home-events__kicker">הצעד הראשון</p>
+                        <h2 id="home-events-title" className="home-events__title">
+                            בואו נבנה את האירוע
+                        </h2>
+                        <div className="home-events__flourish" aria-hidden>
+                            <svg viewBox="0 0 140 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 9h46" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                                <path d="M86 9h46" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                                <path d="M70 2.2L73.8 9 70 15.8 66.2 9 70 2.2Z" fill="currentColor" />
+                                <path d="M62 9h6M72 9h6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                            </svg>
+                        </div>
+                        <p className="home-events__lead">
+                            בחרו סוג אירוע — ונכנסים לקטלוג הספקים, לתקציב ולסל במקום אחד.
+                        </p>
+                    </header>
+
+                    <div className="home-events__grid">
+                        {EVENT_ENTRIES.map((ev) => (
+                            <Link
+                                key={ev.id}
+                                href="/event-setup"
+                                className="home-events__card"
+                            >
+                                <span className="home-events__icon" aria-hidden="true">
+                                    {ev.num ? (
+                                        <span className="home-events__num">{ev.num}</span>
+                                    ) : (
+                                        <i className={`fas ${ev.icon}`} />
+                                    )}
+                                </span>
+                                <span className="home-events__label">{ev.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+
+                    <div className="home-events__cta">
+                        <Link
+                            href={hasOnboarded ? '/my-event' : '/event-setup'}
+                            className="home-events__btn"
+                        >
+                            {hasOnboarded ? 'האירוע שלי' : 'בואו נכיר את האירוע'}
+                            <i className="fas fa-arrow-left" aria-hidden="true" />
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            <BudgetInvite />
+
             {articles.length > 0 && (
                 <section id="articles" className="articles-home-section">
                     <div className="container">
@@ -211,22 +217,23 @@ export default function HomePage() {
                 </section>
             )}
 
-            {/* 6. Contact Section */}
+            {/* Final CTA */}
             <section id="contact" className="contact-section">
                 <div className="container">
                     <div className="contact-card">
                         <div className="c-text">
-                            <h2>בואו נתכנן ביחד</h2>
-                            <p>השאירו פרטים ויועץ אירועים יחזור אליכם עם כל המידע והמחירים הכי טובים.</p>
+                            <h2>בואו נבנה את האירוע שלכם</h2>
+                            <p>השאירו פרטים — יועץ Fiesta יחזור אליכם עם ספקים, מחירים וליווי אישי.</p>
                             <div className="c-perks">
                                 <span><i className="fas fa-check"></i> מענה מהיר</span>
                                 <span><i className="fas fa-check"></i> ללא התחייבות</span>
+                                <span><i className="fas fa-check"></i> חיסכון 5%–10%</span>
                             </div>
                         </div>
                         <form onSubmit={handleContactSubmit} className="c-form">
                             <input id="contact-name" name="name" type="text" autoComplete="name" placeholder="שם מלא" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
                             <input id="contact-phone" name="phone" type="tel" autoComplete="tel" placeholder="טלפון" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
-                            <button type="submit">שלחו לי הודעה</button>
+                            <button type="submit">דברו איתי</button>
                         </form>
                     </div>
                 </div>
@@ -236,7 +243,7 @@ export default function HomePage() {
                 .home-container { background: var(--white); overflow-x: hidden; }
                 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
 
-                .categories-section { padding: 72px 0; background: var(--white); }
+                .home-section { padding: 72px 0; }
                 .section-header { text-align: right; margin-bottom: 36px; }
                 .section-header h2 {
                     font-size: clamp(1.6rem, 3vw, 2.1rem);
@@ -244,79 +251,7 @@ export default function HomePage() {
                     margin-bottom: 8px;
                     color: var(--text-dark);
                 }
-                .section-header p { color: var(--text-light); font-size: 1rem; }
-
-                .categories-grouped { display: flex; flex-direction: column; gap: 40px; }
-                .cat-group-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 16px;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid var(--border-color);
-                }
-                .cat-group-header i { color: var(--primary-color); font-size: 0.9rem; opacity: 0.85; }
-                .cat-group-header h3 {
-                    font-family: var(--font-main);
-                    font-size: 0.95rem;
-                    font-weight: 600;
-                    color: var(--text-dark);
-                    margin: 0;
-                }
-
-                .categories-visual-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                    gap: 12px;
-                }
-                .cat-card-link { text-decoration: none; display: block; }
-                .cat-card-visual {
-                    position: relative;
-                    border-radius: var(--radius-md);
-                    overflow: hidden;
-                    height: 160px;
-                    background: #f0eeea;
-                    transition: opacity 0.2s;
-                }
-                .cat-card-visual:hover { opacity: 0.92; }
-                .cat-img-wrapper { position: absolute; inset: 0; z-index: 1; }
-                .cat-img-wrapper img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    display: block;
-                    transition: transform 0.5s ease;
-                    filter: brightness(0.78);
-                }
-                .cat-card-visual:hover .cat-img-wrapper img { transform: scale(1.04); }
-                .cat-overlay-premium {
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 55%, transparent 100%);
-                    z-index: 2;
-                }
-                .cat-info-premium {
-                    position: relative;
-                    z-index: 3;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: flex-end;
-                    padding: 14px;
-                    color: #fff;
-                    text-align: right;
-                }
-                .cat-meta { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px; }
-                .cat-count { font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 500; }
-                .cat-info-premium i { font-size: 0.85rem; color: rgba(255,255,255,0.75); }
-                .cat-info-premium h3 {
-                    font-family: var(--font-main);
-                    font-size: 0.98rem;
-                    font-weight: 600;
-                    margin: 0;
-                    line-height: 1.25;
-                    color: #fff;
-                }
+                .section-header p { color: var(--text-light); font-size: 1rem; margin: 0; }
 
                 .articles-home-section { padding: 56px 0 72px; background: var(--off-white); border-top: 1px solid var(--border-color); }
                 .articles-home-grid {
@@ -376,7 +311,8 @@ export default function HomePage() {
                 .c-text p { font-size: 1.05rem; color: var(--text-light); margin-bottom: 20px; }
                 .c-perks {
                     display: flex;
-                    gap: 20px;
+                    flex-wrap: wrap;
+                    gap: 14px 20px;
                     font-weight: 500;
                     color: var(--text-dark);
                     font-size: 0.9rem;
@@ -418,9 +354,7 @@ export default function HomePage() {
 
                 @media (max-width: 768px) {
                     .container { padding: 0 16px; }
-                    .categories-section { padding: 48px 0; }
-                    .categories-visual-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-                    .cat-card-visual { height: 140px; }
+                    .home-section { padding: 48px 0; }
                     .contact-section { padding: 48px 0 calc(var(--mobile-chrome-clearance, 64px) + 24px); }
                     .c-perks {
                         flex-direction: column;
@@ -431,15 +365,13 @@ export default function HomePage() {
 
                 @media (max-width: 480px) {
                     .contact-card { padding: 24px 16px; }
-                    .cat-card-visual { height: 128px; }
                 }
             `}</style>
 
-            {/* Onboarding Modal */}
             <AnimatePresence>
                 {showOnboarding && (
                     <div className="onboarding-overlay">
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -460,13 +392,10 @@ export default function HomePage() {
                                     { id: 'אירוע עסקי', label: 'אירוע עסקי' },
                                     { id: 'יום הולדת', label: 'יום הולדת' },
                                 ].map(opt => (
-                                    <button 
-                                        key={opt.id} 
+                                    <button
+                                        key={opt.id}
                                         className="onboarding-opt-btn"
-                                        onClick={() => {
-                                            setEventPreference(opt.id);
-                                            setShowOnboarding(false);
-                                        }}
+                                        onClick={() => startWithEvent(opt.id)}
                                     >
                                         <span className="opt-label">{opt.label}</span>
                                     </button>
@@ -478,7 +407,7 @@ export default function HomePage() {
                     </div>
                 )}
             </AnimatePresence>
-            
+
             <style dangerouslySetInnerHTML={{ __html: `
                 .onboarding-overlay {
                     position: fixed; top: 0; left: 0; right: 0; bottom: 0;

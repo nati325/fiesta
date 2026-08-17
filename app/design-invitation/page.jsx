@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
 
 const CANVAS_W = 600;
 const CANVAS_H = 840;
@@ -1273,7 +1274,7 @@ export default function DesignInvitationPage() {
                         <i className="fas fa-arrow-right"></i>
                     </Link>
                     <div className="brand">
-                        <span className="brand-a">Fiesta</span>
+                        <BrandMark variant="compact" />
                         <span className="brand-b">Studio</span>
                     </div>
                 </div>
@@ -1903,12 +1904,7 @@ export default function DesignInvitationPage() {
                     color: #141414;
                     text-decoration: none;
                 }
-                .brand { display: flex; align-items: baseline; gap: 8px; }
-                .brand-a {
-                    font-family: var(--font-frank), 'Frank Ruhl Libre', serif;
-                    font-size: 1.3rem;
-                    font-weight: 700;
-                }
+                .brand { display: flex; align-items: center; gap: 8px; }
                 .brand-b {
                     font-size: 0.78rem;
                     font-weight: 600;

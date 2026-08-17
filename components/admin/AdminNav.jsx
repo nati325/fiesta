@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import BrandMark from '@/components/BrandMark';
 import { usePathname } from 'next/navigation';
 
 export default function AdminNav({ user, onLogout, tabs = [] }) {
@@ -30,7 +31,7 @@ export default function AdminNav({ user, onLogout, tabs = [] }) {
       <div className="crm-nav-container">
         <div className="crm-logo">
           <Link href="/admin" style={{ textDecoration: 'none' }}>
-            <span className="fiesta-brand">FIESTA</span>
+            <BrandMark variant="admin" />
           </Link>
           <span className="admin-tag">ADMIN CRM</span>
         </div>

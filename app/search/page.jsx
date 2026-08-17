@@ -2,13 +2,9 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { resolveVendorImage } from '@/lib/vendorImage';
-import VendorCardImage from '@/components/VendorCardImage';
-import { getVendorDisplayPrice } from '@/lib/vendorPrice';
-import { getCategoryLabel } from '@/lib/vendorCategories';
-import { vendorMatchesArea, formatVendorRegions } from '@/lib/vendorRegion';
+import VendorCard from '@/components/VendorCard';
+import { vendorMatchesArea } from '@/lib/vendorRegion';
 
 function SearchResultsContent() {
     const searchParams = useSearchParams();
@@ -51,12 +47,13 @@ function SearchResultsContent() {
             .then(res => res.json())
             .then(data => {
                 const q = query.toLowerCase().trim();
+                const all = Array.isArray(data) ? data : [];
                 // Find matching type from Hebrew map
                 const mappedType = Object.entries(hebrewTypeMap).find(([heb]) =>
                     q.includes(heb)
                 )?.[1];
 
-                const filtered = data.filter(v => {
+                const filtered = all.filter(v => {
                     if (!q) return false;
                     const matchesName = v.name?.toLowerCase().includes(q);
                     const matchesType = v.type?.toLowerCase().includes(q);
@@ -95,46 +92,16 @@ function SearchResultsContent() {
                     <div className="loading-state">טוען ספקים...</div>
                 ) : vendors.length > 0 ? (
                     <div className="vendors-grid">
-                        {vendors.map((v, i) => {
-                            const priceInfo = getVendorDisplayPrice(v);
-                            return (
-                            <motion.div 
-                                key={v.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="vendor-card-premium"
-                            >
-                                <Link href={`/vendor/${v.id}`}>
-                                    <div className="card-image">
-                                        <VendorCardImage src={resolveVendorImage(v.image, '')} alt={v.name} />
-                                        <div className="category-tag">{getCategoryLabel(v.type)}</div>
-                                    </div>
-                                    <div className="card-info">
-                                        <h3>{v.name}</h3>
-                                        {formatVendorRegions(v) ? (
-                                            <div className="location"><i className="fas fa-map-marker-alt"></i> {formatVendorRegions(v)}</div>
-                                        ) : null}
-                                        {priceInfo.display ? (
-                                            <div className="price-row">
-                                                <span className="price">{priceInfo.display}</span>
-                                                {priceInfo.originalDisplay && (
-                                                    <span className="old-price">{priceInfo.originalDisplay}</span>
-                                                )}
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                </Link>
-                            </motion.div>
-                            );
-                        })}
+                        {vendors.map((v, i) => (
+                            <VendorCard key={v.id} vendor={v} index={i} />
+                        ))}
                     </div>
                 ) : (
                     <div className="no-results">
                         <i className="fas fa-search"></i>
                         <h2>מצטערים, לא מצאנו תוצאות</h2>
                         <p>נסו לחפש משהו אחר או לבדוק את הקטגוריות הפופולריות שלנו</p>
-                        <Link href="/" className="back-home">חזרה לדף הבית</Link>
+                        <Link href="/vendors" className="back-home">לכל הספקים</Link>
                     </div>
                 )}
             </div>
@@ -175,67 +142,6 @@ function SearchResultsContent() {
                     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
                     gap: 20px;
                     padding-bottom: 80px;
-                }
-                .vendor-card-premium {
-                    background: white;
-                    border-radius: var(--radius-md);
-                    overflow: hidden;
-                    transition: border-color 0.2s;
-                    border: 1px solid var(--border-color);
-                }
-                .vendor-card-premium:hover {
-                    border-color: #cfc9be;
-                }
-                .card-image {
-                    height: 200px;
-                    position: relative;
-                }
-                .card-image img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-                .category-tag {
-                    position: absolute;
-                    top: 12px;
-                    right: 12px;
-                    background: rgba(255,255,255,0.95);
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    color: var(--text-dark);
-                    border: 1px solid var(--border-color);
-                }
-                .card-info {
-                    padding: 16px;
-                    text-align: right;
-                }
-                h3 {
-                    margin: 0 0 8px;
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    font-family: var(--font-main);
-                }
-                .location {
-                    color: var(--text-light);
-                    font-size: 0.88rem;
-                    margin-bottom: 12px;
-                }
-                .price-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .price {
-                    font-size: 1.2rem;
-                    font-weight: 700;
-                    color: var(--text-dark);
-                }
-                .old-price {
-                    text-decoration: line-through;
-                    color: #bbb;
-                    font-size: 0.9rem;
                 }
                 .no-results {
                     text-align: center;
@@ -281,10 +187,6 @@ function SearchResultsContent() {
                         gap: 14px;
                         padding-bottom: 8px;
                     }
-                    .card-image { height: 180px; }
-                    .card-info { padding: 16px; }
-                    h3 { font-size: 1.1rem; }
-                    .price { font-size: 1.15rem; }
                     .no-results {
                         padding: 60px 16px;
                     }

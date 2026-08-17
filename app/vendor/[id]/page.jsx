@@ -76,7 +76,7 @@ export default function VendorDetailPage() {
     const params = useParams();
     const id = params.id;
     const router = useRouter();
-    const { vendors, toggleFavorite, isFavorite, loading: vendorsLoading } = useVendors();
+    const { vendors, toggleFavorite, isFavorite, toggleCart, isInCart, loading: vendorsLoading } = useVendors();
     const { isAdmin } = useAuth();
     const [lightboxSrc, setLightboxSrc] = useState('');
 
@@ -191,6 +191,7 @@ export default function VendorDetailPage() {
         : (vendor.portfolio || []).filter((item) => hasValidPrice(item.price));
 
     const liked = isFavorite(vendor.id);
+    const inCart = isInCart(vendor.id);
     const waUrl = `https://wa.me/972535378985?text=${encodeURIComponent(
         `היי, הגעתי מ־Fiesta לגבי ${vendor.name} ואשמח לדבר עם נציג`
     )}`;
@@ -423,6 +424,14 @@ export default function VendorDetailPage() {
                         >
                             <i className={liked ? 'fas fa-heart' : 'far fa-heart'} style={{ color: liked ? '#e11d48' : undefined, marginLeft: 6 }}></i>
                             {liked ? 'הסר ממועדפים' : 'אהבתי'}
+                        </button>
+                        <button
+                            type="button"
+                            className={`btn vendor-cart-btn${inCart ? ' is-added' : ''}`}
+                            onClick={() => toggleCart(vendor.id)}
+                        >
+                            <i className={`fas ${inCart ? 'fa-check' : 'fa-cart-plus'}`} style={{ marginLeft: 6 }}></i>
+                            {inCart ? 'נוסף לסל' : 'הוספה לסל'}
                         </button>
                     </div>
                 </motion.div>
@@ -663,6 +672,16 @@ export default function VendorDetailPage() {
                     background: white !important;
                 }
                 .vendor-fav-btn i { margin-left: 8px; }
+                .vendor-cart-btn {
+                    background: var(--charcoal);
+                    border: 1px solid var(--charcoal);
+                    color: #fff;
+                }
+                .vendor-cart-btn:hover,
+                .vendor-cart-btn.is-added {
+                    background: var(--primary-color);
+                    border-color: var(--primary-color);
+                }
                 .vendor-info-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
