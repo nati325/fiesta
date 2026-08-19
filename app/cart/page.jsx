@@ -1,23 +1,70 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useVendors } from '@/context/VendorContext';
 import { useAuth } from '@/context/AuthContext';
-import { getVendorDisplayPrice, parsePrice } from '@/lib/vendorPrice';
+import { getCheapestPackage, getVendorDisplayPrice, parsePrice } from '@/lib/vendorPrice';
+import { getSupplierTypeMeta } from '@/lib/supplierGroups';
+import { resolveVendorImage } from '@/lib/vendorImage';
+import { formatVendorRegions } from '@/lib/vendorRegion';
+import { vendorHasCategory } from '@/lib/vendorCategories';
+import HomeStepVisual from '@/components/HomeStepVisual';
+import VendorCardImage from '@/components/VendorCardImage';
 
 const WA_PHONE = '972535378985';
 
+const CORE_EVENT = [
+  { type: 'venue', short: 'אולם' },
+  { type: 'dj', short: 'DJ' },
+  { type: 'photographer', short: 'צילום' },
+  { type: 'design', short: 'עיצוב' },
+];
+
 const toShekels = (amount) => `₪${Math.round(amount).toLocaleString('he-IL')}`;
 
+function Flourish() {
+  return (
+    <div className="cart-scene__flourish" aria-hidden>
+      <svg viewBox="0 0 140 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 9h46" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+        <path d="M86 9h46" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+        <path d="M70 2.2L73.8 9 70 15.8 66.2 9 70 2.2Z" fill="currentColor" />
+        <path d="M62 9h6M72 9h6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+function formatEventDate(value) {
+  if (!value) return '';
+  const parts = String(value).split('-');
+  if (parts.length === 3 && parts[0].length === 4) {
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  }
+  return value;
+}
+
 export default function CartPage() {
-  const { vendors, loading, cart, removeFromCart, clearCart } = useVendors();
-  const { eventPreference, eventProfile } = useAuth();
+  const { vendors, loading, cart, removeFromCart, clearCart, replaceCart } = useVendors();
+  const { eventPreference, eventProfile, hasOnboarded } = useAuth();
   const [lead, setLead] = useState({
     name: '',
     phone: '',
     date: eventProfile.date || '',
   });
+  const [sent, setSent] = useState(false);
+  const [undo, setUndo] = useState(null);
+  const undoTimer = useRef(null);
+
+  useEffect(() => {
+    if (!eventProfile.date) return;
+    setLead((prev) => (prev.date ? prev : { ...prev, date: eventProfile.date }));
+  }, [eventProfile.date]);
+
+  useEffect(() => () => {
+    if (undoTimer.current) window.clearTimeout(undoTimer.current);
+  }, []);
 
   const cartVendors = useMemo(
     () => vendors.filter((vendor) => cart.includes(String(vendor.id))),
@@ -26,11 +73,67 @@ export default function CartPage() {
 
   const totals = useMemo(() => cartVendors.reduce((acc, vendor) => {
     const price = getVendorDisplayPrice(vendor);
+    const fiesta = parsePrice(price.raw) || 0;
+    const save = price.savings || 0;
     return {
-      price: acc.price + (parsePrice(price.raw) || 0),
-      savings: acc.savings + (price.savings || 0),
+      price: acc.price + fiesta,
+      savings: acc.savings + save,
+      original: acc.original + fiesta + save,
     };
-  }, { price: 0, savings: 0 }), [cartVendors]);
+  }, { price: 0, savings: 0, original: 0 }), [cartVendors]);
+
+  const guestCount = Number(String(eventProfile.guests || '').replace(/[^\d]/g, ''));
+  const eventFacts = useMemo(() => [
+    eventPreference,
+    eventProfile.date ? formatEventDate(eventProfile.date) : null,
+    eventProfile.region,
+    Number.isFinite(guestCount) && guestCount > 0
+      ? `${guestCount.toLocaleString('he-IL')} מוזמנים`
+      : null,
+  ].filter(Boolean), [eventPreference, eventProfile.date, eventProfile.region, guestCount]);
+
+  const eventCore = useMemo(
+    () => CORE_EVENT.map((item) => ({
+      ...item,
+      on: cartVendors.some((vendor) => vendorHasCategory(vendor, item.type)),
+    })),
+    [cartVendors],
+  );
+
+  const showUndo = (payload) => {
+    if (undoTimer.current) window.clearTimeout(undoTimer.current);
+    setUndo(payload);
+    undoTimer.current = window.setTimeout(() => setUndo(null), 6000);
+  };
+
+  const restoreUndo = () => {
+    if (!undo) return;
+    if (undoTimer.current) window.clearTimeout(undoTimer.current);
+    if (undo.type === 'clear') {
+      replaceCart(undo.ids);
+    } else {
+      const next = [...cart];
+      const at = Math.min(undo.index ?? next.length, next.length);
+      next.splice(at, 0, undo.ids[0]);
+      replaceCart(next);
+    }
+    setUndo(null);
+  };
+
+  const handleRemove = (vendor, index) => {
+    removeFromCart(vendor.id);
+    showUndo({
+      type: 'remove',
+      ids: [String(vendor.id)],
+      index,
+      name: vendor.name,
+    });
+  };
+
+  const handleClear = () => {
+    showUndo({ type: 'clear', ids: [...cart] });
+    clearCart();
+  };
 
   const submitLead = (event) => {
     event.preventDefault();
@@ -55,116 +158,246 @@ export default function CartPage() {
       vendorList,
       '',
       totals.price ? `סה"כ משוער: ${toShekels(totals.price)}` : null,
-      totals.savings ? `חיסכון משוער: ${toShekels(totals.savings)}` : null,
+      totals.savings ? `חיסכון עד עכשיו בזכות Fiesta: ${toShekels(totals.savings)}` : null,
     ].filter(Boolean).join('\n');
 
     window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(message)}`, '_blank');
+    setSent(true);
   };
 
-  return (
-    <main className="cart-page">
-      <div className="container">
-        <header className="cart-header">
-          <p className="cart-kicker">האירוע שלכם</p>
-          <h1>הסל שלי</h1>
-          <p>הספקים שבחרתם מרוכזים כאן. המחיר הסופי ייקבע מול יועץ Fiesta.</p>
-        </header>
+  const hasItems = cartVendors.length > 0;
+  const showSkeleton = loading && cart.length > 0 && !hasItems;
+  const vendorWord = cartVendors.length === 1 ? 'ספק' : 'ספקים';
 
-        {loading && cart.length > 0 && cartVendors.length === 0 ? (
-          <p className="cart-loading">טוען פרטי ספקים בסל...</p>
+  return (
+    <div className="cart-scene">
+      <div className="cart-scene__inner">
+        {hasItems ? (
+          <header className="cart-scene__head cart-scene__head--compact">
+            <span className="cart-scene__diamond" aria-hidden />
+            <h1>הסל שלכם</h1>
+            <p className="cart-scene__count">{cartVendors.length} {vendorWord}</p>
+          </header>
+        ) : (
+          <header className="cart-scene__head">
+            <HomeStepVisual kind="cart" label="סל" />
+            <p className="cart-scene__kicker">שלב 02</p>
+            <h1>הסל שלכם</h1>
+            <Flourish />
+            <p className="cart-scene__lead">
+              מרכזים הכול במקום אחד — ואז יועץ Fiesta סוגר איתכם.
+            </p>
+          </header>
+        )}
+
+        {showSkeleton ? (
+          <div className="cart-scene__grid" aria-busy="true" aria-label="טוען את הסל">
+            <section className="cart-scene__list">
+              <div className="cart-scene__skel cart-scene__skel--line" />
+              <div className="cart-scene__skel-item" />
+              <div className="cart-scene__skel-item" />
+            </section>
+            <aside className="cart-scene__aside">
+              <div className="cart-scene__skel cart-scene__skel--title" />
+              <div className="cart-scene__skel cart-scene__skel--line" />
+              <div className="cart-scene__skel cart-scene__skel--btn" />
+            </aside>
+          </div>
         ) : null}
 
-        {!loading && cartVendors.length === 0 ? (
-          <section className="cart-empty">
-            <i className="fas fa-cart-shopping" />
-            <h2>הסל עדיין ריק</h2>
-            <p>מצאו ספקים, השוו מחירים והוסיפו את מי שאהבתם.</p>
-            <Link href="/vendors" className="cart-primary">למציאת ספקים</Link>
+        {!loading && !hasItems ? (
+          <section className="cart-scene__empty">
+            <h2>עדיין אין ספקים בסל</h2>
+            <p>בחרו מקום, מוזיקה וצילום — ואנחנו נרכז הכול.</p>
+            <div className="cart-scene__shortcuts">
+              <Link href="/vendors" className="cart-scene__shortcut">
+                <span className="cart-scene__shortcut-icon" aria-hidden />
+                <span>לכל הספקים</span>
+              </Link>
+              <Link
+                href={hasOnboarded ? '/my-event' : '/event-setup'}
+                className="cart-scene__shortcut"
+              >
+                <span className="cart-scene__shortcut-icon" aria-hidden />
+                <span>{hasOnboarded ? 'האירוע שלי' : 'בואו נכיר את האירוע'}</span>
+              </Link>
+              <Link href="/budget-planner" className="cart-scene__shortcut">
+                <span className="cart-scene__shortcut-icon" aria-hidden />
+                <span>תכנון תקציב</span>
+              </Link>
+            </div>
           </section>
         ) : null}
 
-        {cartVendors.length > 0 ? (
-          <div className="cart-layout">
-            <section className="cart-items" aria-label="ספקים שנבחרו">
-              {cartVendors.map((vendor) => {
+        {hasItems ? (
+          <div className="cart-scene__grid">
+            <section className="cart-scene__list" aria-label="ספקים שנבחרו">
+              <ol className="cart-scene__core" aria-label="מרכז האירוע">
+                {eventCore.map((item) => (
+                  <li key={item.type} className={item.on ? 'is-on' : ''}>
+                    {item.on ? (
+                      <span>
+                        <i aria-hidden />
+                        {item.short}
+                      </span>
+                    ) : (
+                      <Link href={`/category/${item.type}`}>
+                        <i aria-hidden />
+                        {item.short}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ol>
+
+              {cartVendors.map((vendor, index) => {
                 const price = getVendorDisplayPrice(vendor);
+                const meta = getSupplierTypeMeta(vendor.type);
+                const cheapest = getCheapestPackage(vendor);
+                const image = resolveVendorImage(cheapest?.image || vendor.image, '');
+                const location = vendor.location || formatVendorRegions(vendor);
                 return (
-                  <article key={vendor.id} className="cart-item">
-                    <div>
-                      <h2>{vendor.name}</h2>
-                      {price.display ? (
-                        <p>
-                          מחיר Fiesta: <strong>{price.display}</strong>
-                          {price.originalDisplay ? <span className="cart-original"> במקום {price.originalDisplay}</span> : null}
-                        </p>
-                      ) : <p>המחיר ייקבע מול Fiesta</p>}
+                  <article key={vendor.id} className="cart-scene__item">
+                    <Link href={`/vendor/${vendor.id}`} className="cart-scene__item-media">
+                      <VendorCardImage src={image} alt={vendor.name} />
+                    </Link>
+                    <div className="cart-scene__item-body">
+                      <p className="cart-scene__item-type">{meta.label}</p>
+                      <h2>
+                        <Link href={`/vendor/${vendor.id}`}>{vendor.name}</Link>
+                      </h2>
+                      {location ? <p className="cart-scene__item-loc">{location}</p> : null}
                     </div>
-                    <button type="button" onClick={() => removeFromCart(vendor.id)}>
-                      הסרה
+                    <div className="cart-scene__item-cost">
+                      {price.originalDisplay ? (
+                        <span className="cart-scene__was">{price.originalDisplay}</span>
+                      ) : null}
+                      {price.display ? (
+                        <strong>{price.isFrom ? 'מ־' : ''}{price.display}</strong>
+                      ) : (
+                        <span>מול Fiesta</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="cart-scene__remove"
+                      aria-label={`הסרה של ${vendor.name}`}
+                      onClick={() => handleRemove(vendor, index)}
+                    >
+                      ×
                     </button>
                   </article>
                 );
               })}
-              <button type="button" className="cart-clear" onClick={clearCart}>רוקנו את הסל</button>
+
+              <div className="cart-scene__list-foot">
+                <Link href="/vendors" className="cart-scene__more">הוסיפו עוד ספקים</Link>
+                <button type="button" className="cart-scene__clear" onClick={handleClear}>
+                  ריקון
+                </button>
+              </div>
             </section>
 
-            <aside className="cart-summary">
-              <h2>סיכום האירוע</h2>
-              <div className="summary-line"><span>{cartVendors.length} ספקים</span><span>{totals.price ? toShekels(totals.price) : 'לפי הצעה'}</span></div>
-              {totals.savings > 0 ? (
-                <div className="summary-saving">החיסכון המשוער שלכם דרך Fiesta: {toShekels(totals.savings)}</div>
-              ) : null}
-              <p className="summary-note">המחירים הם הערכה לפי החבילה הזולה של כל ספק.</p>
+            <aside className="cart-scene__aside" id="cart-lead">
+              <p className="cart-scene__kicker">הצעד הבא</p>
+              <h2>יועץ Fiesta</h2>
+              {eventFacts.length > 0 ? (
+                <p className="cart-scene__facts-line">{eventFacts.join(' · ')}</p>
+              ) : (
+                <p>נחזור אליכם עם הספקים שבסל, במחיר Fiesta.</p>
+              )}
 
-              <form onSubmit={submitLead}>
-                <h3>סיימתם לבחור? בואו נתקדם</h3>
-                <input required value={lead.name} onChange={(e) => setLead({ ...lead, name: e.target.value })} placeholder="שם מלא" autoComplete="name" />
-                <input required type="tel" value={lead.phone} onChange={(e) => setLead({ ...lead, phone: e.target.value })} placeholder="טלפון" autoComplete="tel" />
-                <input type="date" value={lead.date} onChange={(e) => setLead({ ...lead, date: e.target.value })} aria-label="תאריך האירוע" />
-                <button type="submit" className="cart-primary">שלחו לי יועץ Fiesta</button>
-              </form>
+              {(totals.price > 0 || totals.savings > 0) ? (
+                <dl className="cart-scene__totals">
+                  {totals.original > totals.price ? (
+                    <div>
+                      <dt>מחיר רגיל</dt>
+                      <dd className="cart-scene__was">{toShekels(totals.original)}</dd>
+                    </div>
+                  ) : null}
+                  {totals.price > 0 ? (
+                    <div>
+                      <dt>מחיר Fiesta</dt>
+                      <dd>{toShekels(totals.price)}</dd>
+                    </div>
+                  ) : null}
+                  {totals.savings > 0 ? (
+                    <div className="cart-scene__totals-save">
+                      <dt>חיסכון</dt>
+                      <dd>{toShekels(totals.savings)}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+              ) : null}
+
+              {sent ? (
+                <div className="cart-scene__sent" role="status">
+                  <p>נפתח אצלכם WhatsApp עם סיכום הסל.</p>
+                  <button type="button" className="cart-scene__more" onClick={() => setSent(false)}>
+                    לשלוח שוב
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={submitLead}>
+                  <label className="cart-scene__field">
+                    <span>שם מלא</span>
+                    <input
+                      required
+                      value={lead.name}
+                      onChange={(e) => setLead({ ...lead, name: e.target.value })}
+                      autoComplete="name"
+                    />
+                  </label>
+                  <label className="cart-scene__field">
+                    <span>טלפון</span>
+                    <input
+                      required
+                      type="tel"
+                      value={lead.phone}
+                      onChange={(e) => setLead({ ...lead, phone: e.target.value })}
+                      autoComplete="tel"
+                      inputMode="tel"
+                    />
+                  </label>
+                  <label className="cart-scene__field">
+                    <span>תאריך האירוע</span>
+                    <input
+                      type="date"
+                      lang="he-IL"
+                      value={lead.date}
+                      onChange={(e) => setLead({ ...lead, date: e.target.value })}
+                    />
+                  </label>
+                  <button type="submit" className="cart-scene__btn cart-scene__btn--full">
+                    שלחו בוואטסאפ
+                  </button>
+                  <p className="cart-scene__hint">בלי התחייבות · נפתח WhatsApp עם הסיכום</p>
+                </form>
+              )}
             </aside>
           </div>
         ) : null}
       </div>
 
-      <style jsx>{`
-        .cart-page { min-height: 100vh; background: var(--off-white); padding: 96px 0 calc(var(--mobile-chrome-clearance, 32px) + 48px); }
-        .container { max-width: 1080px; padding: 0 20px; margin: 0 auto; }
-        .cart-header { text-align: right; margin-bottom: 32px; }
-        .cart-kicker { color: var(--primary-color); font-weight: 700; font-size: .82rem; margin: 0 0 5px; }
-        .cart-header h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 4vw, 2.5rem); }
-        .cart-header p, .summary-note { color: var(--text-light); margin: 0; }
-        .cart-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .8fr); gap: 24px; align-items: start; }
-        .cart-items, .cart-summary, .cart-empty { background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 22px; }
-        .cart-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-color); text-align: right; }
-        .cart-item:first-child { padding-top: 0; }
-        .cart-item h2 { margin: 0 0 5px; font-family: var(--font-main); font-size: 1.05rem; }
-        .cart-item p { margin: 0; color: var(--text-light); font-size: .9rem; }
-        .cart-original { text-decoration: line-through; color: #999; margin-right: 6px; }
-        .cart-item button, .cart-clear { border: 0; background: none; color: #b42318; font: inherit; cursor: pointer; white-space: nowrap; }
-        .cart-clear { margin-top: 18px; font-size: .88rem; }
-        .cart-summary { position: sticky; top: 90px; text-align: right; }
-        .cart-summary h2 { margin: 0 0 18px; font-size: 1.25rem; }
-        .summary-line { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--border-color); font-weight: 700; }
-        .summary-saving { background: rgba(143,115,68,.1); color: var(--primary-hover); padding: 10px; border-radius: var(--radius-sm); font-size: .88rem; font-weight: 700; }
-        .summary-note { font-size: .78rem; line-height: 1.5; margin: 12px 0 20px; }
-        form { border-top: 1px solid var(--border-color); padding-top: 20px; display: grid; gap: 10px; }
-        form h3 { margin: 0 0 2px; font-family: var(--font-main); font-size: 1rem; }
-        input { width: 100%; padding: 13px; text-align: right; font: inherit; border-radius: var(--radius-sm); border: 1px solid #e5e2dc; }
-        .cart-primary { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 12px 18px; border: 0; border-radius: var(--radius-sm); background: var(--charcoal); color: #fff; text-decoration: none; font: inherit; font-weight: 700; cursor: pointer; }
-        .cart-empty { text-align: center; padding: 70px 20px; }
-        .cart-empty i { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 16px; }
-        .cart-empty h2 { margin: 0 0 8px; }
-        .cart-empty p { color: var(--text-light); margin: 0 0 20px; }
-        .cart-loading { text-align: center; color: var(--text-light); padding: 60px; }
-        @media (max-width: 768px) {
-          .cart-page { padding-top: 84px; }
-          .container { padding: 0 16px; }
-          .cart-layout { grid-template-columns: 1fr; }
-          .cart-summary { position: static; }
-        }
-      `}</style>
-    </main>
+      {undo ? (
+        <div className="cart-scene__toast" role="status">
+          <span>
+            {undo.type === 'clear'
+              ? 'הסל רוקן'
+              : `${undo.name || 'הספק'} הוסר`}
+          </span>
+          <button type="button" onClick={restoreUndo}>בטל</button>
+        </div>
+      ) : hasItems ? (
+        <a className="cart-scene__dock" href="#cart-lead">
+          <span>
+            {totals.savings > 0
+              ? `חיסכון ${toShekels(totals.savings)}`
+              : `${cartVendors.length} ${vendorWord}`}
+          </span>
+          <strong>ליועץ</strong>
+        </a>
+      ) : null}
+    </div>
   );
 }

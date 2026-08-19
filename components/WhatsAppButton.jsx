@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 
-const HIDDEN_PATHS = ['/design-invitation', '/rsvp', '/login', '/register'];
+const HIDDEN_PATHS = ['/design-invitation', '/rsvp', '/login', '/register', '/cart'];
 
 const WhatsAppButton = () => {
     const pathname = usePathname();

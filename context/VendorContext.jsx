@@ -292,16 +292,26 @@ export const VendorProvider = ({ children }) => {
             return next;
         });
     };
-    const clearCart = () => {
-        setCart([]);
+    const persistCart = (next) => {
         if (token && user?.id && !String(user.id).startsWith('master-admin')) {
             fetch('/api/auth/event-journey?mode=patch', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 credentials: 'include',
-                body: JSON.stringify({ cart: [] }),
+                body: JSON.stringify({ cart: next }),
             }).catch(() => {});
         }
+    };
+
+    const clearCart = () => {
+        setCart([]);
+        persistCart([]);
+    };
+
+    const replaceCart = (ids) => {
+        const next = uniq(Array.isArray(ids) ? ids : []);
+        setCart(next);
+        persistCart(next);
     };
 
     return (
@@ -309,7 +319,7 @@ export const VendorProvider = ({ children }) => {
             vendors, loading, addVendor, deleteVendor, updateVendor,
             getVendorsByType, favorites, toggleFavorite, isFavorite,
             setFavorites: persistFavorites,
-            cart, toggleCart, isInCart, removeFromCart, clearCart,
+            cart, toggleCart, isInCart, removeFromCart, clearCart, replaceCart,
             refreshVendors: fetchVendors
         }}>
             {children}
