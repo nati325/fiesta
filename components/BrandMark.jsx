@@ -20,8 +20,8 @@ export default function BrandMark({
       <img
         src={SRC}
         alt="fiesta"
-        width={1479}
-        height={516}
+        width={1454}
+        height={492}
         decoding="async"
         fetchPriority={priority ? 'high' : 'low'}
         draggable={false}

@@ -229,6 +229,7 @@ body:has(.fiesta-hero) .header,
     padding: 0;
     line-height: 0;
     direction: ltr;
+    background: transparent;
 }
 
 .brand-mark img {
@@ -237,8 +238,8 @@ body:has(.fiesta-hero) .header,
     height: auto;
     max-width: 100%;
     object-fit: contain;
+    background: transparent;
     user-select: none;
-    filter: contrast(1.12) saturate(1.06);
 }
 
 .brand-mark--hero {
