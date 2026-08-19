@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Hero3D from '@/components/Hero3D';
 import HomeStepVisual from '@/components/HomeStepVisual';
-import BudgetInvite from '@/components/BudgetInvite';
+import AudienceTabs from '@/components/AudienceTabs';
+import VendorJoinForm from '@/components/VendorJoinForm';
 import { useAuth } from '@/context/AuthContext';
 
 const HOW_STEPS = [
@@ -51,6 +52,7 @@ const EVENT_ENTRIES = [
 export default function HomePage() {
     const [articles, setArticles] = useState([]);
     const [contactData, setContactData] = useState({ name: '', phone: '' });
+    const [audience, setAudience] = useState('customer');
     const { hasOnboarded } = useAuth();
     const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -191,8 +193,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            <BudgetInvite />
-
             {articles.length > 0 && (
                 <section id="articles" className="articles-home-section">
                     <div className="container">
@@ -221,20 +221,35 @@ export default function HomePage() {
             <section id="contact" className="contact-section">
                 <div className="container">
                     <div className="contact-card">
+                        <AudienceTabs value={audience} onChange={setAudience} id="home-audience" />
                         <div className="c-text">
-                            <h2>בואו נבנה את האירוע שלכם</h2>
-                            <p>השאירו פרטים — יועץ Fiesta יחזור אליכם עם ספקים, מחירים וליווי אישי.</p>
-                            <div className="c-perks">
-                                <span><i className="fas fa-check"></i> מענה מהיר</span>
-                                <span><i className="fas fa-check"></i> ללא התחייבות</span>
-                                <span><i className="fas fa-check"></i> חיסכון 5%–10%</span>
-                            </div>
+                            <h2>
+                                {audience === 'vendor'
+                                    ? 'הצטרפו ל־Fiesta כספקים'
+                                    : 'בואו נבנה את האירוע שלכם'}
+                            </h2>
+                            <p>
+                                {audience === 'vendor'
+                                    ? 'השאירו פרטים — נחזור אליכם לגבי הצטרפות לפלטפורמה.'
+                                    : 'השאירו פרטים — יועץ Fiesta יחזור אליכם עם ספקים, מחירים וליווי אישי.'}
+                            </p>
+                            {audience === 'customer' && (
+                                <div className="c-perks">
+                                    <span><i className="fas fa-check"></i> מענה מהיר</span>
+                                    <span><i className="fas fa-check"></i> ללא התחייבות</span>
+                                    <span><i className="fas fa-check"></i> חיסכון 5%–10%</span>
+                                </div>
+                            )}
                         </div>
-                        <form onSubmit={handleContactSubmit} className="c-form">
-                            <input id="contact-name" name="name" type="text" autoComplete="name" placeholder="שם מלא" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
-                            <input id="contact-phone" name="phone" type="tel" autoComplete="tel" placeholder="טלפון" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
-                            <button type="submit">דברו איתי</button>
-                        </form>
+                        {audience === 'vendor' ? (
+                            <VendorJoinForm />
+                        ) : (
+                            <form onSubmit={handleContactSubmit} className="c-form">
+                                <input id="contact-name" name="name" type="text" autoComplete="name" placeholder="שם מלא" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
+                                <input id="contact-phone" name="phone" type="tel" autoComplete="tel" placeholder="טלפון" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
+                                <button type="submit">דברו איתי</button>
+                            </form>
+                        )}
                     </div>
                 </div>
             </section>
@@ -299,8 +314,17 @@ export default function HomePage() {
                     padding: 48px;
                     display: grid;
                     grid-template-columns: 1fr 1fr;
-                    gap: 48px;
-                    align-items: center;
+                    gap: 28px 48px;
+                    align-items: start;
+                }
+                .contact-card :global(.audience-tabs) {
+                    grid-column: 1 / -1;
+                    margin: 0 0 4px;
+                    justify-self: start;
+                }
+                .contact-card :global(.vendor-join) {
+                    max-width: none;
+                    margin: 0;
                 }
                 .c-text { text-align: right; }
                 .c-text h2 {

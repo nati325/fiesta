@@ -40,8 +40,8 @@ export default function VendorCard({ vendor, index = 0 }) {
   const reviewsCount = Number(vendor.googleReviewsCount);
   const hasRating = Number.isFinite(rating) && rating > 0 && Number.isFinite(reviewsCount) && reviewsCount > 0;
   const location = vendor.location || formatVendorRegions(vendor);
-  const favored = isFavorite(vendor.id);
-  const inCart = isInCart(vendor.id);
+  const favored = isFavorite(vendor.id || vendor._id);
+  const inCart = isInCart(vendor.id || vendor._id);
 
   const goToVendor = () => router.push(`/vendor/${vendor.id}`);
 
@@ -161,7 +161,7 @@ export default function VendorCard({ vendor, index = 0 }) {
           className={`pvc-cart${inCart ? ' is-added' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
-            toggleCart(vendor.id);
+            toggleCart(vendor.id || vendor._id);
             if (!inCart) {
               setJustAdded(true);
               window.setTimeout(() => setJustAdded(false), 2200);

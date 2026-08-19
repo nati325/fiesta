@@ -111,10 +111,10 @@ export default function Hero3D({ onOpenOnboarding: _onOpenOnboarding }) {
               {returning ? 'המשיכו מהנקודה האחרונה' : 'בואו נכיר את האירוע'}
             </Link>
             <Link
-              href={returning ? '/vendors' : '/budget-planner'}
+              href="/vendors"
               className="fiesta-hero__btn-secondary"
             >
-              {returning ? 'לכל הספקים' : 'מחשבון תקציב'}
+              לכל הספקים
             </Link>
           </div>
         </div>

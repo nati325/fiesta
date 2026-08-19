@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useVendors } from '@/context/VendorContext';
 import { useAuth } from '@/context/AuthContext';
-import { getCheapestPackage, getVendorDisplayPrice, parsePrice } from '@/lib/vendorPrice';
+import { getCheapestPackage, getVendorDisplayPrice } from '@/lib/vendorPrice';
 import { getSupplierTypeMeta } from '@/lib/supplierGroups';
 import { resolveVendorImage } from '@/lib/vendorImage';
 import { formatVendorRegions } from '@/lib/vendorRegion';
 import { vendorHasCategory } from '@/lib/vendorCategories';
+import { getCartTotals } from '@/lib/cartTotals';
 import HomeStepVisual from '@/components/HomeStepVisual';
 import VendorCardImage from '@/components/VendorCardImage';
 
@@ -22,6 +23,10 @@ const CORE_EVENT = [
 ];
 
 const toShekels = (amount) => `₪${Math.round(amount).toLocaleString('he-IL')}`;
+
+function vendorCartId(vendor) {
+  return String(vendor?.id || vendor?._id || '');
+}
 
 function Flourish() {
   return (
@@ -67,20 +72,15 @@ export default function CartPage() {
   }, []);
 
   const cartVendors = useMemo(
-    () => vendors.filter((vendor) => cart.includes(String(vendor.id))),
+    () => vendors.filter((vendor) => {
+      const id = vendorCartId(vendor);
+      return id && cart.includes(id);
+    }),
     [vendors, cart],
   );
 
-  const totals = useMemo(() => cartVendors.reduce((acc, vendor) => {
-    const price = getVendorDisplayPrice(vendor);
-    const fiesta = parsePrice(price.raw) || 0;
-    const save = price.savings || 0;
-    return {
-      price: acc.price + fiesta,
-      savings: acc.savings + save,
-      original: acc.original + fiesta + save,
-    };
-  }, { price: 0, savings: 0, original: 0 }), [cartVendors]);
+  const totals = useMemo(() => getCartTotals(cartVendors), [cartVendors]);
+  const cartGroups = totals.categories;
 
   const guestCount = Number(String(eventProfile.guests || '').replace(/[^\d]/g, ''));
   const eventFacts = useMemo(() => [
@@ -93,10 +93,15 @@ export default function CartPage() {
   ].filter(Boolean), [eventPreference, eventProfile.date, eventProfile.region, guestCount]);
 
   const eventCore = useMemo(
-    () => CORE_EVENT.map((item) => ({
-      ...item,
-      on: cartVendors.some((vendor) => vendorHasCategory(vendor, item.type)),
-    })),
+    () => CORE_EVENT.map((item, index) => {
+      const count = cartVendors.filter((vendor) => vendorHasCategory(vendor, item.type)).length;
+      return {
+        ...item,
+        n: String(index + 1).padStart(2, '0'),
+        on: count > 0,
+        count,
+      };
+    }),
     [cartVendors],
   );
 
@@ -120,12 +125,14 @@ export default function CartPage() {
     setUndo(null);
   };
 
-  const handleRemove = (vendor, index) => {
-    removeFromCart(vendor.id);
+  const handleRemove = (vendor) => {
+    const id = vendorCartId(vendor);
+    const index = cart.indexOf(id);
+    removeFromCart(id);
     showUndo({
       type: 'remove',
-      ids: [String(vendor.id)],
-      index,
+      ids: [id],
+      index: index < 0 ? cart.length : index,
       name: vendor.name,
     });
   };
@@ -137,12 +144,18 @@ export default function CartPage() {
 
   const submitLead = (event) => {
     event.preventDefault();
-    const vendorList = cartVendors
-      .map((vendor) => {
-        const price = getVendorDisplayPrice(vendor);
-        return `• ${vendor.name}${price.display ? ` — ${price.display}` : ''}`;
+    const vendorList = cartGroups
+      .map((group) => {
+        const heading = group.isChoice
+          ? `${group.label} — מבחר, לוקחים אחד:`
+          : `${group.label}:`;
+        const lines = group.vendors.map((vendor) => {
+          const price = getVendorDisplayPrice(vendor);
+          return `• ${vendor.name}${price.display ? ` — ${price.display}` : ''}`;
+        });
+        return [heading, ...lines].join('\n');
       })
-      .join('\n');
+      .join('\n\n');
     const message = [
       'היי Fiesta, סיימתי לבחור ספקים ורוצה להתקדם.',
       '',
@@ -157,8 +170,8 @@ export default function CartPage() {
       'הספקים שבחרתי:',
       vendorList,
       '',
-      totals.price ? `סה"כ משוער: ${toShekels(totals.price)}` : null,
-      totals.savings ? `חיסכון עד עכשיו בזכות Fiesta: ${toShekels(totals.savings)}` : null,
+      totals.priceLabel ? `סה"כ משוער (טווח לפי ספק אחד בכל קטגוריה): ${totals.priceLabel}` : null,
+      totals.savingsLabel ? `חיסכון Fiesta לפי קטגוריות: ${totals.savingsLabel}` : null,
     ].filter(Boolean).join('\n');
 
     window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(message)}`, '_blank');
@@ -167,18 +180,13 @@ export default function CartPage() {
 
   const hasItems = cartVendors.length > 0;
   const showSkeleton = loading && cart.length > 0 && !hasItems;
+  const showEmpty = !loading && cart.length === 0;
   const vendorWord = cartVendors.length === 1 ? 'ספק' : 'ספקים';
 
   return (
-    <div className="cart-scene">
+    <div className={`cart-scene${hasItems ? ' cart-scene--filled' : ''}`}>
       <div className="cart-scene__inner">
-        {hasItems ? (
-          <header className="cart-scene__head cart-scene__head--compact">
-            <span className="cart-scene__diamond" aria-hidden />
-            <h1>הסל שלכם</h1>
-            <p className="cart-scene__count">{cartVendors.length} {vendorWord}</p>
-          </header>
-        ) : (
+        {!hasItems && !showSkeleton ? (
           <header className="cart-scene__head">
             <HomeStepVisual kind="cart" label="סל" />
             <p className="cart-scene__kicker">שלב 02</p>
@@ -188,7 +196,7 @@ export default function CartPage() {
               מרכזים הכול במקום אחד — ואז יועץ Fiesta סוגר איתכם.
             </p>
           </header>
-        )}
+        ) : null}
 
         {showSkeleton ? (
           <div className="cart-scene__grid" aria-busy="true" aria-label="טוען את הסל">
@@ -205,26 +213,29 @@ export default function CartPage() {
           </div>
         ) : null}
 
-        {!loading && !hasItems ? (
+        {showEmpty ? (
           <section className="cart-scene__empty">
             <h2>עדיין אין ספקים בסל</h2>
             <p>בחרו מקום, מוזיקה וצילום — ואנחנו נרכז הכול.</p>
             <div className="cart-scene__shortcuts">
-              <Link href="/vendors" className="cart-scene__shortcut">
-                <span className="cart-scene__shortcut-icon" aria-hidden />
-                <span>לכל הספקים</span>
-              </Link>
+              <Link href="/vendors" className="cart-scene__shortcut">לכל הספקים</Link>
               <Link
                 href={hasOnboarded ? '/my-event' : '/event-setup'}
                 className="cart-scene__shortcut"
               >
-                <span className="cart-scene__shortcut-icon" aria-hidden />
-                <span>{hasOnboarded ? 'האירוע שלי' : 'בואו נכיר את האירוע'}</span>
+                {hasOnboarded ? 'האירוע שלי' : 'בואו נכיר את האירוע'}
               </Link>
-              <Link href="/budget-planner" className="cart-scene__shortcut">
-                <span className="cart-scene__shortcut-icon" aria-hidden />
-                <span>תכנון תקציב</span>
-              </Link>
+              <Link href="/budget-planner" className="cart-scene__shortcut">תכנון תקציב</Link>
+            </div>
+          </section>
+        ) : null}
+
+        {!loading && cart.length > 0 && !hasItems ? (
+          <section className="cart-scene__empty">
+            <h2>הספקים שבסל לא נטענו</h2>
+            <p>רעננו את הדף, או הוסיפו שוב מהקטגוריה.</p>
+            <div className="cart-scene__shortcuts">
+              <Link href="/vendors" className="cart-scene__shortcut">לכל הספקים</Link>
             </div>
           </section>
         ) : null}
@@ -232,63 +243,79 @@ export default function CartPage() {
         {hasItems ? (
           <div className="cart-scene__grid">
             <section className="cart-scene__list" aria-label="ספקים שנבחרו">
-              <ol className="cart-scene__core" aria-label="מרכז האירוע">
-                {eventCore.map((item) => (
-                  <li key={item.type} className={item.on ? 'is-on' : ''}>
-                    {item.on ? (
-                      <span>
-                        <i aria-hidden />
-                        {item.short}
-                      </span>
-                    ) : (
-                      <Link href={`/category/${item.type}`}>
-                        <i aria-hidden />
-                        {item.short}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ol>
+              <header className="cart-scene__mast">
+                <div className="cart-scene__mast-title">
+                  <h1>הסל שלכם</h1>
+                  <p className="cart-scene__count">{cartVendors.length} {vendorWord}</p>
+                </div>
+                {eventFacts.length > 0 ? (
+                  <p className="cart-scene__mast-facts">{eventFacts.join(' · ')}</p>
+                ) : null}
+              </header>
 
-              {cartVendors.map((vendor, index) => {
-                const price = getVendorDisplayPrice(vendor);
-                const meta = getSupplierTypeMeta(vendor.type);
-                const cheapest = getCheapestPackage(vendor);
-                const image = resolveVendorImage(cheapest?.image || vendor.image, '');
-                const location = vendor.location || formatVendorRegions(vendor);
-                return (
-                  <article key={vendor.id} className="cart-scene__item">
-                    <Link href={`/vendor/${vendor.id}`} className="cart-scene__item-media">
-                      <VendorCardImage src={image} alt={vendor.name} />
-                    </Link>
-                    <div className="cart-scene__item-body">
-                      <p className="cart-scene__item-type">{meta.label}</p>
-                      <h2>
-                        <Link href={`/vendor/${vendor.id}`}>{vendor.name}</Link>
-                      </h2>
-                      {location ? <p className="cart-scene__item-loc">{location}</p> : null}
-                    </div>
-                    <div className="cart-scene__item-cost">
-                      {price.originalDisplay ? (
-                        <span className="cart-scene__was">{price.originalDisplay}</span>
-                      ) : null}
-                      {price.display ? (
-                        <strong>{price.isFrom ? 'מ־' : ''}{price.display}</strong>
-                      ) : (
-                        <span>מול Fiesta</span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="cart-scene__remove"
-                      aria-label={`הסרה של ${vendor.name}`}
-                      onClick={() => handleRemove(vendor, index)}
-                    >
-                      ×
-                    </button>
-                  </article>
-                );
-              })}
+              {eventCore.some((item) => !item.on) ? (
+                <div className="cart-scene__missing">
+                  <span>עוד אפשר להוסיף:</span>
+                  {eventCore.filter((item) => !item.on).map((item) => (
+                    <Link key={item.type} href={`/category/${item.type}`}>{item.short}</Link>
+                  ))}
+                </div>
+              ) : null}
+
+              {cartGroups.map((group) => (
+                <div key={group.key} className="cart-scene__group">
+                  <p className="cart-scene__group-label">
+                    <span>{group.label}</span>
+                    {group.priceLabel ? <span>{group.priceLabel}</span> : null}
+                  </p>
+                  {group.isChoice ? (
+                    <p className="cart-scene__group-note">מבחר · לוקחים אחד · טווח מחירים</p>
+                  ) : null}
+                  {group.vendors.map((vendor) => {
+                    const price = getVendorDisplayPrice(vendor);
+                    const meta = getSupplierTypeMeta(vendor.type);
+                    const cheapest = getCheapestPackage(vendor);
+                    const image = resolveVendorImage(cheapest?.image || vendor.image, '');
+                    const location = vendor.location || formatVendorRegions(vendor);
+                    const id = vendorCartId(vendor);
+                    return (
+                      <article key={id} className="cart-scene__item">
+                        <Link href={`/vendor/${id}`} className="cart-scene__item-media">
+                          <VendorCardImage src={image} alt={vendor.name} />
+                        </Link>
+                        <div className="cart-scene__item-body">
+                          <p className="cart-scene__item-type">{meta.label}</p>
+                          <h2>
+                            <Link href={`/vendor/${id}`}>{vendor.name}</Link>
+                          </h2>
+                          {location ? <p className="cart-scene__item-loc">{location}</p> : null}
+                        </div>
+                        <div className="cart-scene__item-cost">
+                          {price.originalDisplay ? (
+                            <span className="cart-scene__was">{price.originalDisplay}</span>
+                          ) : null}
+                          {price.display ? (
+                            <strong>{price.isFrom ? 'מ־' : ''}{price.display}</strong>
+                          ) : (
+                            <span>מול Fiesta</span>
+                          )}
+                          {price.savings ? (
+                            <em className="cart-scene__item-save">חיסכון {toShekels(price.savings)}</em>
+                          ) : null}
+                        </div>
+                        <button
+                          type="button"
+                          className="cart-scene__remove"
+                          aria-label={`הסרה של ${vendor.name}`}
+                          onClick={() => handleRemove(vendor)}
+                        >
+                          הסרה
+                        </button>
+                      </article>
+                    );
+                  })}
+                </div>
+              ))}
 
               <div className="cart-scene__list-foot">
                 <Link href="/vendors" className="cart-scene__more">הוסיפו עוד ספקים</Link>
@@ -301,33 +328,34 @@ export default function CartPage() {
             <aside className="cart-scene__aside" id="cart-lead">
               <p className="cart-scene__kicker">הצעד הבא</p>
               <h2>יועץ Fiesta</h2>
-              {eventFacts.length > 0 ? (
-                <p className="cart-scene__facts-line">{eventFacts.join(' · ')}</p>
-              ) : (
-                <p>נחזור אליכם עם הספקים שבסל, במחיר Fiesta.</p>
-              )}
+              <p>נחזור אליכם עם הספקים שבסל, במחיר Fiesta.</p>
 
-              {(totals.price > 0 || totals.savings > 0) ? (
+              {(totals.priceLabel || totals.savingsLabel) ? (
                 <dl className="cart-scene__totals">
-                  {totals.original > totals.price ? (
+                  {totals.originalMax > totals.priceMax ? (
                     <div>
                       <dt>מחיר רגיל</dt>
-                      <dd className="cart-scene__was">{toShekels(totals.original)}</dd>
+                      <dd className="cart-scene__was">{totals.originalLabel}</dd>
                     </div>
                   ) : null}
-                  {totals.price > 0 ? (
+                  {totals.priceLabel ? (
                     <div>
                       <dt>מחיר Fiesta</dt>
-                      <dd>{toShekels(totals.price)}</dd>
+                      <dd>{totals.priceLabel}</dd>
                     </div>
                   ) : null}
-                  {totals.savings > 0 ? (
+                  {totals.savingsMax > 0 ? (
                     <div className="cart-scene__totals-save">
                       <dt>חיסכון</dt>
-                      <dd>{toShekels(totals.savings)}</dd>
+                      <dd>{totals.savingsLabel}</dd>
                     </div>
                   ) : null}
                 </dl>
+              ) : null}
+              {totals.isEstimate ? (
+                <p className="cart-scene__totals-note">
+                  הטווח לפי ספק אחד בכל קטגוריה. כמה אפשרויות באותה קטגוריה הן מבחר — לא חיבור.
+                </p>
               ) : null}
 
               {sent ? (
@@ -391,8 +419,8 @@ export default function CartPage() {
       ) : hasItems ? (
         <a className="cart-scene__dock" href="#cart-lead">
           <span>
-            {totals.savings > 0
-              ? `חיסכון ${toShekels(totals.savings)}`
+            {totals.savingsMax > 0
+              ? `חיסכון ${totals.savingsLabel}`
               : `${cartVendors.length} ${vendorWord}`}
           </span>
           <strong>ליועץ</strong>

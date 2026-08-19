@@ -409,8 +409,12 @@ export default function DesignInvitationPage() {
 
     useEffect(() => {
         document.body.classList.add('studio-mode');
+        document.documentElement.classList.add('studio-mode');
         loadStudioFonts();
-        return () => document.body.classList.remove('studio-mode');
+        return () => {
+            document.body.classList.remove('studio-mode');
+            document.documentElement.classList.remove('studio-mode');
+        };
     }, []);
 
     useEffect(() => {
@@ -672,15 +676,19 @@ export default function DesignInvitationPage() {
             const s = Math.min(availW / CANVAS_W, availH / CANVAS_H);
             setDisplayScale(Math.max(0.28, Math.min(s, 0.95)));
         };
-        // Wait a frame so layout is real after leaving parked mode
-        const t = requestAnimationFrame(() => {
+        // Wait a couple of frames so layout is real after leaving parked mode
+        let n = 0;
+        const tick = () => {
             updateScale();
             const canvas = fabricRef.current;
             if (canvas && step >= 1) {
                 canvas.calcOffset();
                 canvas.requestRenderAll();
             }
-        });
+            n += 1;
+            if (n < 4) requestAnimationFrame(tick);
+        };
+        const t = requestAnimationFrame(tick);
         const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScale) : null;
         if (ro && stageRef.current) ro.observe(stageRef.current);
         window.addEventListener('resize', updateScale);
@@ -716,10 +724,11 @@ export default function DesignInvitationPage() {
             showToast('בחרו תבנית כדי להמשיך');
             return;
         }
-        if (step === 0 && (initError || !fabricReady)) {
-            showToast(initError || 'מנוע העריכה עדיין נטען — נסו שוב בעוד רגע');
+        if (step === 0 && initError) {
+            showToast(initError);
             return;
         }
+        // Continue even if Fabric is still loading — step 1 shows "טוען" and paints when ready.
         // Do NOT call renderTemplate again — races Image.fromURL and duplicates text lines.
         if (step === 2) {
             const canvas = fabricRef.current;
@@ -1866,12 +1875,18 @@ export default function DesignInvitationPage() {
             <style jsx>{`
                 .studio {
                     min-height: 100vh;
+                    min-height: 100dvh;
+                    height: 100dvh;
+                    max-height: 100dvh;
+                    overflow: hidden;
                     background: #f3f2ef;
                     color: #141414;
                     font-family: var(--font-heebo), Heebo, sans-serif;
                     display: flex;
                     flex-direction: column;
                     padding-bottom: calc(88px + env(safe-area-inset-bottom));
+                    width: 100%;
+                    max-width: 100%;
                 }
                 .topbar {
                     height: 52px;
@@ -2057,6 +2072,8 @@ export default function DesignInvitationPage() {
                     min-height: 0;
                     display: flex;
                     background: #f3f2ef;
+                    overflow: hidden;
+                    width: 100%;
                 }
                 .workspace.step-template {
                     display: block;
@@ -2123,12 +2140,16 @@ export default function DesignInvitationPage() {
                     text-align: center;
                     font-family: inherit;
                     box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+                    touch-action: manipulation;
+                    -webkit-tap-highlight-color: rgba(143, 115, 68, 0.18);
+                    pointer-events: auto;
                 }
                 .tpl-img-wrap {
                     aspect-ratio: 600 / 840;
                     background: #e8e6e1;
                     overflow: hidden;
                     position: relative;
+                    pointer-events: none;
                 }
                 .tpl-img-wrap :global(img) {
                     width: 100%;
@@ -2136,6 +2157,7 @@ export default function DesignInvitationPage() {
                     object-fit: contain;
                     display: block;
                     background: #f7f6f4;
+                    pointer-events: none;
                 }
                 .tpl-img-wrap :global(.tpl-fallback) {
                     width: 100%;
@@ -2837,15 +2859,17 @@ export default function DesignInvitationPage() {
                     color: #666;
                 }
                 .stage-parked {
-                    position: absolute !important;
-                    left: -10000px !important;
+                    /* Keep canvas mounted without expanding iOS/RTL scroll width */
+                    position: fixed !important;
+                    left: 0 !important;
                     top: 0 !important;
-                    width: 420px !important;
-                    height: 600px !important;
+                    width: 1px !important;
+                    height: 1px !important;
                     opacity: 0 !important;
                     pointer-events: none !important;
                     overflow: hidden !important;
                     flex: none !important;
+                    z-index: -1;
                 }
                 .invite-viewport {
                     position: relative;
@@ -2853,11 +2877,13 @@ export default function DesignInvitationPage() {
                     background: #fff;
                     box-shadow: 0 16px 48px rgba(0,0,0,0.12);
                     overflow: hidden;
+                    direction: ltr;
                 }
                 .invite-scaler {
                     position: absolute;
                     top: 0;
                     left: 0;
+                    direction: ltr;
                 }
                 .invite-scaler :global(.canvas-container) {
                     margin: 0 !important;
