@@ -12,7 +12,8 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 const MONGODB_URI =
   'mongodb+srv://netaneldama_db_user:Dama3253%21%3F@cluster0.zptzjg6.mongodb.net/fiesta?retryWrites=true&w=majority&appName=Cluster0';
 
-const CONTACT = '053-3452322'; // Fiesta manager line (coordination)
+const CONTACT = '050-5888228'; // group WhatsApp
+const CONTACT_CALL = '052-4888311'; // group voice call
 const WEEKDAY = 8500;
 const WEEKEND = 10000;
 const CUSTOMER_PCT = 7;
@@ -287,6 +288,7 @@ async function resolveImages(dj, outDir, uploadBufferToCloudinary) {
       type: 'dj',
       description: dj.description,
       contact: CONTACT,
+      contactCall: CONTACT_CALL,
       image,
       region: dj.region,
       price: String(weekendFiesta),
@@ -300,8 +302,8 @@ async function resolveImages(dj, outDir, uploadBufferToCloudinary) {
         `עסקה Fiesta: אמצע שבוע ₪${WEEKDAY.toLocaleString('he-IL')} | סופ״ש ₪${WEEKEND.toLocaleString('he-IL')}`,
         `הנחת לקוח: ${CUSTOMER_PCT}% → שבוע ₪${weekdayFiesta.toLocaleString('he-IL')} / סופ״ש ₪${weekendFiesta.toLocaleString('he-IL')}`,
         `עמלת Fiesta: ${FIESTA_PCT}% (₪${commissionWeekend} על בסיס סופ״ש)`,
-        `טלפון מנהל/תיאום: ${CONTACT}`,
-        dj.phonePublic ? `טלפון ציבורי ידוע: ${dj.phonePublic}` : null,
+        `טלפון וואטסאפ (קבוצה): ${CONTACT}`,
+        `טלפון להתקשר (קבוצה): ${CONTACT_CALL}`,
         dj.website ? `אתר: ${dj.website}` : null,
       ]
         .filter(Boolean)

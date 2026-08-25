@@ -9,8 +9,9 @@ import Link from 'next/link';
 import { resolveVendorImage, resolvePortfolioImage } from '@/lib/vendorImage';
 import VendorNoImage from '@/components/VendorNoImage';
 import { EditChip } from '@/components/SiteEditBar';
-import { formatPrice, getVendorDisplayPrice, getSavings, hasValidPrice, getPackages, getAddons, getCheapestPackage } from '@/lib/vendorPrice';
+import { formatPrice, getVendorDisplayPrice, getSavings, hasValidPrice, getPackages, getAddons, getCheapestPackage, getVendorDiscountBadge } from '@/lib/vendorPrice';
 import { formatVendorRegions } from '@/lib/vendorRegion';
+import { formatEventTypesLabel, eventAliases, pickEventPrice } from '@/lib/eventTypes';
 
 function ServiceRow({ item, isAddon = false, isFeatured = false }) {
     const itemPrice = formatPrice(item.price);
@@ -77,7 +78,7 @@ export default function VendorDetailPage() {
     const id = params.id;
     const router = useRouter();
     const { vendors, toggleFavorite, isFavorite, toggleCart, isInCart, loading: vendorsLoading } = useVendors();
-    const { isAdmin } = useAuth();
+    const { isAdmin, eventPreference } = useAuth();
     const [lightboxSrc, setLightboxSrc] = useState('');
 
     const vendor = vendors.find(v => v.id.toString() === id);
@@ -145,7 +146,7 @@ export default function VendorDetailPage() {
             urls.push(resolved);
         };
 
-        const headline = getCheapestPackage(vendor);
+        const headline = getCheapestPackage(vendor, eventPreference);
         if (headline?.image) push(headline.image);
         if (vendor.image) push(vendor.image);
         (vendor.products || []).forEach((p) => push(p?.image));
@@ -181,17 +182,21 @@ export default function VendorDetailPage() {
         return urls;
     })();
 
-    const priceInfo = getVendorDisplayPrice(vendor);
-    const addons = getAddons(vendor);
-    const productPackages = getPackages(vendor);
-    const headlinePackage = getCheapestPackage(vendor);
+    const priceInfo = getVendorDisplayPrice(vendor, eventPreference);
+    const discountBadge = getVendorDiscountBadge(vendor, eventPreference);
+    const eventLabel = formatEventTypesLabel(vendor);
+    const matchedEventPrice = pickEventPrice(vendor, eventPreference);
+    const eventPrices = Array.isArray(vendor.eventPrices) ? vendor.eventPrices.filter((row) => hasValidPrice(row?.price)) : [];
+    const addons = getAddons(vendor, eventPreference);
+    const productPackages = getPackages(vendor, eventPreference);
+    const headlinePackage = getCheapestPackage(vendor, eventPreference);
     // Vendors onboarded before packages existed only have priced portfolio items.
     const packages = productPackages.length || addons.length
         ? productPackages
         : (vendor.portfolio || []).filter((item) => hasValidPrice(item.price));
 
-    const liked = isFavorite(vendor.id);
-    const inCart = isInCart(vendor.id);
+    const liked = isFavorite(vendor.id || vendor._id);
+    const inCart = isInCart(vendor.id || vendor._id);
     const waUrl = `https://wa.me/972535378985?text=${encodeURIComponent(
         `היי, הגעתי מ־Fiesta לגבי ${vendor.name} ואשמח לדבר עם נציג`
     )}`;
@@ -248,11 +253,20 @@ export default function VendorDetailPage() {
                         <div style={{ background: 'var(--off-white)', color: 'var(--text-dark)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid var(--border-color)' }}>
                             {categoryLabel}
                         </div>
-                        {vendor.discount != null && String(vendor.discount).trim() !== '' && String(vendor.discount) !== '0' && (
+                        {discountBadge ? (
+                            <div style={{ background: 'var(--charcoal)', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600 }}>
+                                {discountBadge.type === 'amount' ? '₪' : ''}{discountBadge.value}{discountBadge.type === 'amount' ? '' : '%'} הנחה לחברים
+                            </div>
+                        ) : vendor.discount != null && String(vendor.discount).trim() !== '' && String(vendor.discount) !== '0' ? (
                             <div style={{ background: 'var(--charcoal)', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600 }}>
                                 {vendor.discountType === 'amount' ? '₪' : ''}{vendor.discount}{vendor.discountType === 'amount' ? '' : '%'} הנחה לחברים
                             </div>
-                        )}
+                        ) : null}
+                        {eventLabel ? (
+                            <div style={{ background: 'var(--off-white)', color: 'var(--text-dark)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid var(--border-color)' }}>
+                                {eventLabel}
+                            </div>
+                        ) : null}
                     </div>
                     
                     <h1 className="vendor-name">{vendor.name}</h1>
@@ -291,6 +305,11 @@ export default function VendorDetailPage() {
                                 )}
                                 <span style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-dark)', fontFamily: 'var(--font-display)' }}>{priceInfo.display}</span>
                             </div>
+                            {matchedEventPrice ? (
+                                <div style={{ marginTop: '8px', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-light)' }}>
+                                    מחיר עבור {eventPreference}
+                                </div>
+                            ) : null}
                             {priceInfo.savings != null && (
                                 <div style={{ 
                                     marginTop: '10px',
@@ -307,6 +326,40 @@ export default function VendorDetailPage() {
                             )}
                         </div>
                     ) : null}
+
+                    {eventPrices.length > 1 && (
+                        <div style={{ maxWidth: '520px', margin: '0 auto 32px', display: 'grid', gap: '8px' }}>
+                            {eventPrices.map((row) => {
+                                const rowPrice = formatPrice(row.price);
+                                const rowOrig = getSavings(row.originalPrice, row.price) != null
+                                    ? formatPrice(row.originalPrice)
+                                    : null;
+                                const isActive = eventPreference && eventAliases(eventPreference).includes(row.eventType);
+                                return (
+                                    <div
+                                        key={row.eventType}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            gap: '12px',
+                                            padding: '10px 14px',
+                                            borderRadius: '10px',
+                                            border: isActive ? '1.5px solid var(--charcoal)' : '1px solid var(--border-color)',
+                                            background: isActive ? 'var(--off-white)' : 'white',
+                                            fontSize: '0.9rem',
+                                        }}
+                                    >
+                                        <strong>{row.eventType}</strong>
+                                        <span>
+                                            {rowOrig ? <span style={{ color: '#999', textDecoration: 'line-through', marginLeft: '8px' }}>{rowOrig}</span> : null}
+                                            {rowPrice}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {vendor.description ? (
                         <div style={{ maxWidth: '680px', margin: '0 auto 40px' }}>
@@ -428,7 +481,7 @@ export default function VendorDetailPage() {
                         <button
                             type="button"
                             className={`btn vendor-cart-btn${inCart ? ' is-added' : ''}`}
-                            onClick={() => toggleCart(vendor.id)}
+                            onClick={() => toggleCart(vendor.id || vendor._id)}
                         >
                             <i className={`fas ${inCart ? 'fa-check' : 'fa-cart-plus'}`} style={{ marginLeft: 6 }}></i>
                             {inCart ? 'נוסף לסל' : 'הוספה לסל'}

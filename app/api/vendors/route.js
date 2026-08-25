@@ -18,8 +18,9 @@ export async function GET(request) {
         // Product commission is internal — list the product fields explicitly so
         // it never rides along with the public payload.
         const vendors = await Vendor.find({}).select(
-            'name type types description image region regions price originalPrice discount discountType googleRating googleReviewsCount portfolio eventTypes reviews ' +
-            'products.id products.name products.description products.price products.originalPrice products.image products.kind products.order products.active'
+            'id name type types description image region regions price originalPrice discount discountType googleRating googleReviewsCount portfolio eventTypes eventTypesExplicit reviews ' +
+            'eventPrices.eventType eventPrices.originalPrice eventPrices.price eventPrices.discount eventPrices.discountType ' +
+            'products.id products.name products.description products.price products.originalPrice products.image products.kind products.eventType products.order products.active'
         );
         return Response.json(vendors);
     } catch (error) {

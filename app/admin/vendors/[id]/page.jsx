@@ -8,6 +8,7 @@ import { useVendors } from '@/context/VendorContext';
 import AdminNav from '@/components/admin/AdminNav';
 import FileUploadField from '@/components/admin/FileUploadField';
 import VendorProductsManager from '@/components/admin/VendorProductsManager';
+import EventTypesFields from '@/components/admin/EventTypesFields';
 import { VENDOR_CATEGORIES } from '@/lib/vendorCategories';
 import { VENDOR_REGIONS } from '@/lib/vendorRegion';
 import {
@@ -43,6 +44,7 @@ function vendorToForm(vendor) {
     type: types[0] || vendor.type || 'design',
     types: types.length ? types : [vendor.type || 'design'],
     contact: vendor.contact || '',
+    contactCall: vendor.contactCall || '',
     region: regions[0] || vendor.region || '',
     regions,
     description: vendor.description || '',
@@ -65,6 +67,11 @@ function vendorToForm(vendor) {
     products: Array.isArray(vendor.products) ? vendor.products : [],
     mainProductId: vendor.mainProductId || '',
     videos: Array.isArray(vendor.videos) ? vendor.videos : [],
+    eventTypes: Array.isArray(vendor.eventTypes) && vendor.eventTypes.length
+      ? vendor.eventTypes
+      : ['מתאים לכל האירועים'],
+    eventTypesExplicit: Boolean(vendor.eventTypesExplicit),
+    eventPrices: Array.isArray(vendor.eventPrices) ? vendor.eventPrices : [],
   };
 }
 
@@ -301,12 +308,21 @@ export default function EditVendorPage() {
 
           <div className="vendor-form-grid-simple">
             <div className="crm-input-group">
-              <label>טלפון {form.type === 'venue' ? '*' : ''}</label>
+              <label>וואטסאפ {form.type === 'venue' ? '*' : ''}</label>
               <input
                 type="tel"
                 value={form.contact}
                 onChange={(e) => setForm({ ...form, contact: e.target.value })}
                 required={form.type === 'venue'}
+              />
+            </div>
+            <div className="crm-input-group">
+              <label>טלפון להתקשר</label>
+              <input
+                type="tel"
+                value={form.contactCall || ''}
+                onChange={(e) => setForm({ ...form, contactCall: e.target.value })}
+                placeholder="אם שונה מוואטסאפ"
               />
             </div>
           </div>
@@ -349,6 +365,12 @@ export default function EditVendorPage() {
               placeholder="תיאור הספק כפי שיופיע באתר"
             />
           </div>
+
+          <EventTypesFields
+            eventTypes={form.eventTypes}
+            eventPrices={form.eventPrices}
+            onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+          />
 
           <div className="vendor-form-grid-simple">
             <div className="crm-input-group">

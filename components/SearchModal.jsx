@@ -7,12 +7,15 @@ import { getCategoryLabel } from '@/lib/vendorCategories';
 import { getVendorDisplayPrice } from '@/lib/vendorPrice';
 import { resolveVendorImage } from '@/lib/vendorImage';
 import { vendorMatchesArea, formatVendorRegions } from '@/lib/vendorRegion';
+import { useAuth } from '@/context/AuthContext';
+import { vendorFitsEvent } from '@/lib/eventTypes';
 
 export default function SearchModal({ isOpen, onClose }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchArea, setSearchArea] = useState('כל הארץ');
     const [vendors, setVendors] = useState([]);
     const router = useRouter();
+    const { eventPreference } = useAuth();
 
     const supplierGroups = [
         {
@@ -92,10 +95,14 @@ export default function SearchModal({ isOpen, onClose }) {
                     type.includes(q) ||
                     desc.includes(q);
                 if (!matchesQuery) return false;
-                return vendorMatchesArea(v, searchArea);
+                if (!vendorMatchesArea(v, searchArea)) return false;
+                if (eventPreference && !vendorFitsEvent(v, eventPreference)) {
+                    return false;
+                }
+                return true;
             })
             .slice(0, 8);
-    }, [searchQuery, searchArea, vendors]);
+    }, [searchQuery, searchArea, vendors, eventPreference]);
 
     const handleSearch = (e) => {
         if (e) e.preventDefault();
@@ -197,7 +204,7 @@ export default function SearchModal({ isOpen, onClose }) {
                                             <div className="vendor-suggest-list">
                                                 {matchedVendors.map((v) => {
                                                     const img = resolveVendorImage(v.image, '');
-                                                    const price = getVendorDisplayPrice(v).display;
+                                                    const price = getVendorDisplayPrice(v, eventPreference).display;
                                                     return (
                                                         <button
                                                             key={v.id}

@@ -13,6 +13,7 @@ import { VENDOR_CATEGORIES, getCategoryLabel } from '@/lib/vendorCategories';
 import { formatVendorRegions } from '@/lib/vendorRegion';
 import AdminNav from '@/components/admin/AdminNav';
 import FileUploadField from '@/components/admin/FileUploadField';
+import EventTypesFields from '@/components/admin/EventTypesFields';
 import {
     DOCUMENT_ACCEPT,
     uploadVendorFile,
@@ -24,10 +25,13 @@ const EMPTY_VENDOR_FORM = {
     name: '',
     type: 'design',
     contact: '',
+    contactCall: '',
     description: '',
     image: '',
     region: '',
-    eventTypes: ['חתונה'],
+    eventTypes: ['מתאים לכל האירועים'],
+    eventTypesExplicit: true,
+    eventPrices: [],
     originalPrice: '',
     price: '',
     discount: '',
@@ -46,10 +50,6 @@ const EMPTY_VENDOR_FORM = {
     portfolio: [],
     mainProductId: ''
 };
-
-const EVENT_TYPES = [
-    'חתונה', 'בר מצווה', 'בת מצווה', 'ברית', 'בריתה', 'אירוע עסקי', 'יום הולדת'
-];
 
 const StatCard = ({ count, label, icon, color, bg }) => (
     <div className="crm-stat-card">
@@ -503,7 +503,7 @@ function AdminPageInner() {
                                                 <input value={vendorForm.region} onChange={e => setVendorForm({ ...vendorForm, region: e.target.value })} placeholder="מרכז, צפון..." />
                                             </div>
                                             <div className="crm-input-group">
-                                                <label>{vendorForm.type === 'venue' ? 'טלפון מנהל האולם *' : 'טלפון (סודי)'}</label>
+                                                <label>{vendorForm.type === 'venue' ? 'וואטסאפ מנהל האולם *' : 'וואטסאפ (סודי)'}</label>
                                                 <input
                                                     type="tel"
                                                     inputMode="tel"
@@ -512,6 +512,17 @@ function AdminPageInner() {
                                                     onChange={e => setVendorForm({ ...vendorForm, contact: e.target.value })}
                                                     placeholder="050-1234567"
                                                     required={vendorForm.type === 'venue'}
+                                                />
+                                            </div>
+                                            <div className="crm-input-group">
+                                                <label>טלפון להתקשר</label>
+                                                <input
+                                                    type="tel"
+                                                    inputMode="tel"
+                                                    autoComplete="tel"
+                                                    value={vendorForm.contactCall || ''}
+                                                    onChange={e => setVendorForm({ ...vendorForm, contactCall: e.target.value })}
+                                                    placeholder="אם שונה מוואטסאפ"
                                                 />
                                             </div>
                                         </div>
@@ -695,28 +706,11 @@ function AdminPageInner() {
                                                 <label style={{ marginBottom: 0 }}>המחיר כולל מע"מ</label>
                                             </div>
                                             <div className="crm-input-group span-3" style={{ gridColumn: 'span 3' }}>
-                                                <label>סוגי אירועים</label>
-                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                                                    {EVENT_TYPES.map(et => (
-                                                        <label key={et} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                                                            <input
-                                                                type="checkbox"
-                                                                style={{ width: 'auto' }}
-                                                                checked={vendorForm.eventTypes?.includes(et)}
-                                                                onChange={(e) => {
-                                                                    const current = vendorForm.eventTypes || [];
-                                                                    setVendorForm({
-                                                                        ...vendorForm,
-                                                                        eventTypes: e.target.checked
-                                                                            ? [...current, et]
-                                                                            : current.filter(x => x !== et)
-                                                                    });
-                                                                }}
-                                                            />
-                                                            {et}
-                                                        </label>
-                                                    ))}
-                                                </div>
+                                                <EventTypesFields
+                                                    eventTypes={vendorForm.eventTypes}
+                                                    eventPrices={vendorForm.eventPrices}
+                                                    onChange={(patch) => setVendorForm({ ...vendorForm, ...patch })}
+                                                />
                                             </div>
                                             <div className="crm-input-group span-3" style={{ gridColumn: 'span 3' }}>
                                                 <label>סרטונים (YouTube/Vimeo)</label>
@@ -817,6 +811,11 @@ function AdminPageInner() {
                                         <td><span className="crm-badge crm-badge-info">{getCategoryLabel(v.type)}</span></td>
                                         <td style={{ fontWeight: 600, color: '#4a90e2' }}>
                                             {v.contact || 'לא הוזן'}
+                                            {v.contactCall ? (
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+                                                    שיחה: {v.contactCall}
+                                                </div>
+                                            ) : null}
                                         </td>
                                         <td>{formatVendorRegions(v)}</td>
                                         <td>
@@ -908,7 +907,7 @@ function AdminPageInner() {
                                 </div>
                                 <div className="crm-mobile-card-meta">
                                     {formatVendorRegions(v) ? <span>{formatVendorRegions(v)}</span> : null}
-                                    <span>{v.contact || 'לא הוזן טלפון'}</span>
+                                    <span>{v.contact || 'לא הוזן טלפון'}{v.contactCall ? ` · שיחה: ${v.contactCall}` : ''}</span>
                                     {!v.price || String(v.price) === '0' ? (
                                         <span className="warn">חסר מחיר</span>
                                     ) : (

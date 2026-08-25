@@ -19,6 +19,8 @@ const CORE_EVENT = [
   { type: 'venue', short: 'אולם' },
   { type: 'dj', short: 'DJ' },
   { type: 'photographer', short: 'צילום' },
+  { type: 'catering', short: 'קייטרינג' },
+  { type: 'alcohol', short: 'אלכוהול' },
   { type: 'design', short: 'עיצוב' },
 ];
 
@@ -50,22 +52,35 @@ function formatEventDate(value) {
   return value;
 }
 
+const BASE_CORE = ['venue', 'dj', 'photographer', 'alcohol', 'design'];
+const WEDDING_CORE = ['rabbi', 'dresses', 'suits'];
+
+const CORE_LABELS = {
+  venue: 'אולם',
+  dj: 'DJ',
+  photographer: 'צילום',
+  catering: 'קייטרינג',
+  alcohol: 'אלכוהול',
+  design: 'עיצוב',
+  rabbi: 'רב',
+  dresses: 'שמלת כלה',
+  suits: 'חליפת חתן',
+};
+
 export default function CartPage() {
   const { vendors, loading, cart, removeFromCart, clearCart, replaceCart } = useVendors();
-  const { eventPreference, eventProfile, hasOnboarded } = useAuth();
-  const [lead, setLead] = useState({
-    name: '',
-    phone: '',
-    date: eventProfile.date || '',
-  });
+  const { user, eventPreference, eventProfile, hasOnboarded } = useAuth();
   const [sent, setSent] = useState(false);
   const [undo, setUndo] = useState(null);
   const undoTimer = useRef(null);
+  const trackerRef = useRef(null);
 
-  useEffect(() => {
-    if (!eventProfile.date) return;
-    setLead((prev) => (prev.date ? prev : { ...prev, date: eventProfile.date }));
-  }, [eventProfile.date]);
+  const scrollTracker = (direction) => {
+    if (!trackerRef.current) return;
+    const scrollAmount = 240;
+    const multiplier = direction === 'left' ? -1 : 1;
+    trackerRef.current.scrollBy({ left: multiplier * scrollAmount, behavior: 'smooth' });
+  };
 
   useEffect(() => () => {
     if (undoTimer.current) window.clearTimeout(undoTimer.current);
@@ -79,8 +94,28 @@ export default function CartPage() {
     [vendors, cart],
   );
 
-  const totals = useMemo(() => getCartTotals(cartVendors), [cartVendors]);
-  const cartGroups = totals.categories;
+  const totals = useMemo(() => getCartTotals(cartVendors, eventPreference), [cartVendors, eventPreference]);
+  
+  const coreTypes = useMemo(() => {
+    const list = [...BASE_CORE];
+    if (eventPreference === 'חתונה') {
+      list.push(...WEDDING_CORE);
+    }
+    return list;
+  }, [eventPreference]);
+
+  const { coreGroups, optionalGroups } = useMemo(() => {
+    const core = [];
+    const optional = [];
+    (totals.categories || []).forEach((group) => {
+      if (coreTypes.includes(group.key)) {
+        core.push(group);
+      } else {
+        optional.push(group);
+      }
+    });
+    return { coreGroups: core, optionalGroups: optional };
+  }, [totals.categories, coreTypes]);
 
   const guestCount = Number(String(eventProfile.guests || '').replace(/[^\d]/g, ''));
   const eventFacts = useMemo(() => [
@@ -92,18 +127,22 @@ export default function CartPage() {
       : null,
   ].filter(Boolean), [eventPreference, eventProfile.date, eventProfile.region, guestCount]);
 
-  const eventCore = useMemo(
-    () => CORE_EVENT.map((item, index) => {
-      const count = cartVendors.filter((vendor) => vendorHasCategory(vendor, item.type)).length;
+  const eventCore = useMemo(() => {
+    const coreList = [...BASE_CORE];
+    if (eventPreference === 'חתונה') {
+      coreList.push(...WEDDING_CORE);
+    }
+    return coreList.map((type, index) => {
+      const count = cartVendors.filter((vendor) => vendorHasCategory(vendor, type)).length;
       return {
-        ...item,
+        type,
+        short: CORE_LABELS[type] || 'ספק',
         n: String(index + 1).padStart(2, '0'),
         on: count > 0,
         count,
       };
-    }),
-    [cartVendors],
-  );
+    });
+  }, [cartVendors, eventPreference]);
 
   const showUndo = (payload) => {
     if (undoTimer.current) window.clearTimeout(undoTimer.current);
@@ -143,14 +182,18 @@ export default function CartPage() {
   };
 
   const submitLead = (event) => {
-    event.preventDefault();
-    const vendorList = cartGroups
+    event?.preventDefault?.();
+    const name = user?.name || '';
+    const phone = user?.username || '';
+    const date = eventProfile?.date || '';
+
+    const vendorList = (totals.categories || [])
       .map((group) => {
         const heading = group.isChoice
           ? `${group.label} — מבחר, לוקחים אחד:`
           : `${group.label}:`;
         const lines = group.vendors.map((vendor) => {
-          const price = getVendorDisplayPrice(vendor);
+          const price = getVendorDisplayPrice(vendor, eventPreference);
           return `• ${vendor.name}${price.display ? ` — ${price.display}` : ''}`;
         });
         return [heading, ...lines].join('\n');
@@ -159,13 +202,13 @@ export default function CartPage() {
     const message = [
       'היי Fiesta, סיימתי לבחור ספקים ורוצה להתקדם.',
       '',
-      `שם: ${lead.name}`,
-      `טלפון: ${lead.phone}`,
+      name ? `שם: ${name}` : null,
+      phone ? `טלפון: ${phone}` : null,
       eventPreference ? `סוג אירוע: ${eventPreference}` : null,
-      lead.date ? `תאריך אירוע: ${lead.date}` : null,
-      eventProfile.region ? `אזור: ${eventProfile.region}` : null,
-      eventProfile.guests ? `מוזמנים: ${eventProfile.guests}` : null,
-      eventProfile.budget ? `תקציב: ₪${Number(eventProfile.budget).toLocaleString('he-IL')}` : null,
+      date ? `תאריך אירוע: ${formatEventDate(date)}` : null,
+      eventProfile?.region ? `אזור: ${eventProfile.region}` : null,
+      eventProfile?.guests ? `מוזמנים: ${eventProfile.guests}` : null,
+      eventProfile?.budget ? `תקציב: ₪${Number(eventProfile.budget).toLocaleString('he-IL')}` : null,
       '',
       'הספקים שבחרתי:',
       vendorList,
@@ -253,26 +296,82 @@ export default function CartPage() {
                 ) : null}
               </header>
 
-              {eventCore.some((item) => !item.on) ? (
-                <div className="cart-scene__missing">
-                  <span>עוד אפשר להוסיף:</span>
-                  {eventCore.filter((item) => !item.on).map((item) => (
-                    <Link key={item.type} href={`/category/${item.type}`}>{item.short}</Link>
+              {/* באנר הסבר ברור על זרימת הסל ב-Fiesta */}
+              <div className="cart-scene__info-banner">
+                <i className="fas fa-info-circle" />
+                <p>
+                  הסל שלכם משמש כלוח טיוטה והשוואה. תוכלו להוסיף מספר ספקים באותה קטגוריה כדי להתלבט ביניהם, ואנחנו נעזור לכם לבחור ולסגור מול המועדפים עליכם במחיר הטוב ביותר.
+                </p>
+              </div>
+
+              {/* טראקר התקדמות גרפי (Checklist) לקטגוריות הליבה בקרוסלה אופקית */}
+              <div className="cart-scene__tracker-wrapper">
+                <button
+                  type="button"
+                  className="cart-scene__tracker-arrow cart-scene__tracker-arrow--right"
+                  onClick={() => scrollTracker('right')}
+                  aria-label="גלול ימינה"
+                >
+                  <i className="fas fa-chevron-right" />
+                </button>
+                
+                <div className="cart-scene__tracker" ref={trackerRef} aria-label="התקדמות בחירת ספקים">
+                  {eventCore.map((item) => (
+                    <Link
+                      key={item.type}
+                      href={`/category/${item.type}`}
+                      className={`cart-scene__tracker-step${item.on ? ' is-on' : ''}`}
+                      title={item.on ? `${item.short} נוסף לסל` : `הוסיפו ${item.short}`}
+                    >
+                      <div className="cart-scene__tracker-icon">
+                        <i className={item.on ? 'fas fa-check-circle' : 'fas fa-plus-circle'} />
+                      </div>
+                      <span className="cart-scene__tracker-label">{item.short}</span>
+                    </Link>
                   ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="cart-scene__tracker-arrow cart-scene__tracker-arrow--left"
+                  onClick={() => scrollTracker('left')}
+                  aria-label="גלול שמאלה"
+                >
+                  <i className="fas fa-chevron-left" />
+                </button>
+              </div>
+
+              {!hasOnboarded ? (
+                <div className="cart-scene__onboarding-top hide-on-desktop">
+                  <div className="cart-scene__onboarding-top-body">
+                    <i className="fas fa-calendar-check" />
+                    <div>
+                      <h3>פרטי האירוע חסרים</h3>
+                      <p>השלימו את פרטי האירוע כדי לראות טווח מחירים וחיסכון.</p>
+                    </div>
+                  </div>
+                  <Link href="/event-setup" className="cart-scene__onboarding-btn-small">
+                    להגדרת אירוע ➔
+                  </Link>
                 </div>
               ) : null}
 
-              {cartGroups.map((group) => (
-                <div key={group.key} className="cart-scene__group">
+              {coreGroups.map((group) => (
+                <div key={group.key} className={`cart-scene__group${group.isChoice ? ' is-choice' : ''}`}>
                   <p className="cart-scene__group-label">
-                    <span>{group.label}</span>
+                    <span>
+                      {group.label}
+                      <Link href={`/category/${group.key}`} className="cart-scene__group-label-link">
+                        + להשוואה נוספת
+                      </Link>
+                    </span>
                     {group.priceLabel ? <span>{group.priceLabel}</span> : null}
                   </p>
                   {group.isChoice ? (
                     <p className="cart-scene__group-note">מבחר · לוקחים אחד · טווח מחירים</p>
                   ) : null}
                   {group.vendors.map((vendor) => {
-                    const price = getVendorDisplayPrice(vendor);
+                    const price = getVendorDisplayPrice(vendor, eventPreference);
                     const meta = getSupplierTypeMeta(vendor.type);
                     const cheapest = getCheapestPackage(vendor);
                     const image = resolveVendorImage(cheapest?.image || vendor.image, '');
@@ -288,7 +387,12 @@ export default function CartPage() {
                           <h2>
                             <Link href={`/vendor/${id}`}>{vendor.name}</Link>
                           </h2>
-                          {location ? <p className="cart-scene__item-loc">{location}</p> : null}
+                          {location ? (
+                            <p className="cart-scene__item-loc">
+                              <i className="fas fa-map-marker-alt" style={{ marginLeft: '4px', fontSize: '0.8rem', color: '#a89f91' }} />
+                              {location}
+                            </p>
+                          ) : null}
                         </div>
                         <div className="cart-scene__item-cost">
                           {price.originalDisplay ? (
@@ -300,7 +404,10 @@ export default function CartPage() {
                             <span>מול Fiesta</span>
                           )}
                           {price.savings ? (
-                            <em className="cart-scene__item-save">חיסכון {toShekels(price.savings)}</em>
+                            <em className="cart-scene__item-save">
+                              <i className="fas fa-tags" style={{ marginLeft: '4px' }} />
+                              חיסכון {toShekels(price.savings)}
+                            </em>
                           ) : null}
                         </div>
                         <button
@@ -309,6 +416,7 @@ export default function CartPage() {
                           aria-label={`הסרה של ${vendor.name}`}
                           onClick={() => handleRemove(vendor)}
                         >
+                          <i className="fas fa-trash-alt" style={{ marginLeft: '4px' }} />
                           הסרה
                         </button>
                       </article>
@@ -317,90 +425,160 @@ export default function CartPage() {
                 </div>
               ))}
 
+              {optionalGroups.length > 0 ? (
+                <>
+                  <div className="cart-scene__section-title">
+                    <h3>תוספות ופינוקים</h3>
+                    <p>ספקים משלימים שבחרתם לעבות איתם את האירוע</p>
+                  </div>
+                  {optionalGroups.map((group) => (
+                    <div key={group.key} className={`cart-scene__group${group.isChoice ? ' is-choice' : ''}`}>
+                      <p className="cart-scene__group-label">
+                        <span>
+                          {group.label}
+                          <Link href={`/category/${group.key}`} className="cart-scene__group-label-link">
+                            + להשוואה נוספת
+                          </Link>
+                        </span>
+                        {group.priceLabel ? <span>{group.priceLabel}</span> : null}
+                      </p>
+                      {group.isChoice ? (
+                        <p className="cart-scene__group-note">מבחר · לוקחים אחד · טווח מחירים</p>
+                      ) : null}
+                      {group.vendors.map((vendor) => {
+                        const price = getVendorDisplayPrice(vendor, eventPreference);
+                        const meta = getSupplierTypeMeta(vendor.type);
+                        const cheapest = getCheapestPackage(vendor);
+                        const image = resolveVendorImage(cheapest?.image || vendor.image, '');
+                        const location = vendor.location || formatVendorRegions(vendor);
+                        const id = vendorCartId(vendor);
+                        return (
+                          <article key={id} className="cart-scene__item">
+                            <Link href={`/vendor/${id}`} className="cart-scene__item-media">
+                              <VendorCardImage src={image} alt={vendor.name} />
+                            </Link>
+                            <div className="cart-scene__item-body">
+                              <p className="cart-scene__item-type">{meta.label}</p>
+                              <h2>
+                                <Link href={`/vendor/${id}`}>{vendor.name}</Link>
+                              </h2>
+                              {location ? (
+                                <p className="cart-scene__item-loc">
+                                  <i className="fas fa-map-marker-alt" style={{ marginLeft: '4px', fontSize: '0.8rem', color: '#a89f91' }} />
+                                  {location}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div className="cart-scene__item-cost">
+                              {price.originalDisplay ? (
+                                <span className="cart-scene__was">{price.originalDisplay}</span>
+                              ) : null}
+                              {price.display ? (
+                                <strong>{price.isFrom ? 'מ־' : ''}{price.display}</strong>
+                              ) : (
+                                <span>מול Fiesta</span>
+                              )}
+                              {price.savings ? (
+                                <em className="cart-scene__item-save">
+                                  <i className="fas fa-tags" style={{ marginLeft: '4px' }} />
+                                  חיסכון {toShekels(price.savings)}
+                                </em>
+                              ) : null}
+                            </div>
+                            <button
+                              type="button"
+                              className="cart-scene__remove"
+                              aria-label={`הסרה של ${vendor.name}`}
+                              onClick={() => handleRemove(vendor)}
+                            >
+                              <i className="fas fa-trash-alt" style={{ marginLeft: '4px' }} />
+                              הסרה
+                            </button>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </>
+              ) : null}
+
               <div className="cart-scene__list-foot">
                 <Link href="/vendors" className="cart-scene__more">הוסיפו עוד ספקים</Link>
                 <button type="button" className="cart-scene__clear" onClick={handleClear}>
-                  ריקון
+                  <i className="fas fa-trash-alt" style={{ marginLeft: '4px' }} />
+                  ריקון הסל
                 </button>
               </div>
             </section>
 
             <aside className="cart-scene__aside" id="cart-lead">
-              <p className="cart-scene__kicker">הצעד הבא</p>
-              <h2>יועץ Fiesta</h2>
-              <p>נחזור אליכם עם הספקים שבסל, במחיר Fiesta.</p>
-
-              {(totals.priceLabel || totals.savingsLabel) ? (
-                <dl className="cart-scene__totals">
-                  {totals.originalMax > totals.priceMax ? (
-                    <div>
-                      <dt>מחיר רגיל</dt>
-                      <dd className="cart-scene__was">{totals.originalLabel}</dd>
-                    </div>
-                  ) : null}
-                  {totals.priceLabel ? (
-                    <div>
-                      <dt>מחיר Fiesta</dt>
-                      <dd>{totals.priceLabel}</dd>
-                    </div>
-                  ) : null}
-                  {totals.savingsMax > 0 ? (
-                    <div className="cart-scene__totals-save">
-                      <dt>חיסכון</dt>
-                      <dd>{totals.savingsLabel}</dd>
-                    </div>
-                  ) : null}
-                </dl>
-              ) : null}
-              {totals.isEstimate ? (
-                <p className="cart-scene__totals-note">
-                  הטווח לפי ספק אחד בכל קטגוריה. כמה אפשרויות באותה קטגוריה הן מבחר — לא חיבור.
-                </p>
-              ) : null}
-
-              {sent ? (
-                <div className="cart-scene__sent" role="status">
-                  <p>נפתח אצלכם WhatsApp עם סיכום הסל.</p>
-                  <button type="button" className="cart-scene__more" onClick={() => setSent(false)}>
-                    לשלוח שוב
-                  </button>
+              {!hasOnboarded ? (
+                /* חסימת הפאנל הצדי למשתמש שלא הגדיר אירוע (מפנה ל-event-setup) */
+                <div className="cart-scene__onboarding-aside">
+                  <div className="cart-scene__onboarding-aside-icon">
+                    <i className="fas fa-calendar-check" />
+                  </div>
+                  <h3>פרטי האירוע חסרים</h3>
+                  <p>
+                    כדי שנוכל לחשב את טווח המחירים המדויק ואת גובה החיסכון שלכם מול הספקים, עלינו להכיר קודם את האירוע שלכם.
+                  </p>
+                  <Link href="/event-setup" className="cart-scene__onboarding-btn">
+                    להגדרת האירוע והשלמת פרטים ➔
+                  </Link>
                 </div>
               ) : (
-                <form onSubmit={submitLead}>
-                  <label className="cart-scene__field">
-                    <span>שם מלא</span>
-                    <input
-                      required
-                      value={lead.name}
-                      onChange={(e) => setLead({ ...lead, name: e.target.value })}
-                      autoComplete="name"
-                    />
-                  </label>
-                  <label className="cart-scene__field">
-                    <span>טלפון</span>
-                    <input
-                      required
-                      type="tel"
-                      value={lead.phone}
-                      onChange={(e) => setLead({ ...lead, phone: e.target.value })}
-                      autoComplete="tel"
-                      inputMode="tel"
-                    />
-                  </label>
-                  <label className="cart-scene__field">
-                    <span>תאריך האירוע</span>
-                    <input
-                      type="date"
-                      lang="he-IL"
-                      value={lead.date}
-                      onChange={(e) => setLead({ ...lead, date: e.target.value })}
-                    />
-                  </label>
-                  <button type="submit" className="cart-scene__btn cart-scene__btn--full">
-                    שלחו בוואטסאפ
-                  </button>
-                  <p className="cart-scene__hint">בלי התחייבות · נפתח WhatsApp עם הסיכום</p>
-                </form>
+                /* פאנל מאוזן ויוקרתי */
+                <>
+                  <div className="cart-scene__aside-head">
+                    <span className="cart-scene__aside-kicker">סגירת ספקים</span>
+                    <h2>ההצעה שלכם</h2>
+                  </div>
+
+                  <div className="cart-scene__summary-box">
+                    {totals.originalMax > totals.priceMax ? (
+                      <div className="cart-scene__summary-row">
+                        <span className="cart-scene__summary-label">מחיר מקורי</span>
+                        <span className="cart-scene__summary-was">{totals.originalLabel}</span>
+                      </div>
+                    ) : null}
+
+                    {totals.savingsMax > 0 ? (
+                      <div className="cart-scene__summary-row is-savings">
+                        <span className="cart-scene__summary-label">חיסכון Fiesta</span>
+                        <span className="cart-scene__summary-save">-{totals.savingsLabel}</span>
+                      </div>
+                    ) : null}
+
+                    {totals.priceLabel ? (
+                      <div className="cart-scene__summary-row is-total">
+                        <span className="cart-scene__summary-label">סה״כ משוער</span>
+                        <span className="cart-scene__summary-total">{totals.priceLabel}</span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <p className="cart-scene__aside-note">
+                    היועץ שלנו יבדוק זמינות ויסגור עבורכם את המחיר.
+                  </p>
+
+                  {sent ? (
+                    <div className="cart-scene__sent" role="status">
+                      <p>נפתח אצלכם WhatsApp עם סיכום הסל.</p>
+                      <button type="button" className="cart-scene__more" onClick={() => setSent(false)}>
+                        לשלוח שוב
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="cart-scene__btn cart-scene__btn--full cart-scene__btn-wa"
+                      onClick={submitLead}
+                    >
+                      <i className="fab fa-whatsapp" style={{ marginLeft: '8px', fontSize: '1.2rem' }} />
+                      שלחו בוואטסאפ ליועץ
+                    </button>
+                  )}
+                </>
               )}
             </aside>
           </div>
@@ -417,14 +595,14 @@ export default function CartPage() {
           <button type="button" onClick={restoreUndo}>בטל</button>
         </div>
       ) : hasItems ? (
-        <a className="cart-scene__dock" href="#cart-lead">
+        <Link className="cart-scene__dock" href={hasOnboarded ? "#cart-lead" : "/event-setup"}>
           <span>
-            {totals.savingsMax > 0
+            {hasOnboarded && totals.savingsMax > 0
               ? `חיסכון ${totals.savingsLabel}`
               : `${cartVendors.length} ${vendorWord}`}
           </span>
-          <strong>ליועץ</strong>
-        </a>
+          <strong>{hasOnboarded ? 'ליועץ' : 'להגדרת אירוע'}</strong>
+        </Link>
       ) : null}
     </div>
   );

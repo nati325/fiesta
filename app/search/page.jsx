@@ -5,11 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import VendorCard from '@/components/VendorCard';
 import { vendorMatchesArea } from '@/lib/vendorRegion';
+import { useAuth } from '@/context/AuthContext';
+import { vendorFitsEvent } from '@/lib/eventTypes';
 
 function SearchResultsContent() {
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || '';
     const area = searchParams.get('area') || 'כל הארץ';
+    const { eventPreference } = useAuth();
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -62,13 +65,17 @@ function SearchResultsContent() {
                     const matchesQuery = matchesName || matchesType || matchesMappedType || matchesDescription;
 
                     const matchesArea = vendorMatchesArea(v, area);
-                    return matchesQuery && matchesArea;
+                    if (!matchesQuery || !matchesArea) return false;
+                    if (eventPreference && !vendorFitsEvent(v, eventPreference)) {
+                        return false;
+                    }
+                    return true;
                 });
                 setVendors(filtered);
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, [query, area]);
+    }, [query, area, eventPreference]);
 
     return (
         <div className="search-results-page">

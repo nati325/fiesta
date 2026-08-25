@@ -2,11 +2,13 @@
 
 import { useState, useMemo, Suspense } from 'react';
 import { useVendors } from '@/context/VendorContext';
+import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import VendorCardImage from '@/components/VendorCardImage';
 import { resolveVendorImage } from '@/lib/vendorImage';
 import { parsePrice, parsePriceRange, hasValidPrice, getPackages } from '@/lib/vendorPrice';
+import { pickEventPrice, cheapestEventPrice, vendorFitsEvent } from '@/lib/eventTypes';
 
 /** Must match real vendor.type slugs in DB / site */
 const CATEGORIES = [
@@ -39,7 +41,7 @@ function plannerUnitPrice(raw, guestCount) {
     return Math.round(single);
 }
 
-function buildVendorOptions(vendor, guests) {
+function buildVendorOptions(vendor, guests, eventType) {
     const options = [];
     const seen = new Set();
 
@@ -61,12 +63,20 @@ function buildVendorOptions(vendor, guests) {
         });
     };
 
-    // Real packages only — add-ons are priced as extras, not as a budget line.
-    const packages = getPackages(vendor);
+    const packages = getPackages(vendor, eventType);
     if (packages.length > 0) {
         [...packages]
             .sort((a, b) => (parsePrice(a.price) ?? Infinity) - (parsePrice(b.price) ?? Infinity))
             .forEach((p) => push(p.name || p.title || '', p.price, p.image));
+    } else {
+        const eventRow = eventType
+            ? pickEventPrice(vendor, eventType)
+            : cheapestEventPrice(vendor);
+        if (eventRow && hasValidPrice(eventRow.price)) {
+            push(eventType || eventRow.eventType, eventRow.price, vendor.image);
+        } else if (hasValidPrice(vendor.price)) {
+            push(vendor.name || '', vendor.price, vendor.image);
+        }
     }
 
     // Fallback: vendor-level price with vendor name (no invented package title)
@@ -88,6 +98,7 @@ function buildVendorOptions(vendor, guests) {
 
 function BudgetPlannerContent() {
     const { vendors, loading } = useVendors();
+    const { eventPreference } = useAuth();
     const [budget, setBudget] = useState(50000);
     const [guests, setGuests] = useState(100);
     const [selectedCategories, setSelectedCategories] = useState(['venue', 'dj']);
@@ -97,8 +108,8 @@ function BudgetPlannerContent() {
     const [emptyReason, setEmptyReason] = useState('');
 
     const realVendors = useMemo(
-        () => (vendors || []).filter((v) => v && v.name && v.type),
-        [vendors]
+        () => (vendors || []).filter((v) => v && v.name && v.type && vendorFitsEvent(v, eventPreference)),
+        [vendors, eventPreference]
     );
 
     const handleCategoryToggle = (id) => {
@@ -118,7 +129,7 @@ function BudgetPlannerContent() {
             realVendors
                 .filter((v) => v.type === catId || (Array.isArray(v.types) && v.types.includes(catId)))
                 .forEach((vendor) => {
-                    packages.push(...buildVendorOptions(vendor, guests));
+                    packages.push(...buildVendorOptions(vendor, guests, eventPreference));
                 });
             // keep cheapest few per category to avoid explosion, but only real prices
             optionsByCategory[catId] = packages

@@ -13,6 +13,8 @@ import {
 } from '@/lib/vendorPrice';
 import { formatVendorRegions } from '@/lib/vendorRegion';
 import { useVendors } from '@/context/VendorContext';
+import { useAuth } from '@/context/AuthContext';
+import { formatEventTypesLabel } from '@/lib/eventTypes';
 
 function formatSavings(amount) {
   if (amount == null || amount <= 0) return null;
@@ -26,15 +28,17 @@ function formatSavings(amount) {
 export default function VendorCard({ vendor, index = 0 }) {
   const router = useRouter();
   const { toggleFavorite, isFavorite, toggleCart, isInCart } = useVendors();
+  const { eventPreference } = useAuth();
   const [justAdded, setJustAdded] = useState(false);
 
   if (!vendor) return null;
 
-  const cheapest = getCheapestPackage(vendor);
-  const packageCount = getPackages(vendor).length;
+  const cheapest = getCheapestPackage(vendor, eventPreference);
+  const packageCount = getPackages(vendor, eventPreference).length;
   const displayImage = resolveVendorImage(cheapest?.image || vendor.image, '');
-  const priceInfo = getVendorDisplayPrice(vendor);
-  const discountBadge = getVendorDiscountBadge(vendor);
+  const priceInfo = getVendorDisplayPrice(vendor, eventPreference);
+  const discountBadge = getVendorDiscountBadge(vendor, eventPreference);
+  const eventLabel = formatEventTypesLabel(vendor);
   const savingsLabel = formatSavings(priceInfo.savings);
   const rating = Number(vendor.googleRating);
   const reviewsCount = Number(vendor.googleReviewsCount);
@@ -92,6 +96,7 @@ export default function VendorCard({ vendor, index = 0 }) {
 
       <div className="pvc-body">
         <h3 className="pvc-title">{vendor.name}</h3>
+        {eventLabel ? <p className="pvc-events">{eventLabel}</p> : null}
 
         <div className="pvc-meta">
           {location ? (
@@ -271,6 +276,12 @@ export default function VendorCard({ vendor, index = 0 }) {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+        .pvc-events {
+          margin: 0;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--text-light);
         }
 
         .pvc-meta {

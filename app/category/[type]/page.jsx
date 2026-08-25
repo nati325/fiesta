@@ -8,9 +8,10 @@ import { vendorHasCategory } from '@/lib/vendorCategories';
 import VendorCard from '@/components/VendorCard';
 import { getVendorDisplayPrice, parsePrice, parsePriceRange } from '@/lib/vendorPrice';
 import { vendorMatchesArea } from '@/lib/vendorRegion';
+import { vendorFitsEvent } from '@/lib/eventTypes';
 
-function sortPriceValue(vendor) {
-    const info = getVendorDisplayPrice(vendor);
+function sortPriceValue(vendor, eventType) {
+    const info = getVendorDisplayPrice(vendor, eventType);
     const range = parsePriceRange(info.raw);
     if (range) return range.min;
     return parsePrice(info.raw) ?? Number.POSITIVE_INFINITY;
@@ -32,19 +33,7 @@ export default function CategoryPage() {
         if (type) rememberCategoryVisit(type);
     }, [type, rememberCategoryVisit]);
 
-    const matchesEventPreference = (v) => {
-        if (!eventPreference) return true;
-        const events = Array.isArray(v.eventTypes) ? v.eventTypes : [];
-        if (events.length === 0 || events.includes('מתאים לכל האירועים')) return true;
-        if (events.includes(eventPreference)) return true;
-        if (eventPreference === 'בר/בת מצווה' || eventPreference === 'בר מצווה' || eventPreference === 'בת מצווה') {
-            return events.includes('בר מצווה') || events.includes('בת מצווה') || events.includes('בר/בת מצווה');
-        }
-        if (eventPreference === 'ברית' || eventPreference === 'בריתה') {
-            return events.includes('ברית') || events.includes('בריתה');
-        }
-        return false;
-    };
+    const matchesEventPreference = (v) => vendorFitsEvent(v, eventPreference);
     
     useEffect(() => {
         // Same source as the homepage — don't depend on VendorContext for the list.
@@ -59,7 +48,10 @@ export default function CategoryPage() {
                 const matched = all.filter((v) => {
                     if (!vendorHasCategory(v, type)) return false;
                     if (!vendorMatchesArea(v, area)) return false;
-                    const price = sortPriceValue(v);
+                    if (eventPreference && !vendorFitsEvent(v, eventPreference)) {
+                        return false;
+                    }
+                    const price = sortPriceValue(v, eventPreference);
                     if (maxPrice && price !== Number.POSITIVE_INFINITY && price > Number(maxPrice)) return false;
                     if (minRating && Number(v.googleRating || 0) < Number(minRating)) return false;
                     return true;
@@ -71,8 +63,8 @@ export default function CategoryPage() {
                         const bm = matchesEventPreference(b) ? 1 : 0;
                         if (bm !== am) return bm - am;
                     }
-                    if (sortBy === 'price-low') return sortPriceValue(a) - sortPriceValue(b);
-                    if (sortBy === 'price-high') return sortPriceValue(b) - sortPriceValue(a);
+                    if (sortBy === 'price-low') return sortPriceValue(a, eventPreference) - sortPriceValue(b, eventPreference);
+                    if (sortBy === 'price-high') return sortPriceValue(b, eventPreference) - sortPriceValue(a, eventPreference);
                     const ra = Number(a.googleRating) || 0;
                     const rb = Number(b.googleRating) || 0;
                     if (rb !== ra) return rb - ra;
@@ -142,7 +134,9 @@ export default function CategoryPage() {
                     <h1>{currentCategory.label}</h1>
                     <div className="category-hero-meta">
                         <div className="category-hero-line"></div>
-                        <p>{vendors.length} ספקים מובילים מחכים לכם</p>
+                        <p>{eventPreference
+                            ? `${vendors.length} ספקים ל${eventPreference}`
+                            : `${vendors.length} ספקים מובילים מחכים לכם`}</p>
                     </div>
                 </div>
                 <button
@@ -206,8 +200,12 @@ export default function CategoryPage() {
                         </div>
                     ) : vendors.length === 0 ? (
                         <div className="category-empty">
-                            <h2>אין עדיין ספקים בקטגוריה זו</h2>
-                            <p style={{ color: 'var(--text-light)', marginTop: 8 }}>נחזור אליכם בקרוב עם נבחרת מעודכנת.</p>
+                            <h2>{eventPreference ? `אין ספקים ל${eventPreference} בקטגוריה זו` : 'אין עדיין ספקים בקטגוריה זו'}</h2>
+                            <p style={{ color: 'var(--text-light)', marginTop: 8 }}>
+                                {eventPreference
+                                    ? 'מציגים רק ספקים שמתאימים לאירוע שבחרתם.'
+                                    : 'נחזור אליכם בקרוב עם נבחרת מעודכנת.'}
+                            </p>
                         </div>
                     ) : (
                         <div className="vendor-cards-grid">

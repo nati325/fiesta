@@ -4,6 +4,7 @@ import { createContext, useState, useContext, useEffect, useCallback, useRef } f
 import { useAuth } from '@/context/AuthContext';
 import { getAdminHeaders } from '@/lib/getAdminHeaders';
 import { vendorHasCategory } from '@/lib/vendorCategories';
+import { vendorFitsEvent } from '@/lib/eventTypes';
 
 const VendorContext = createContext();
 const FAV_KEY = 'fiesta_favorites';
@@ -38,7 +39,7 @@ function uniq(list) {
 }
 
 export const VendorProvider = ({ children }) => {
-    const { token, user, journeyHydrated } = useAuth();
+    const { token, user, journeyHydrated, eventPreference } = useAuth();
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
@@ -46,8 +47,11 @@ export const VendorProvider = ({ children }) => {
     const syncedUserRef = useRef(null);
     const syncedCartUserRef = useRef(null);
     const skipNextPersist = useRef(false);
+    const skipCartPersist = useRef(true);
 
     useEffect(() => {
+        skipNextPersist.current = true;
+        skipCartPersist.current = true;
         setFavorites(readLocalFavorites());
         setCart(readLocalCart());
     }, []);
@@ -61,6 +65,10 @@ export const VendorProvider = ({ children }) => {
     }, [favorites]);
 
     useEffect(() => {
+        if (skipCartPersist.current) {
+            skipCartPersist.current = false;
+            return;
+        }
         localStorage.setItem(CART_KEY, JSON.stringify(cart));
     }, [cart]);
 
@@ -133,28 +141,35 @@ export const VendorProvider = ({ children }) => {
         const headers = user?.isAdmin && token ? getAdminHeaders(false) : {};
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 12000);
+        let cancelled = false;
 
         fetch('/api/vendors', { headers, signal: controller.signal })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
             })
-            .then(data => setVendors(Array.isArray(data) ? data : []))
+            .then(data => {
+                if (cancelled) return;
+                setVendors(Array.isArray(data) ? data : []);
+            })
             .catch(err => {
-                if (err?.name !== 'AbortError') {
-                    console.error('Error fetching vendors:', err);
-                }
+                if (cancelled || err?.name === 'AbortError') return;
+                console.error('Error fetching vendors:', err);
                 setVendors([]);
             })
             .finally(() => {
                 clearTimeout(timeout);
-                setLoading(false);
+                if (!cancelled) setLoading(false);
             });
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+            clearTimeout(timeout);
+        };
     }, [token, user?.isAdmin]);
 
-    useEffect(() => {
-        fetchVendors();
-    }, [fetchVendors]);
+    useEffect(() => fetchVendors(), [fetchVendors]);
 
     const addVendor = (vendor) => {
         return fetch('/api/vendors', {
@@ -216,7 +231,9 @@ export const VendorProvider = ({ children }) => {
     };
 
     const getVendorsByType = (type) =>
-        Array.isArray(vendors) ? vendors.filter((v) => vendorHasCategory(v, type)) : [];
+        Array.isArray(vendors)
+            ? vendors.filter((v) => vendorHasCategory(v, type) && vendorFitsEvent(v, eventPreference))
+            : [];
 
     const persistFavorites = useCallback((next) => {
         const list = uniq(next);

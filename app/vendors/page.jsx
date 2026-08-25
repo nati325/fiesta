@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { SUPPLIER_GROUPS, CATEGORY_IMAGES, CATEGORY_FALLBACK_IMAGE } from '@/lib/supplierGroups';
 import { useAuth } from '@/context/AuthContext';
+import { vendorFitsEvent } from '@/lib/eventTypes';
 
 function VendorsHubContent() {
     const searchParams = useSearchParams();
@@ -23,17 +24,18 @@ function VendorsHubContent() {
             .catch(() => setVendors([]));
     }, []);
 
+    const activeEvent = eventFromUrl || eventPreference;
+    const completedCount = eventProfile.completedCategories?.length || 0;
+
     const categoryCounts = useMemo(() => {
         const counts = {};
         vendors.forEach((v) => {
+            if (!vendorFitsEvent(v, activeEvent)) return;
             const type = v.type;
             counts[type] = (counts[type] || 0) + 1;
         });
         return counts;
-    }, [vendors]);
-
-    const activeEvent = eventFromUrl || eventPreference;
-    const completedCount = eventProfile.completedCategories?.length || 0;
+    }, [vendors, activeEvent]);
 
     return (
         <div className="vendors-hub">

@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import BrandMark from '@/components/BrandMark';
+import AudienceTabs from '@/components/AudienceTabs';
+import VendorJoinForm from '@/components/VendorJoinForm';
 
-export default function RegisterPage() {
+function RegisterInner() {
     const { register } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const [audience, setAudience] = useState(searchParams.get('as') === 'vendor' ? 'vendor' : 'customer');
     const [formData, setFormData] = useState({ name: '', username: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -29,6 +33,77 @@ export default function RegisterPage() {
         }
     };
 
+    const isVendor = audience === 'vendor';
+
+    return (
+        <>
+            <h2>{isVendor ? 'הרשמת ספקים' : 'יצירת חשבון'}</h2>
+            <p className="auth-sub">
+                {isVendor
+                    ? 'השאירו פרטים — נחזור אליכם לגבי הצטרפות ל־Fiesta.'
+                    : 'שם משתמש וסיסמה — ואתם בפנים. השימוש ב־Fiesta תמיד בחינם.'}
+            </p>
+            <AudienceTabs value={audience} onChange={setAudience} id="register-audience" />
+
+            {isVendor ? (
+                <VendorJoinForm submitLabel="שלחו ונתחיל" />
+            ) : (
+                <>
+                    {error && <div className="auth-error">{error}</div>}
+
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="form-group">
+                            <label htmlFor="reg-name">שם לתצוגה (אופציונלי)</label>
+                            <input
+                                id="reg-name"
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="לדוגמה: נועה ויוסי"
+                                autoComplete="name"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="reg-username">שם משתמש</label>
+                            <input
+                                id="reg-username"
+                                type="text"
+                                value={formData.username}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                placeholder="בחרו שם ייחודי"
+                                required
+                                autoComplete="username"
+                                autoFocus
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="reg-password">סיסמה</label>
+                            <input
+                                id="reg-password"
+                                type="password"
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                placeholder="לפחות 4 תווים"
+                                required
+                                autoComplete="new-password"
+                            />
+                        </div>
+
+                        <button type="submit" className="btn btn-primary full-width" disabled={loading}>
+                            {loading ? 'יוצרים חשבון...' : 'להרשמה והתחברות'}
+                        </button>
+                    </form>
+                    <p className="auth-switch">
+                        כבר יש לכם חשבון?{' '}
+                        <Link href="/login">התחברות</Link>
+                    </p>
+                </>
+            )}
+        </>
+    );
+}
+
+export default function RegisterPage() {
     return (
         <div className="auth-page">
             <motion.div
@@ -43,59 +118,9 @@ export default function RegisterPage() {
                     </Link>
                 </div>
                 <BrandMark variant="auth" className="auth-brand" />
-                <h2>יצירת חשבון</h2>
-                <p className="auth-sub">
-                    שם משתמש וסיסמה — ואתם בפנים. השימוש ב־Fiesta תמיד בחינם.
-                </p>
-
-                {error && <div className="auth-error">{error}</div>}
-
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <div className="form-group">
-                        <label htmlFor="reg-name">שם לתצוגה (אופציונלי)</label>
-                        <input
-                            id="reg-name"
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            placeholder="לדוגמה: נועה ויוסי"
-                            autoComplete="name"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="reg-username">שם משתמש</label>
-                        <input
-                            id="reg-username"
-                            type="text"
-                            value={formData.username}
-                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                            placeholder="בחרו שם ייחודי"
-                            required
-                            autoComplete="username"
-                            autoFocus
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="reg-password">סיסמה</label>
-                        <input
-                            id="reg-password"
-                            type="password"
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            placeholder="לפחות 4 תווים"
-                            required
-                            autoComplete="new-password"
-                        />
-                    </div>
-
-                    <button type="submit" className="btn btn-primary full-width" disabled={loading}>
-                        {loading ? 'יוצרים חשבון...' : 'להרשמה והתחברות'}
-                    </button>
-                </form>
-                <p className="auth-switch">
-                    כבר יש לכם חשבון?{' '}
-                    <Link href="/login">התחברות</Link>
-                </p>
+                <Suspense fallback={<p style={{ textAlign: 'center' }}>טוען...</p>}>
+                    <RegisterInner />
+                </Suspense>
             </motion.div>
             <style jsx>{`
                 .auth-page {
@@ -129,7 +154,7 @@ export default function RegisterPage() {
                     justify-content: center;
                     margin: 0 auto 10px;
                 }
-                .auth-card h2 {
+                .auth-card :global(h2) {
                     text-align: center;
                     color: var(--text-dark);
                     margin: 0 0 8px;
@@ -142,7 +167,7 @@ export default function RegisterPage() {
                     color: var(--text-light);
                     font-size: 0.92rem;
                     line-height: 1.55;
-                    margin: 0 0 28px;
+                    margin: 0 0 16px;
                 }
                 .auth-form {
                     display: flex;

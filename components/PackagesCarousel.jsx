@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 import { getVendorDisplayPrice, getPackages } from '@/lib/vendorPrice';
 import { getCategoryLabel } from '@/lib/vendorCategories';
 import { resolveVendorImage } from '@/lib/vendorImage';
+import { filterVendorsForEvent } from '@/lib/eventTypes';
 
 /** Build carousel slides from real vendors that have a photo. */
-function buildFeaturedVendors(vendors) {
+function buildFeaturedVendors(vendors, eventType) {
     return (vendors || [])
         .filter((v) => v?.id && v?.name && resolveVendorImage(v.image, ''))
         .map((v) => {
-            const priceInfo = getVendorDisplayPrice(v);
-            const packages = getPackages(v);
+            const priceInfo = getVendorDisplayPrice(v, eventType);
+            const packages = getPackages(v, eventType);
             const topPackage = packages[0];
             return {
                 id: v.id,
@@ -34,15 +36,17 @@ export default function PackagesCarousel() {
     const [slides, setSlides] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const { eventPreference } = useAuth();
 
     useEffect(() => {
         fetch('/api/vendors')
             .then((r) => r.json())
             .then((data) => {
-                setSlides(buildFeaturedVendors(Array.isArray(data) ? data : []));
+                const all = Array.isArray(data) ? data : [];
+                setSlides(buildFeaturedVendors(filterVendorsForEvent(all, eventPreference), eventPreference));
             })
             .catch(() => setSlides([]));
-    }, []);
+    }, [eventPreference]);
 
     useEffect(() => {
         if (slides.length <= 1 || isPaused) return;

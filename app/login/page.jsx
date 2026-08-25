@@ -6,12 +6,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import BrandMark from '@/components/BrandMark';
+import AudienceTabs from '@/components/AudienceTabs';
+import VendorJoinForm from '@/components/VendorJoinForm';
 
-function LoginForm() {
+function LoginInner() {
     const { login, isAdmin, user } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get('next') || searchParams.get('redirect') || '/profile';
+    const [audience, setAudience] = useState(searchParams.get('as') === 'vendor' ? 'vendor' : 'customer');
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -75,45 +78,61 @@ function LoginForm() {
         );
     }
 
+    const isVendor = audience === 'vendor';
+
     return (
         <>
-            {error && (
-                <div className="auth-error">{error}</div>
-            )}
-            <form onSubmit={handleSubmit} className="auth-form">
-                <div className="form-group">
-                    <label htmlFor="login-username">שם משתמש</label>
-                    <input
-                        id="login-username"
-                        type="text"
-                        value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        placeholder="לדוגמה: noa_2026"
-                        autoComplete="username"
-                        autoFocus
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="login-password">סיסמה</label>
-                    <input
-                        id="login-password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        placeholder="הסיסמה שלכם"
-                        required
-                        autoComplete="current-password"
-                    />
-                </div>
-                <button type="submit" className="btn btn-primary full-width" disabled={loading}>
-                    {loading ? 'מתחברים...' : 'התחברות'}
-                </button>
-            </form>
-            <p className="auth-switch">
-                עדיין אין לכם חשבון?{' '}
-                <Link href="/register">הרשמה מהירה</Link>
+            <h2>{isVendor ? 'ספקים, ברוכים הבאים' : 'ברוכים השבים'}</h2>
+            <p className="auth-sub">
+                {isVendor
+                    ? 'השאירו פרטים — צוות Fiesta יחזור אליכם לגבי הצטרפות לפלטפורמה.'
+                    : 'התחברו עם שם משתמש וסיסמה כדי לשמור מועדפים ולתכנן את האירוע'}
             </p>
+            <AudienceTabs value={audience} onChange={setAudience} id="login-audience" />
+
+            {isVendor ? (
+                <VendorJoinForm />
+            ) : (
+                <>
+                    {error && (
+                        <div className="auth-error">{error}</div>
+                    )}
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="form-group">
+                            <label htmlFor="login-username">שם משתמש</label>
+                            <input
+                                id="login-username"
+                                type="text"
+                                value={formData.username}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                placeholder="לדוגמה: noa_2026"
+                                autoComplete="username"
+                                autoFocus
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="login-password">סיסמה</label>
+                            <input
+                                id="login-password"
+                                type="password"
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                placeholder="הסיסמה שלכם"
+                                required
+                                autoComplete="current-password"
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-primary full-width" disabled={loading}>
+                            {loading ? 'מתחברים...' : 'התחברות'}
+                        </button>
+                    </form>
+                    <p className="auth-switch">
+                        עדיין אין לכם חשבון?{' '}
+                        <Link href="/register">הרשמה מהירה</Link>
+                    </p>
+                </>
+            )}
         </>
     );
 }
@@ -133,10 +152,8 @@ export default function LoginPage() {
                     </Link>
                 </div>
                 <BrandMark variant="auth" className="auth-brand" />
-                <h2>ברוכים השבים</h2>
-                <p className="auth-sub">התחברו עם שם משתמש וסיסמה כדי לשמור מועדפים ולתכנן את האירוע</p>
                 <Suspense fallback={<p style={{ textAlign: 'center' }}>טוען...</p>}>
-                    <LoginForm />
+                    <LoginInner />
                 </Suspense>
             </motion.div>
             <style jsx>{`
@@ -184,7 +201,7 @@ export default function LoginPage() {
                     color: var(--text-light);
                     font-size: 0.92rem;
                     line-height: 1.55;
-                    margin: 0 0 28px;
+                    margin: 0 0 16px;
                 }
                 .auth-card :global(.auth-form) {
                     display: flex;

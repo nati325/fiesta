@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useVendors } from '@/context/VendorContext';
 import AdminNav from '@/components/admin/AdminNav';
 import FileUploadField from '@/components/admin/FileUploadField';
+import EventTypesFields from '@/components/admin/EventTypesFields';
 import { VENDOR_CATEGORIES } from '@/lib/vendorCategories';
 import {
   QUICK_VENDOR_DEFAULTS,
@@ -95,7 +96,10 @@ export default function QuickAddVendorPage() {
       return;
     }
 
-    if (!form.price && !form.originalPrice) {
+    const hasEventPrice = (form.eventPrices || []).some(
+      (row) => String(row?.originalPrice || '').trim() || String(row?.price || '').trim()
+    );
+    if (!form.price && !form.originalPrice && !hasEventPrice) {
       alert('יש להזין מחיר מקורי או מחיר ללקוח');
       return;
     }
@@ -160,7 +164,7 @@ export default function QuickAddVendorPage() {
 
           <div className="vendor-form-grid-simple">
             <div className="crm-input-group">
-              <label>טלפון {form.type === 'venue' ? '*' : '(סודי)'}</label>
+              <label>וואטסאפ {form.type === 'venue' ? '*' : '(סודי)'}</label>
               <input
                 type="tel"
                 inputMode="tel"
@@ -172,6 +176,17 @@ export default function QuickAddVendorPage() {
               />
             </div>
             <div className="crm-input-group">
+              <label>טלפון להתקשר</label>
+              <input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={form.contactCall || ''}
+                onChange={(e) => setForm({ ...form, contactCall: e.target.value })}
+                placeholder="אם שונה מוואטסאפ"
+              />
+            </div>
+            <div className="crm-input-group">
               <label>אזור</label>
               <input
                 value={form.region}
@@ -180,6 +195,12 @@ export default function QuickAddVendorPage() {
               />
             </div>
           </div>
+
+          <EventTypesFields
+            eventTypes={form.eventTypes}
+            eventPrices={form.eventPrices}
+            onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+          />
 
           <div className="vendor-form-grid-simple">
             <div className="crm-input-group">

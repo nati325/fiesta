@@ -9,7 +9,7 @@ import {
   formatBudget,
   formatEventDate,
 } from '@/lib/eventJourney';
-import { getVendorDisplayPrice, parsePrice } from '@/lib/vendorPrice';
+import { getCartTotals } from '@/lib/cartTotals';
 import BrandMark from '@/components/BrandMark';
 
 const toShekels = (amount) => `₪${Math.round(amount).toLocaleString('he-IL')}`;
@@ -19,7 +19,7 @@ export default function MyEventPage() {
   const { vendors, cart, loading: vendorsLoading } = useVendors();
 
   const cartVendors = useMemo(
-    () => vendors.filter((v) => cart.includes(String(v.id))),
+    () => vendors.filter((v) => cart.includes(String(v.id || v._id || ''))),
     [vendors, cart],
   );
 
@@ -31,13 +31,7 @@ export default function MyEventPage() {
     [eventProfile.completedCategories, cartVendors],
   );
 
-  const totals = useMemo(() => cartVendors.reduce((acc, vendor) => {
-    const price = getVendorDisplayPrice(vendor);
-    return {
-      price: acc.price + (parsePrice(price.raw) || 0),
-      savings: acc.savings + (price.savings || 0),
-    };
-  }, { price: 0, savings: 0 }), [cartVendors]);
+  const totals = useMemo(() => getCartTotals(cartVendors), [cartVendors]);
 
   if (!eventReady) {
     return (
@@ -144,9 +138,9 @@ export default function MyEventPage() {
               {cartVendors.length > 0 ? (
                 <>
                   <p className="cart-count">{cartVendors.length} ספקים</p>
-                  {totals.price > 0 ? <p className="cart-total">{toShekels(totals.price)}</p> : null}
-                  {totals.savings > 0 ? (
-                    <p className="cart-save">חיסכון פוטנציאלי {toShekels(totals.savings)}</p>
+                  {totals.priceLabel ? <p className="cart-total">{totals.priceLabel}</p> : null}
+                  {totals.savingsMax > 0 ? (
+                    <p className="cart-save">חיסכון פוטנציאלי {totals.savingsLabel}</p>
                   ) : null}
                   <Link href="/cart" className="btn-secondary wide">פתחו את הסל</Link>
                 </>

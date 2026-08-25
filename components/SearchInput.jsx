@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
+import { vendorFitsEvent } from '@/lib/eventTypes';
 
 export default function SearchInput({ isCompact = false }) {
     const [query, setQuery] = useState('');
@@ -11,6 +13,7 @@ export default function SearchInput({ isCompact = false }) {
     const [vendors, setVendors] = useState([]);
     const wrapperRef = useRef(null);
     const router = useRouter();
+    const { eventPreference } = useAuth();
 
     const categories = [
         { type: 'dj', title: 'DJ ומוזיקה', icon: 'fa-music' },
@@ -44,11 +47,14 @@ export default function SearchInput({ isCompact = false }) {
         }
 
         const filteredCats = categories.filter(c => c.title.includes(query)).map(c => ({ ...c, isCategory: true }));
-        const filteredVendors = vendors.filter(v => v.name.toLowerCase().includes(query.toLowerCase())).map(v => ({ ...v, isVendor: true }));
+        const filteredVendors = vendors
+            .filter((v) => v.name.toLowerCase().includes(query.toLowerCase()))
+            .filter((v) => vendorFitsEvent(v, eventPreference))
+            .map((v) => ({ ...v, isVendor: true }));
         
         setSuggestions([...filteredCats, ...filteredVendors].slice(0, 6));
         setIsOpen(true);
-    }, [query, vendors]);
+    }, [query, vendors, eventPreference]);
 
     const handleSelect = (item) => {
         if (item.isCategory) {
